@@ -1,0 +1,71 @@
+#!/bin/bash
+
+if [ $# -eq 0 ];
+then
+
+	command='build'
+else
+
+	command=$1
+fi
+
+echo -n "Input package version: "
+read VER
+
+function build_package()
+{
+
+	clean_build_files
+
+	TPL_PATH=`pwd`
+
+	(
+		cd ./core
+
+		dh_make -p nxs-fw-${VER}_${VER} --email b.ershov@nixys.ru --single --templates ${TPL_PATH}/build-pkgs-tpls/debian --yes --createorig
+
+		echo -n > ./debian/nxs-fw-${VER}.install
+
+		for i in `find ./modules -type f -name "*.h"`;
+		do
+			a=`echo $i | sed 's/\.\/modules\///g' | xargs -n1 dirname`
+			echo "$i /usr/include/nxs-fw/${VER}/$a" >> ./debian/nxs-fw-${VER}.install
+		done
+
+		for i in `find ./objs -type f -name "*.a"`;
+		do
+			a=`echo $i | sed 's/\.\/objs\///g'`
+			echo "$i /usr/lib/nxs-fw/${VER}" >> ./debian/nxs-fw-${VER}.install
+		done
+
+		echo "./nxs-fw-mods-desc.conf /usr/share/nxs-fw/${VER}" >> ./debian/nxs-fw-${VER}.install
+
+		dpkg-buildpackage
+
+		rm -rf ./debian
+  )
+}
+
+function clean_build_files()
+{
+
+	rm nxs-fw-${VER}_${VER}-1_amd64.changes nxs-fw-${VER}_${VER}-1_amd64.deb  nxs-fw-${VER}_${VER}-1.debian.tar.xz nxs-fw-${VER}_${VER}-1.dsc nxs-fw-${VER}_${VER}.orig.tar.xz
+}
+
+case $command in
+
+	build)
+
+		build_package
+		;;
+
+	clean)
+
+		clean_build_files
+		;;
+
+	*)
+
+		echo "Unknown command: $command"
+		;;
+esac
