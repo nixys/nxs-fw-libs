@@ -32,10 +32,9 @@ function build_package()
 			echo "$i /usr/include/nxs-fw/${VER}/$a" >> ./debian/nxs-fw-${VER}.install
 		done
 
-		for i in `find ./objs -type f -name "*.a"`;
+		for a in `echo "libnxs-cfg-json.a libnxs-curl.a libnxs-general.a libnxs-json.a libnxs-mysql.a libnxs-ncurses.a libnxs-rest-api.a libnxs-xml.a"`;
 		do
-			a=`echo $i | sed 's/\.\/objs\///g'`
-			echo "$i /usr/lib/nxs-fw/${VER}" >> ./debian/nxs-fw-${VER}.install
+			echo "./objs/$a /usr/lib/nxs-fw/${VER}" >> ./debian/nxs-fw-${VER}.install
 		done
 
 		echo "./nxs-fw-mods-desc.conf /usr/share/nxs-fw/${VER}" >> ./debian/nxs-fw-${VER}.install
