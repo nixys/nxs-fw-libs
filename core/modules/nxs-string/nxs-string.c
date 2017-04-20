@@ -3,37 +3,37 @@
 #define NXS_STRING_MAX_UINT_BUF_SIZE		100
 #define NXS_STRING_MAX_DOUBLE_DECIMAL_DIG	16
 
-#define NXS_STRING_TMP_STR_SIZE				128
-#define NXS_STRING_FLOAT_STR_TPL			"%%%s%zu.%zuf"
-#define NXS_STRING_DOUBLE_STR_TPL			"%%%s%zu.%zulf"
-#define NXS_STRING_OCT_STR_TPL				"%%%s%zuo"
-#define NXS_STRING_HEX_STR_TPL				"%%%s%zux"
+#define NXS_STRING_TMP_STR_SIZE			128
+#define NXS_STRING_FLOAT_STR_TPL		"%%%s%zu.%zuf"
+#define NXS_STRING_DOUBLE_STR_TPL		"%%%s%zu.%zulf"
+#define NXS_STRING_OCT_STR_TPL			"%%%s%zuo"
+#define NXS_STRING_HEX_STR_TPL			"%%%s%zux"
 
-#define _NXS_STRING_OK						"nxs string ok"
-#define _NXS_STRING_ERROR_NOT_INIT			"nxs string error: string not initialized"
-#define _NXS_STRING_ERROR					"nxs string error"
-#define _NXS_STRING_ERROR_DST_SIZE			"nxs string error: dst string size exceeded"
-#define _NXS_STRING_ERROR_SRC_SIZE			"nxs string error: src string size exceeded"
-#define _NXS_STRING_ERROR_DST_LEN			"nxs string error: dst string len exceeded"
-#define _NXS_STRING_ERROR_SRC_LEN			"nxs string error: src string size exceeded"
-#define _NXS_STRING_ERROR_OFFSET			"nxs string error: offset size more then string len"
+#define _NXS_STRING_OK				"nxs string ok"
+#define _NXS_STRING_ERROR_NOT_INIT		"nxs string error: string not initialized"
+#define _NXS_STRING_ERROR			"nxs string error"
+#define _NXS_STRING_ERROR_DST_SIZE		"nxs string error: dst string size exceeded"
+#define _NXS_STRING_ERROR_SRC_SIZE		"nxs string error: src string size exceeded"
+#define _NXS_STRING_ERROR_DST_LEN		"nxs string error: dst string len exceeded"
+#define _NXS_STRING_ERROR_SRC_LEN		"nxs string error: src string size exceeded"
+#define _NXS_STRING_ERROR_OFFSET		"nxs string error: offset size more then string len"
 #define	_NXS_STRING_ERROR_NOT_CREATED		"nxs string error: string not created"
-#define	_NXS_STRING_ERROR_NULL_PTR			"nxs string error: string's or char's ptr is null"
+#define	_NXS_STRING_ERROR_NULL_PTR		"nxs string error: string's or char's ptr is null"
 #define	_NXS_STRING_ERROR_SPEC_UNKNOWN		"nxs string error: unknown specifier"
 #define	_NXS_STRING_ERROR_SPEC_OVERFLOW		"nxs string error: too many specifiers"
-#define	_NXS_STRING_ERROR_UNKNOWN			"nxs string error: unknown"
+#define	_NXS_STRING_ERROR_UNKNOWN		"nxs string error: unknown"
 
 #define nxs_string_check_not_created(str)	if(str->size == 0 || str->str == NULL){ \
-												return NXS_STRING_ERROR_NOT_CREATED; \
-											}
+							return NXS_STRING_ERROR_NOT_CREATED; \
+						}
 
 struct strftime_s
 {
 	char		_f;
-	int			o;
+	int		o;
 };
 
-static ssize_t				nxs_string_vprintf_core_dyn						(nxs_string_t *str, size_t offset, const char *fmt, va_list ap);
+static ssize_t					nxs_string_vprintf_core_dyn						(nxs_string_t *str, size_t offset, const char *fmt, va_list ap);
 static void					nxs_string_vprintf_uint							(nxs_string_t *str, nxs_bool_t sign, uint64_t ui64, u_char zero, size_t width, size_t precision);
 static void					nxs_string_vprintf_int							(nxs_string_t *str, int64_t i64, u_char zero, size_t width, size_t precision);
 
@@ -47,7 +47,7 @@ static void					nxs_string_vprintf_int							(nxs_string_t *str, int64_t i64, u_
 nxs_string_t *nxs_string_malloc(size_t size, u_char *new_str)
 {
 	nxs_string_t	*str = NULL;
-	size_t			s;
+	size_t		s;
 
 	str = nxs_calloc(str, sizeof(nxs_string_t));
 
@@ -102,9 +102,9 @@ void nxs_string_init(nxs_string_t *str)
 		return;
 	}
 
-	str->str = NULL;
-	str->size = 0;
-	str->len = 0;
+	str->str	= NULL;
+	str->size	= 0;
+	str->len	= 0;
 }
 
 /*
@@ -117,16 +117,16 @@ void nxs_string_init(nxs_string_t *str)
  */
 ssize_t nxs_string_init2(nxs_string_t *str, size_t size, u_char *new_str)
 {
-	ssize_t rc;
+	ssize_t	rc;
 
 	if(str == NULL){
 
 		return NXS_STRING_ERROR_NULL_PTR;
 	}
 
-	str->str = NULL;
-	str->size = 0;
-	str->len = 0;
+	str->str	= NULL;
+	str->size	= 0;
+	str->len	= 0;
 
 	if((rc = nxs_string_create(str, size, new_str)) < 0){
 
@@ -152,9 +152,9 @@ ssize_t nxs_string_init3(nxs_string_t *str, nxs_string_t *src)
 		return NXS_STRING_ERROR_NULL_PTR;
 	}
 
-	str->str = NULL;
-	str->size = 0;
-	str->len = 0;
+	str->str	= NULL;
+	str->size	= 0;
+	str->len	= 0;
 
 	if((rc = nxs_string_create(str, 0, nxs_string_str(src))) < 0){
 
@@ -1461,7 +1461,7 @@ u_char *nxs_string_get_substr(nxs_string_t *str, size_t offset)
  */
 u_char *nxs_string_find_substr_first(nxs_string_t *str, size_t offset, u_char *f_str, size_t f_str_len)
 {
-	size_t i, j;
+	size_t	i, j;
 
 	if(str == NULL || f_str == NULL){
 
@@ -1518,7 +1518,7 @@ u_char *nxs_string_find_substr_first(nxs_string_t *str, size_t offset, u_char *f
  */
 u_char *nxs_string_find_substr_last(nxs_string_t *str, size_t offset, u_char *f_str, size_t f_str_len)
 {
-	size_t i, j;
+	size_t	i, j;
 
 	if(str == NULL || f_str == NULL){
 
@@ -1640,8 +1640,8 @@ u_char *nxs_string_find_char_last(nxs_string_t *str, size_t offset, u_char c)
  */
 size_t nxs_string_subs(nxs_string_t *src, nxs_string_t *dst, nxs_string_t *f_str, nxs_string_t *d_str, size_t max_count)
 {
-	size_t			count, o;
-	u_char			*c;
+	size_t		count, o;
+	u_char		*c;
 	nxs_string_t	tmp, *s;
 
 	if(src == NULL || f_str == NULL || d_str == NULL){
@@ -1823,12 +1823,12 @@ ssize_t nxs_string_strftime(nxs_string_t *str, u_char *fmt, time_t t)
 	return nxs_string_printf_dyn(str, "%s", s);
 }
 
-ssize_t nxs_string_strftime_sec(nxs_string_t *str, u_char *fmt, time_t sec)
+ssize_t nxs_string_fmt_time_interval(nxs_string_t *str, u_char *fmt, time_t sec)
 {
-	u_int			i, j, o, s, v[4];
+	u_int		i, j, o, s, v[4];
 	nxs_string_t	_fmt;
-	ssize_t			rc;
-	nxs_bool_t		f;
+	ssize_t		rc;
+	nxs_bool_t	f;
 
 	struct strftime_s strftime_v[] =
 	{

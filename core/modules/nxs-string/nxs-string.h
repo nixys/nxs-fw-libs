@@ -290,16 +290,16 @@ u_char			nxs_string_get_char					(nxs_string_t *str, size_t pos);
 u_char			*nxs_string_get_substr				(nxs_string_t *str, size_t offset);
 u_char			*nxs_string_find_substr_first		(nxs_string_t *str, size_t offset, u_char *f_str, size_t f_str_len);
 u_char			*nxs_string_find_substr_last		(nxs_string_t *str, size_t offset, u_char *f_str, size_t f_str_len);
-u_char			*nxs_string_find_char_first			(nxs_string_t *str, size_t offset, u_char c);
-u_char			*nxs_string_find_char_last			(nxs_string_t *str, size_t offset, u_char c);
+u_char			*nxs_string_find_char_first				(nxs_string_t *str, size_t offset, u_char c);
+u_char			*nxs_string_find_char_last				(nxs_string_t *str, size_t offset, u_char c);
 size_t			nxs_string_subs						(nxs_string_t *src, nxs_string_t *dst, nxs_string_t *f_str, nxs_string_t *d_str, size_t max_count);
 u_char			*nxs_string_to_buf					(nxs_string_t *str, size_t offset, nxs_buf_t *buf);
-u_char			*nxs_string_strerror				(int nxs_str_errno);
+u_char			*nxs_string_strerror					(int nxs_str_errno);
 size_t			nxs_string_len						(nxs_string_t *str);
 size_t			nxs_string_size						(nxs_string_t *str);
 int				nxs_string_check_space				(nxs_string_t *str);
 ssize_t			nxs_string_strftime					(nxs_string_t *str, u_char *fmt, time_t t);
-ssize_t			nxs_string_strftime_sec				(nxs_string_t *str, u_char *fmt, time_t t);
+ssize_t			nxs_string_fmt_time_interval				(nxs_string_t *str, u_char *fmt, time_t t);
 
 /*
  * Экранирование символов.

@@ -1,1 +1,8 @@
 /.project
+/.autotools
+/.cproject
+/nxs-fw-**.changes
+/nxs-fw-**.deb
+/nxs-fw-**.debian.tar.xz
+/nxs-fw-**.dsc
+/nxs-fw-**.orig.tar.xz

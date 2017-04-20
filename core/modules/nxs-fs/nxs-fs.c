@@ -1,6 +1,6 @@
 #include <nxs-core/nxs-core.h>
 
-#define NXS_FS_BUF_SIZE			4096
+#define NXS_FS_BUF_SIZE		4096
 
 nxs_fs_dir_t *nxs_fs_opendir(nxs_string_t *path)
 {
@@ -26,7 +26,7 @@ int nxs_fs_fclose(nxs_fs_file_t *fp)
 	return fclose((FILE *)fp);
 }
 
-int	nxs_fs_mkdir(nxs_string_t *path, mode_t mode)
+int nxs_fs_mkdir(nxs_string_t *path, mode_t mode)
 {
 
 	if(path == NULL){
@@ -48,8 +48,8 @@ int	nxs_fs_mkdir(nxs_string_t *path, mode_t mode)
 
 ssize_t nxs_fs_write_buf(int fd, nxs_buf_t *buf)
 {
-	u_char	*b;
-	size_t	eb;
+	u_char		*b;
+	size_t		eb;
 
 	if(buf == NULL){
 
@@ -66,7 +66,7 @@ ssize_t nxs_fs_write_buf(int fd, nxs_buf_t *buf)
 
 ssize_t nxs_fs_write_buf_n(int fd, nxs_buf_t *buf, size_t n)
 {
-	u_char	*b;
+	u_char		*b;
 
 	if(buf == NULL){
 
@@ -89,9 +89,9 @@ ssize_t nxs_fs_write_buf_n(int fd, nxs_buf_t *buf, size_t n)
 
 ssize_t nxs_fs_read_buf(int fd, nxs_buf_t *buf)
 {
-	u_char	*b;
-	size_t	eb;
-	ssize_t	rc;
+	u_char		*b;
+	size_t		eb;
+	ssize_t		rc;
 
 	if(buf == NULL){
 
@@ -117,8 +117,8 @@ ssize_t nxs_fs_read_buf(int fd, nxs_buf_t *buf)
 
 ssize_t nxs_fs_read_buf_n(int fd, nxs_buf_t *buf, size_t n)
 {
-	u_char	*b;
-	ssize_t	rc;
+	u_char		*b;
+	ssize_t		rc;
 
 	if(buf == NULL){
 
@@ -161,7 +161,7 @@ ssize_t nxs_fs_read_buf_n(int fd, nxs_buf_t *buf, size_t n)
  */
 ssize_t nxs_fs_write_file(nxs_string_t *path, nxs_buf_t *buf, mode_t mode)
 {
-	int			fd;
+	int		fd;
 	ssize_t		bc;
 
 	if((fd = open((char *)nxs_string_str(path), O_WRONLY | O_CREAT | O_TRUNC, mode)) < 0){
@@ -184,7 +184,7 @@ ssize_t nxs_fs_write_file(nxs_string_t *path, nxs_buf_t *buf, mode_t mode)
 
 ssize_t nxs_fs_write_file_n(nxs_string_t *path, nxs_buf_t *buf, size_t n, mode_t mode)
 {
-	int			fd;
+	int		fd;
 	ssize_t		bc;
 
 	if((fd = open((char *)nxs_string_str(path), O_WRONLY | O_CREAT | O_TRUNC, mode)) < 0){
@@ -217,7 +217,7 @@ ssize_t nxs_fs_write_file_n(nxs_string_t *path, nxs_buf_t *buf, size_t n, mode_t
  */
 ssize_t nxs_fs_append_file(nxs_string_t *path, nxs_buf_t *buf, mode_t mode)
 {
-	int			fd;
+	int		fd;
 	ssize_t		bc;
 
 	if((fd = open((char *)nxs_string_str(path), O_WRONLY | O_CREAT | O_APPEND, mode)) < 0){
@@ -240,7 +240,7 @@ ssize_t nxs_fs_append_file(nxs_string_t *path, nxs_buf_t *buf, mode_t mode)
 
 ssize_t nxs_fs_append_file_n(nxs_string_t *path, nxs_buf_t *buf, size_t n, mode_t mode)
 {
-	int			fd;
+	int		fd;
 	ssize_t		bc;
 
 	if((fd = open((char *)nxs_string_str(path), O_WRONLY | O_CREAT | O_APPEND, mode)) < 0){
@@ -274,7 +274,7 @@ ssize_t nxs_fs_append_file_n(nxs_string_t *path, nxs_buf_t *buf, size_t n, mode_
  */
 ssize_t nxs_fs_read_file_to_buf(nxs_string_t *path, nxs_buf_t *buf)
 {
-	int			fd;
+	int		fd;
 	ssize_t		bc;
 
 	if((fd = open((char *)nxs_string_str(path), O_RDONLY)) < 0){
@@ -297,7 +297,7 @@ ssize_t nxs_fs_read_file_to_buf(nxs_string_t *path, nxs_buf_t *buf)
 
 ssize_t nxs_fs_read_file_to_buf_n(nxs_string_t *path, nxs_buf_t *buf, size_t n)
 {
-	int			fd;
+	int		fd;
 	ssize_t		bc;
 
 	if((fd = open((char *)nxs_string_str(path), O_RDONLY)) < 0){
@@ -324,7 +324,7 @@ ssize_t nxs_fs_read_file_to_buf_n(nxs_string_t *path, nxs_buf_t *buf, size_t n)
  */
 ssize_t nxs_fs_read_file_to_str(nxs_string_t *path, nxs_string_t *str)
 {
-	int			fd;
+	int		fd;
 	ssize_t		bc;
 	u_char		buf[NXS_FS_BUF_SIZE];
 
@@ -364,10 +364,10 @@ ssize_t nxs_fs_read_file_to_str(nxs_string_t *path, nxs_string_t *str)
 
 void nxs_fs_dirent_init(nxs_fs_dirent_t *entry)
 {
-	entry->d_ino = 0;
-	entry->d_off = 0;
-	entry->d_reclen = 0;
-	entry->d_type = 0;
+	entry->d_ino	= 0;
+	entry->d_off	= 0;
+	entry->d_reclen	= 0;
+	entry->d_type	= 0;
 
 	entry->d_name = nxs_string_malloc(NXS_FS_D_NAME_SIZE, NULL);
 }
@@ -401,10 +401,10 @@ int nxs_fs_readdir(nxs_fs_dir_t *dir, nxs_fs_dirent_t *entry, int mode_set)
 
 			case NXS_FS_MODE_SET_ALL:
 
-				entry->d_ino = dir_entry->d_ino;
-				entry->d_off = dir_entry->d_off;
-				entry->d_reclen = dir_entry->d_reclen;
-				entry->d_type = dir_entry->d_type;
+				entry->d_ino	= dir_entry->d_ino;
+				entry->d_off	= dir_entry->d_off;
+				entry->d_reclen	= dir_entry->d_reclen;
+				entry->d_type	= dir_entry->d_type;
 
 				nxs_string_char_cpy(entry->d_name, NXS_STRING_NO_OFFSET, (u_char *)dir_entry->d_name);
 
@@ -416,10 +416,10 @@ int nxs_fs_readdir(nxs_fs_dir_t *dir, nxs_fs_dirent_t *entry, int mode_set)
 
 				if(strcmp(dir_entry->d_name,".")&&strcmp(dir_entry->d_name,"..")){
 
-					entry->d_ino = dir_entry->d_ino;
-					entry->d_off = dir_entry->d_off;
-					entry->d_reclen = dir_entry->d_reclen;
-					entry->d_type = dir_entry->d_type;
+					entry->d_ino	= dir_entry->d_ino;
+					entry->d_off	= dir_entry->d_off;
+					entry->d_reclen	= dir_entry->d_reclen;
+					entry->d_type	= dir_entry->d_type;
 
 					nxs_string_char_cpy(entry->d_name, NXS_STRING_NO_OFFSET, (u_char *)dir_entry->d_name);
 
@@ -430,10 +430,10 @@ int nxs_fs_readdir(nxs_fs_dir_t *dir, nxs_fs_dirent_t *entry, int mode_set)
 		}
 	}
 
-	entry->d_ino = 0;
-	entry->d_off = 0;
-	entry->d_reclen = 0;
-	entry->d_type = 0;
+	entry->d_ino	= 0;
+	entry->d_off	= 0;
+	entry->d_reclen	= 0;
+	entry->d_type	= 0;
 
 	nxs_string_clear(entry->d_name);
 
@@ -465,6 +465,12 @@ int nxs_fs_unlink(nxs_string_t *file)
 	return unlink((char *)nxs_string_get_substr(file, NXS_STRING_NO_OFFSET));
 }
 
+int nxs_fs_rmdir(nxs_string_t *dir)
+{
+
+	return rmdir((char *)nxs_string_get_substr(dir, NXS_STRING_NO_OFFSET));
+}
+
 /*
  * Копирование файла из src в dst
  *
@@ -479,10 +485,10 @@ int nxs_fs_cp(nxs_string_t *src, nxs_string_t *dst, mode_t mode, size_t bs, int 
 	nxs_buf_t	_buf, *b;
 	size_t		_bs;
 	ssize_t		rc_in, rc_out;
-	int			fd_in, fd_out, ec;
+	int		fd_in, fd_out, ec;
 
-	fd_in = -1;
-	fd_out = -1;
+	fd_in	= -1;
+	fd_out	= -1;
 
 	ec = NXS_FS_E_OK;
 
@@ -632,7 +638,7 @@ int nxs_fs_get_file_size(nxs_string_t *path, off_t *size)
 
 int nxs_fs_get_file_type(nxs_string_t *path, mode_t *type)
 {
-	int				rc;
+	int		rc;
 	nxs_fs_stat_t	file_stat;
 
 	if(path == NULL){
@@ -687,6 +693,7 @@ void nxs_fs_file_check_upd_init_clean(nxs_process_t *proc, nxs_fs_file_check_t *
 
 	fc->init	= NXS_FALSE;
 	fc->path	= NULL;
+
 	nxs_poll_init(&fc->pll);
 }
 
@@ -707,7 +714,6 @@ int nxs_fs_file_check_upd_init(nxs_process_t *proc, nxs_fs_file_check_t *fc, nxs
 	}
 
 	fc->init = NXS_FALSE;
-
 	fc->path = path;
 
 	nxs_poll_init(&fc->pll);
@@ -775,6 +781,7 @@ void nxs_fs_file_check_upd_free(nxs_process_t *proc, nxs_fs_file_check_t *fc)
 
 		inotify_rm_watch(fc->fd, fc->wd);
 		close(fc->fd);
+
 		fc->path = NULL;
 		nxs_poll_free(&fc->pll);
 
@@ -798,7 +805,7 @@ void nxs_fs_file_check_upd_free(nxs_process_t *proc, nxs_fs_file_check_t *fc)
  */
 int nxs_fs_file_check_upd(nxs_process_t *proc, nxs_fs_file_check_t *fc)
 {
-	int				rc;
+	int		rc;
 	nxs_fs_stat_t	f_stat;
 
 	if(fc == NULL){

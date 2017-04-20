@@ -1,7 +1,7 @@
 #ifndef _INCLUDE_NXS_CORE_H
 #define _INCLUDE_NXS_CORE_H
 
-#define NXS_VERSION	"nxs-fw v1.8.4 r91"
+#define NXS_VERSION	"1.8.5"
 
 #define	_NXS_ERRNO_UNKNOWN				(u_char *)"unknown error"
 
