@@ -907,10 +907,11 @@ static void nxs_rest_api_parse_headers(nxs_array_t *uri_headers, struct evhttp_r
 
 static nxs_rest_api_err_t nxs_rest_api_handler_exec(nxs_rest_api_ctx_t *ctx, nxs_rest_api_request_t *req, int *http_status)
 {
-	nxs_rest_api_handler_t				*h;
-	nxs_string_t						*r_h;
+	nxs_rest_api_handler_t			*h;
+	nxs_string_t				*r_h, uri;
 	nxs_rest_api_common_cmd_type_t		r_type;
-	size_t								part_count;
+	size_t					part_count, i;
+	nxs_rest_api_err_t			rc;
 
 	if(nxs_list_count(&ctx->handlers) == 0){
 
@@ -922,26 +923,40 @@ static nxs_rest_api_err_t nxs_rest_api_handler_exec(nxs_rest_api_ctx_t *ctx, nxs
 		return NXS_REST_API_E_EMPTY;
 	}
 
+	rc = NXS_REST_API_E_ERR;
+
+	nxs_string_init(&uri);
+
 	r_type = req->cmd_type;
 
-	r_h = nxs_array_get(&req->uri_in_parts, 0);
+	for(i = 0; i < part_count; i++){
 
-	for(h = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, &ctx->handlers); h != NULL; h = nxs_list_ptr_next(&ctx->handlers)){
+		r_h = nxs_array_get(&req->uri_in_parts, i);
 
-		if(nxs_string_cmp(&h->handler_name, 0, r_h, 0) == NXS_STRING_CMP_EQ && r_type == h->cmd_type){
+		nxs_string_cat_dyn(&uri, r_h);
 
-			if(h->fixed_name == NXS_YES && part_count > 1){
+		for(h = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, &ctx->handlers); h != NULL; h = nxs_list_ptr_next(&ctx->handlers)){
 
-				continue;
+			if(nxs_string_cmp(&h->handler_name, 0, &uri, 0) == NXS_STRING_CMP_EQ && r_type == h->cmd_type){
+
+				if(h->fixed_name == NXS_YES && (part_count - i) > 1){
+
+					continue;
+				}
+
+				*http_status = h->handl_func(ctx, req, h->user_ctx);
+
+				rc = NXS_REST_API_E_OK;
+				goto error;
 			}
-
-			*http_status = h->handl_func(ctx, req, h->user_ctx);
-
-			return NXS_REST_API_E_OK;
 		}
 	}
 
-	return NXS_REST_API_E_ERR;
+error:
+
+	nxs_string_free(&uri);
+
+	return rc;
 }
 
 static void nxs_rest_api_handler_free(nxs_rest_api_ctx_t *ctx)
