@@ -33,6 +33,9 @@ struct nxs_array_s
 	void		*el;
 };
 
+#define nxs_array_init2(array, type) \
+		nxs_array_init(array, 0, sizeof(type), 1)
+
 nxs_array_t		*nxs_array_malloc		(u_int nalloc, size_t size, u_int step);
 void			*nxs_array_destroy		(nxs_array_t *array);
 void			nxs_array_init			(nxs_array_t *array, u_int nalloc, size_t size, u_int step);
