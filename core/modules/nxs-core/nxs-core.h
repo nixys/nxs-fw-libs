@@ -7,11 +7,11 @@
 
 #define	_NXS_ERRNO_UNKNOWN	(u_char *)"unknown error"
 
-#define NXS_FALSE	0
-#define NXS_TRUE	1
+#define NXS_FALSE		0
+#define NXS_TRUE		1
 
-#define NXS_NO		0
-#define NXS_YES		1
+#define NXS_NO			0
+#define NXS_YES			1
 
 /*
  * Common includes
@@ -173,12 +173,12 @@ typedef struct		nxs_crypt_gost_el_s				nxs_crypt_gost_el_t;
 
 
 /* nxs-metadata.h */
-typedef				unsigned char				nxs_metadata_v_t;
+typedef			unsigned char					nxs_metadata_v_t;
 typedef	struct		nxs_metadata_s					nxs_metadata_t;
 
 
 /* nxs-net.h */
-typedef				u_int32_t				nxs_net_hdr_f_t;
+typedef			u_int32_t					nxs_net_hdr_f_t;
 typedef enum		nxs_net_sock_type_e				nxs_net_sock_type_t;
 typedef	struct		nxs_net_server_s				nxs_net_server_t;
 typedef	struct		nxs_net_unix_server_s				nxs_net_unix_server_t;
