@@ -456,7 +456,7 @@ ssize_t				nxs_string_cpy_dyn			(nxs_string_t *dst, size_t offset_dst, nxs_strin
 
 
 /**
- * @brief Copies specified number \b n of characters from a source string \b src with offset \b offset_src to destination
+ * @brief Copies at most \b n of characters from a source string \b src with offset \b offset_src to destination
  * string \b dst with offset \b offset_dst.
  *
  * @param str Pointer to the destination string.
@@ -470,12 +470,11 @@ ssize_t				nxs_string_cpy_dyn			(nxs_string_t *dst, size_t offset_dst, nxs_strin
  * * \b NXS_STRING_ERROR_OFFSET - If \b offset_dst is greater than the length of \b dst.
  * * \b NXS_STRING_ERROR_NULL_PTR - If either \b dst or \b src is a null pointer.
  * * \b NXS_STRING_ERROR_DST_SIZE - If the result size of \b dst is greater than its possible size.
- * * \b NXS_STRING_ERROR_SRC_SIZE - If \b n starting from \b offset_src is more than its size.
  */
 ssize_t				nxs_string_ncpy				(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n);
 
 /**
- * @brief Copies specified number \b n of characters from a source string \b src with offset \b offset_src to destination
+ * @brief Copies at most \b n of characters from a source string \b src with offset \b offset_src to destination
  * string \b dst with offset \b offset_dst, dynamically increasing the size of the destination string \b dst if it's necessary.
  *
  * If the result size of \b dst is greater than its possible size, \b dst will be resized by calling nxs_string_resize().
@@ -491,7 +490,6 @@ ssize_t				nxs_string_ncpy				(nxs_string_t *dst, size_t offset_dst, nxs_string_
  * * \b NXS_STRING_ERROR_OFFSET - If \b offset_dst is greater than the length of \b dst.
  * * \b NXS_STRING_ERROR_NULL_PTR - If either \b dst or \b src is a null pointer.
  * * \b NXS_STRING_ERROR_DST_SIZE - If the result size of \b dst is greater than its possible size.
- * * \b NXS_STRING_ERROR_SRC_SIZE - If \b n starting from \b offset_src is more than its size.
  */
 ssize_t				nxs_string_ncpy_dyn			(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n);
 
@@ -537,7 +535,6 @@ ssize_t				nxs_string_cat_dyn			(nxs_string_t *dst, nxs_string_t *src);
  * @return
  * * On success, the new length value of \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b dst or \b src is a null pointer.
- * * \b NXS_STRING_ERROR_SRC_SIZE	- If \n n greater than length of \b src string
  * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b dst is greater than its possible size.
  */
 ssize_t				nxs_string_ncat				(nxs_string_t *dst, nxs_string_t *src, size_t n);
@@ -555,7 +552,6 @@ ssize_t				nxs_string_ncat				(nxs_string_t *dst, nxs_string_t *src, size_t n);
  * @return
  * * On success, the new length value of \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b dst or \b src is a null pointer.
- * * \b NXS_STRING_ERROR_SRC_SIZE	- If \n n greater than length of \b src string
  */
 ssize_t				nxs_string_ncat_dyn			(nxs_string_t *dst, nxs_string_t *src, size_t n);
 
