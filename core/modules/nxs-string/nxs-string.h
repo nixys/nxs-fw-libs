@@ -421,9 +421,7 @@ ssize_t				nxs_string_printf2_dyn			(nxs_string_t *str, size_t offset, const cha
 ssize_t				nxs_string_vprintf_dyn			(nxs_string_t *str, const char *fmt, va_list ap);
 
 /**
- * @brief Copies the data from a source string beginning from a specified index to destination string beginning from a specified index, dynamically increasing the size of the destination string if it's necessary.
- *
- * Copies string \b src beginning from  \b offset_src index to string \b dst beginning from \b offset_dst index.
+ * @brief Copies the data from a source string \b src with offset \b offset_src to destination string \b dst with offset \b offset_dst.
  *
  * @param dst Pointer to the destination string.
  * @param offset_dst Offset from the beginning of \b dst.
@@ -439,9 +437,8 @@ ssize_t				nxs_string_vprintf_dyn			(nxs_string_t *str, const char *fmt, va_list
 ssize_t				nxs_string_cpy				(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src);
 
 /**
- * @brief Copies the data from a source string beginning from a specified index to destination string beginning from a specified index, dynamically increasing the size of the destination string if it's necessary.
- *
- * Copies string \b src beginning from  \b offset_src index to string \b dst beginning from \b offset_dst index.
+ * @brief Copies the data from a source string \b src with offset \b offset_src to destination string \b dst with offset \b offset_dst,
+ * dynamically increasing the size of the destination string \b dst if it's necessary.
  *
  * If the result size of \b dst is greater than its possible size, \b dst will be resized by calling nxs_string_resize().
  *
@@ -459,9 +456,8 @@ ssize_t				nxs_string_cpy_dyn			(nxs_string_t *dst, size_t offset_dst, nxs_strin
 
 
 /**
- * @brief Copies the values of a specified number of characters from the source string, beginning from a specified index, to the destination string, beginning from a specified index.
- *
- * Copies the values of \b n bytes of \b src, beginning from \b offset_src index to \b dst beginning from \b offset_dst index.
+ * @brief Copies specified number \b n of characters from a source string \b src with offset \b offset_src to destination
+ * string \b dst with offset \b offset_dst.
  *
  * @param str Pointer to the destination string.
  * @param offset_dst Offset from the beginning of \b dst.
@@ -479,9 +475,8 @@ ssize_t				nxs_string_cpy_dyn			(nxs_string_t *dst, size_t offset_dst, nxs_strin
 ssize_t				nxs_string_ncpy				(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n);
 
 /**
- * @brief Copies the values of a specified number of characters from the source string with specified offset to the destination string with specified offset, dynamically increasing the size of the destination string if it's necessary..
- *
- * Copies the values of \b n bytes of \b src, beginning from \b offset_src index to \b dst beginning from \b offset_dst index.
+ * @brief Copies specified number \b n of characters from a source string \b src with offset \b offset_src to destination
+ * string \b dst with offset \b offset_dst, dynamically increasing the size of the destination string \b dst if it's necessary.
  *
  * If the result size of \b dst is greater than its possible size, \b dst will be resized by calling nxs_string_resize().
  *
@@ -491,13 +486,12 @@ ssize_t				nxs_string_ncpy				(nxs_string_t *dst, size_t offset_dst, nxs_string_
  * @param offset_src Offset from the beginning of \b src.
  * @param n Number of characters to copy.
  *
-  * @return
+ * @return
  * * On success, the new length value of \b dst.
  * * \b NXS_STRING_ERROR_OFFSET - If \b offset_dst is greater than the length of \b dst.
  * * \b NXS_STRING_ERROR_NULL_PTR - If either \b dst or \b src is a null pointer.
  * * \b NXS_STRING_ERROR_DST_SIZE - If the result size of \b dst is greater than its possible size.
  * * \b NXS_STRING_ERROR_SRC_SIZE - If \b n starting from \b offset_src is more than its size.
- * @version This function is available since v0.2-0 r13
  */
 ssize_t				nxs_string_ncpy_dyn			(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n);
 
@@ -534,7 +528,6 @@ ssize_t				nxs_string_cat				(nxs_string_t *dst, nxs_string_t *src);
  * @return
  * * On success, the new length value of \b dst.
  * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b dst or \b src is a null pointer.
- * @version This function is available since v0.2-0 r13
  */
 ssize_t				nxs_string_cat_dyn			(nxs_string_t *dst, nxs_string_t *src);
 
@@ -568,7 +561,6 @@ ssize_t				nxs_string_ncat				(nxs_string_t *dst, nxs_string_t *src, size_t n);
  * @return
  * * On success, the new length value of \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b dst or \b src is a null pointer.
- * @version This function is available since v0.2-0 r13
  */
 ssize_t				nxs_string_ncat_dyn			(nxs_string_t *dst, nxs_string_t *src, size_t n);
 
@@ -682,8 +674,6 @@ ssize_t				nxs_string_char_ncpy			(nxs_string_t *str, size_t offset, u_char *ch_
  * * On success, the new length value of \b str.
  * * \b NXS_STRING_ERROR_OFFSET - If \b offset is greater than the length of \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR - If either \b str or \b ch_str is a null pointer.
- *
- * @version This function is available since v0.2-0 r13
  */
 ssize_t				nxs_string_char_ncpy_dyn		(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n);
 
@@ -715,8 +705,6 @@ ssize_t				nxs_string_char_cat			(nxs_string_t *str, u_char *ch_str);
  * @return
  * * On success, the new length value of \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
- *
- * @version This function is available since v0.2-0 r13
  */
 ssize_t				nxs_string_char_cat_dyn			(nxs_string_t *str, u_char *ch_str);
 
@@ -750,8 +738,6 @@ ssize_t				nxs_string_char_ncat			(nxs_string_t *str, u_char *ch_str, size_t n);
  * @return
  * * On success, the new length value of \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
- *
- * @version This function is available since v0.2-0 r13
  */
 ssize_t				nxs_string_char_ncat_dyn		(nxs_string_t *str, u_char *ch_str, size_t n);
 
@@ -792,8 +778,6 @@ int				nxs_string_char_cmp			(nxs_string_t *str, size_t offset, u_char *ch_str);
  * * \b NXS_STRING_CMP_NE - If the compared strings are not equal.
  * * \b NXS_STRING_ERROR_OFFSET - If \b offset is greater than the length of \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
- *
- * @version This function was changed in v0.2-0 r13
  */
 int				nxs_string_char_ncmp			(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n);
 
@@ -821,8 +805,6 @@ ssize_t				nxs_string_char_add_char		(nxs_string_t *str, u_char c);
  * @return
  * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b str is greater than its possible size.
  * * \b NXS_STRING_ERROR_NULL_PTR	- If \b str is a null pointer.
- *
- * @version This function is available since v0.2-0 r13
  */
 ssize_t				nxs_string_char_add_char_dyn		(nxs_string_t *str, u_char c);
 
@@ -922,8 +904,6 @@ ssize_t				nxs_string_ins_char_dyn			(nxs_string_t *str, size_t pos, u_char c);
  * * On success, the new length value of \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR - If \b str is a null pointer.
  * * \b NXS_STRING_ERROR_DST_SIZE	- If \len is greater than the possible size of \b str.
- *
- * @version This function is available since v0.2-0 r13
  */
 ssize_t				nxs_string_set_len			(nxs_string_t *str, size_t len);
 
@@ -964,8 +944,6 @@ u_char				nxs_string_get_char			(nxs_string_t *str, size_t pos);
  * @return
  * * On success, a pointer to the substring.
  * * 0 - If \b str is a NULL pointer of \b offset is greater than its size.
- *
- * @version This function was changed in v0.2-0 r13
  */
 u_char				*nxs_string_get_substr			(nxs_string_t *str, size_t offset);
 
@@ -1083,8 +1061,6 @@ size_t				nxs_string_subs				(nxs_string_t *src, nxs_string_t *dst, nxs_string_t
  * * \b NULL
  *  * If either \b str or \b buf is a null pointer.
  *  * If \b offset is greater than the length of \b str.
- *
- * * @version This function is available since v0.2-0 r13
  */
 u_char				*nxs_string_to_buf			(nxs_string_t *str, size_t offset, nxs_buf_t *buf);
 
