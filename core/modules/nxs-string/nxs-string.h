@@ -499,12 +499,10 @@ ssize_t				nxs_string_ncpy_dyn			(nxs_string_t *dst, size_t offset_dst, nxs_stri
 /**
  * @brief Concatenates two strings.
  *
- * Concatenates \b dst and \b src.
+ * Appends the \b src string to the \b dst string.
  *
- * The result is saved to \b dst.
- *
- * @param dst Pointer to the first string.
- * @param src Pointer to the second string.
+ * @param dst Pointer to the destination string.
+ * @param src Pointer to the source string.
  *
  * @return
  * * On success, the new length value of \b dst.
@@ -514,16 +512,14 @@ ssize_t				nxs_string_ncpy_dyn			(nxs_string_t *dst, size_t offset_dst, nxs_stri
 ssize_t				nxs_string_cat				(nxs_string_t *dst, nxs_string_t *src);
 
 /**
- * @brief Concatenates two strings, dynamically increasing the size of the result string if it's necessary.
+ * @brief Concatenates two strings, dynamically increasing the size of the \b dst string if it's necessary.
  *
- * Concatenates \b dst and \b src.
- *
- * The result is saved to \b dst.
+ * Appends the \b src string to the \b dst string.
  *
  * If the result size of \b dst is greater than its possible size, \b dst will be resized by calling nxs_string_resize().
  *
- * @param dst Pointer to the first string.
- * @param src Pointer to the second string.
+ * @param dst Pointer to the destination string.
+ * @param src Pointer to the source string.
  *
  * @return
  * * On success, the new length value of \b dst.
@@ -532,9 +528,7 @@ ssize_t				nxs_string_cat				(nxs_string_t *dst, nxs_string_t *src);
 ssize_t				nxs_string_cat_dyn			(nxs_string_t *dst, nxs_string_t *src);
 
 /**
- * @brief Adds a specified number of bytes from the beginning of a source string to the end of a destination string.
- *
- * Concatenates \b dst and first \b n bytes of \b src.
+ * @brief Appends at most \n n characters from the \b src string to the \b dst string.
  *
  * @param dst Pointer to the first string.
  * @param src Pointer to the second string.
@@ -543,14 +537,14 @@ ssize_t				nxs_string_cat_dyn			(nxs_string_t *dst, nxs_string_t *src);
  * @return
  * * On success, the new length value of \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b dst or \b src is a null pointer.
+ * * \b NXS_STRING_ERROR_SRC_SIZE	- If \n n greater than length of \b src string
  * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b dst is greater than its possible size.
  */
 ssize_t				nxs_string_ncat				(nxs_string_t *dst, nxs_string_t *src, size_t n);
 
 /**
- * @brief Adds a specified number of bytes from the beginning of one string to the end of another, dynamically increasing the size of the result string if it's necessary.
- *
- * Concatenates \b dst and first \b n bytes of \b src, dynamically increasing the size of \b dst if it's necessary.
+ * @brief Appends at most \n n characters from the \b src string to the \b dst string,
+ * dynamically increasing the size of the string \b dst if it's necessary.
  *
  * If the result size of \b dst is greater than its possible size, \b dst will be resized by calling nxs_string_resize();
  *
@@ -561,6 +555,7 @@ ssize_t				nxs_string_ncat				(nxs_string_t *dst, nxs_string_t *src, size_t n);
  * @return
  * * On success, the new length value of \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b dst or \b src is a null pointer.
+ * * \b NXS_STRING_ERROR_SRC_SIZE	- If \n n greater than length of \b src string
  */
 ssize_t				nxs_string_ncat_dyn			(nxs_string_t *dst, nxs_string_t *src, size_t n);
 
