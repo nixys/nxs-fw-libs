@@ -1,9 +1,11 @@
 #ifndef _INCLUDE_NXS_CORE_H
 #define _INCLUDE_NXS_CORE_H
 
-#define NXS_VERSION	"1.8.6"
+// clang-format off
 
-#define	_NXS_ERRNO_UNKNOWN				(u_char *)"unknown error"
+#define NXS_VERSION		"1.8.7"
+
+#define	_NXS_ERRNO_UNKNOWN	(u_char *)"unknown error"
 
 #define NXS_FALSE	0
 #define NXS_TRUE	1
@@ -83,148 +85,148 @@
 #endif
 
 
-typedef				_Bool									nxs_bool_t;
+typedef			_Bool						nxs_bool_t;
 
 
 /* nxs-core.h */
-typedef struct		nxs_errors_s							nxs_errors_t;
+typedef struct		nxs_errors_s					nxs_errors_t;
 
 
 /* nxs-list.h */
-typedef struct		nxs_list_el_s							nxs_list_el_t;
-typedef struct		nxs_list_s 								nxs_list_t;
+typedef struct		nxs_list_el_s					nxs_list_el_t;
+typedef struct		nxs_list_s 					nxs_list_t;
 
 
 /* nxs-ilist.h */
 #ifdef USE_NXS_ILIST
-typedef struct		nxs_ilist_s								nxs_ilist_t;
+typedef struct		nxs_ilist_s					nxs_ilist_t;
 #endif
 
 /* nxs-stack.h */
-typedef struct		nxs_stack_el_s							nxs_stack_el_t;
-typedef struct		nxs_stack_s								nxs_stack_t;
+typedef struct		nxs_stack_el_s					nxs_stack_el_t;
+typedef struct		nxs_stack_s					nxs_stack_t;
 
 
 /* nxs-tree.h */
-typedef struct		nxs_tree_el_s							nxs_tree_el_t;
-typedef struct		nxs_tree_s								nxs_tree_t;
+typedef struct		nxs_tree_el_s					nxs_tree_el_t;
+typedef struct		nxs_tree_s					nxs_tree_t;
 
 
 /* nxs-array.h */
-typedef struct		nxs_array_s								nxs_array_t;
+typedef struct		nxs_array_s					nxs_array_t;
 
 
 /* nxs-string.h */
-typedef enum		nxs_string_escape_types_e				nxs_string_escape_types_t;
-typedef struct		nxs_string_s							nxs_string_t;
+typedef enum		nxs_string_escape_types_e			nxs_string_escape_types_t;
+typedef struct		nxs_string_s					nxs_string_t;
 
 
 /* nxs-wstring.h */
-typedef struct		nxs_wstring_s							nxs_wstring_t;
+typedef struct		nxs_wstring_s					nxs_wstring_t;
 
 
 /* nxs-buf.h */
-typedef struct		nxs_buf_s								nxs_buf_t;
+typedef struct		nxs_buf_s					nxs_buf_t;
 
 
 /* nxs-bchain.h */
-typedef struct		nxs_bchain_el_s							nxs_bchain_el_t;
-typedef struct		nxs_bchain_s							nxs_bchain_t;
+typedef struct		nxs_bchain_el_s					nxs_bchain_el_t;
+typedef struct		nxs_bchain_s					nxs_bchain_t;
 
 
 /* nxs-pipesem.h */
-typedef struct		nxs_pipesem_s							nxs_pipesem_t;
+typedef struct		nxs_pipesem_s					nxs_pipesem_t;
 
 
 /* nxs-log.h */
-typedef struct		nxs_log_s								nxs_log_t;
+typedef struct		nxs_log_s					nxs_log_t;
 
 
 /* nxs-args.h */
-typedef struct		nxs_args_shortopt_s						nxs_args_shortopt_t;
-typedef struct		nxs_args_s 								nxs_args_t;
+typedef struct		nxs_args_shortopt_s				nxs_args_shortopt_t;
+typedef struct		nxs_args_s 					nxs_args_t;
 
 
 /* nxs-proc.h */
-typedef struct		nxs_process_s 							nxs_process_t;
+typedef struct		nxs_process_s 					nxs_process_t;
 
 
 /* nxs-cfg.h */
-typedef	struct		nxs_cfg_par_s							nxs_cfg_par_t;
-typedef	struct		nxs_cfg_s								nxs_cfg_t;
+typedef	struct		nxs_cfg_par_s					nxs_cfg_par_t;
+typedef	struct		nxs_cfg_s					nxs_cfg_t;
 
 
 /* nxs-mysql.h */
 #ifdef USE_NXS_MYSQL
-typedef enum		nxs_mysql_err_e							nxs_mysql_err_t;
-typedef enum		nxs_mysql_errno_e						nxs_mysql_errno_t;
-typedef enum		nxs_mysql_query_type_e					nxs_mysql_query_type_t;
+typedef enum		nxs_mysql_err_e					nxs_mysql_err_t;
+typedef enum		nxs_mysql_errno_e				nxs_mysql_errno_t;
+typedef enum		nxs_mysql_query_type_e				nxs_mysql_query_type_t;
 
-typedef	struct		nxs_mysql_s								nxs_mysql_t;
-typedef	struct		nxs_mysql_res_s							nxs_mysql_res_t;
+typedef	struct		nxs_mysql_s					nxs_mysql_t;
+typedef	struct		nxs_mysql_res_s					nxs_mysql_res_t;
 #endif
 
 
 /* nxs-crypt-gost */
-typedef struct		nxs_crypt_gost_ctx_s					nxs_crypt_gost_ctx_t;
-typedef struct		nxs_crypt_gost_el_s						nxs_crypt_gost_el_t;
+typedef struct		nxs_crypt_gost_ctx_s				nxs_crypt_gost_ctx_t;
+typedef struct		nxs_crypt_gost_el_s				nxs_crypt_gost_el_t;
 
 
 /* nxs-metadata.h */
-typedef				unsigned char							nxs_metadata_v_t;
-typedef	struct		nxs_metadata_s							nxs_metadata_t;
+typedef				unsigned char				nxs_metadata_v_t;
+typedef	struct		nxs_metadata_s					nxs_metadata_t;
 
 
 /* nxs-net.h */
-typedef				u_int32_t								nxs_net_hdr_f_t;
-typedef enum		nxs_net_sock_type_e						nxs_net_sock_type_t;
-typedef	struct		nxs_net_server_s						nxs_net_server_t;
-typedef	struct		nxs_net_unix_server_s					nxs_net_unix_server_t;
-typedef struct		nxs_net_connect_s						nxs_net_connect_t;
-typedef	struct		nxs_net_opt_file_send_s					nxs_net_opt_file_send_t;
-typedef	struct		nxs_net_opt_file_recv_s					nxs_net_opt_file_recv_t;
+typedef				u_int32_t				nxs_net_hdr_f_t;
+typedef enum		nxs_net_sock_type_e				nxs_net_sock_type_t;
+typedef	struct		nxs_net_server_s				nxs_net_server_t;
+typedef	struct		nxs_net_unix_server_s				nxs_net_unix_server_t;
+typedef struct		nxs_net_connect_s				nxs_net_connect_t;
+typedef	struct		nxs_net_opt_file_send_s				nxs_net_opt_file_send_t;
+typedef	struct		nxs_net_opt_file_recv_s				nxs_net_opt_file_recv_t;
 
 
 /* nxs-poll.h */
-typedef struct		nxs_poll_s								nxs_poll_t;
+typedef struct		nxs_poll_s					nxs_poll_t;
 
 
 /* nxs-fs.h */
-typedef struct 		nxs_fs_dirent_s							nxs_fs_dirent_t;
-typedef struct 		nxs_fs_file_check_s						nxs_fs_file_check_t;
+typedef struct 		nxs_fs_dirent_s					nxs_fs_dirent_t;
+typedef struct 		nxs_fs_file_check_s				nxs_fs_file_check_t;
 
 
 /* nxs-ncurses.h */
 #ifdef USE_NXS_NCURSES
-typedef enum		nxs_ncurses_type_e						nxs_ncurses_type_t;
-typedef enum		nxs_ncurses_subtype_text_e				nxs_ncurses_subtype_text_t;
-typedef struct		nxs_ncurses_win_s						nxs_ncurses_win_t;
-typedef struct		nxs_ncurses_win_conf_s					nxs_ncurses_win_conf_t;
-typedef struct		nxs_ncurses_conf_text_s					nxs_ncurses_conf_text_t;
-typedef struct		nxs_ncurses_ctx_s						nxs_ncurses_ctx_t;
-typedef struct		nxs_ncurses_t_container_s				nxs_ncurses_t_container_t;
-typedef struct		nxs_ncurses_t_label_s					nxs_ncurses_t_label_t;
-typedef struct		nxs_ncurses_t_text_s					nxs_ncurses_t_text_t;
+typedef enum		nxs_ncurses_type_e				nxs_ncurses_type_t;
+typedef enum		nxs_ncurses_subtype_text_e			nxs_ncurses_subtype_text_t;
+typedef struct		nxs_ncurses_win_s				nxs_ncurses_win_t;
+typedef struct		nxs_ncurses_win_conf_s				nxs_ncurses_win_conf_t;
+typedef struct		nxs_ncurses_conf_text_s				nxs_ncurses_conf_text_t;
+typedef struct		nxs_ncurses_ctx_s				nxs_ncurses_ctx_t;
+typedef struct		nxs_ncurses_t_container_s			nxs_ncurses_t_container_t;
+typedef struct		nxs_ncurses_t_label_s				nxs_ncurses_t_label_t;
+typedef struct		nxs_ncurses_t_text_s				nxs_ncurses_t_text_t;
 #endif
 
 
 /* nxs-xml.h */
 #ifdef USE_NXS_XML
-typedef struct		nxs_xml_s								nxs_xml_t;
-typedef struct		nxs_xml_el_s							nxs_xml_el_t;
-typedef struct		nxs_xml_attr_s							nxs_xml_attr_t;
+typedef struct		nxs_xml_s					nxs_xml_t;
+typedef struct		nxs_xml_el_s					nxs_xml_el_t;
+typedef struct		nxs_xml_attr_s					nxs_xml_attr_t;
 #endif
 
 
 /* nxs-json.h */
 #ifdef USE_NXS_JSON
-typedef enum		nxs_json_type_e							nxs_json_type_t;
-typedef struct		nxs_json_s								nxs_json_t;
+typedef enum		nxs_json_type_e					nxs_json_type_t;
+typedef struct		nxs_json_s					nxs_json_t;
 
-typedef enum		nxs_cfg_json_state_e					nxs_cfg_json_state_t;
-typedef enum		nxs_cfg_json_type_e						nxs_cfg_json_type_t;
-typedef struct		nxs_cfg_json_par_s						nxs_cfg_json_par_t;
-typedef struct		nxs_cfg_json_s							nxs_cfg_json_t;
+typedef enum		nxs_cfg_json_state_e				nxs_cfg_json_state_t;
+typedef enum		nxs_cfg_json_type_e				nxs_cfg_json_type_t;
+typedef struct		nxs_cfg_json_par_s				nxs_cfg_json_par_t;
+typedef struct		nxs_cfg_json_s					nxs_cfg_json_t;
 #endif
 
 
@@ -234,18 +236,18 @@ typedef enum		nxs_rest_api_common_cmd_type_e			nxs_rest_api_common_cmd_type_t;
 
 /* nxs-rest-api.h */
 #ifdef USE_NXS_REST_API
-typedef enum		nxs_rest_api_err_e						nxs_rest_api_err_t;
-typedef enum		nxs_rest_api_format_err_e				nxs_rest_api_format_err_t;
+typedef enum		nxs_rest_api_err_e				nxs_rest_api_err_t;
+typedef enum		nxs_rest_api_format_err_e			nxs_rest_api_format_err_t;
 
-typedef struct		nxs_rest_api_ctx_s						nxs_rest_api_ctx_t;
-typedef struct		nxs_rest_api_request_s					nxs_rest_api_request_t;
+typedef struct		nxs_rest_api_ctx_s				nxs_rest_api_ctx_t;
+typedef struct		nxs_rest_api_request_s				nxs_rest_api_request_t;
 #endif
 
 
 /* nxs-curl.h */
 #ifdef USE_NXS_CURL
-typedef struct		nxs_curl_s								nxs_curl_t;
-typedef enum		nxs_curl_log_e							nxs_curl_log_t;
+typedef struct		nxs_curl_s					nxs_curl_t;
+typedef enum		nxs_curl_log_e					nxs_curl_log_t;
 #endif
 
 
@@ -255,12 +257,12 @@ typedef enum		nxs_curl_log_e							nxs_curl_log_t;
 
 struct nxs_errors_s
 {
-	int				_errno;
-	u_char			*text;
+	int		_errno;
+	u_char		*text;
 };
 
-#define nxs_error(rc, code, label)			rc = code; \
-											goto label;
+#define nxs_error(rc, code, label)	rc = code; \
+						goto label;
 
 /*
  * Nxs includes
