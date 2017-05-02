@@ -573,7 +573,6 @@ ssize_t nxs_string_cpy_dyn(nxs_string_t *dst, size_t offset_dst, nxs_string_t *s
  * Возвращаемые значения:
  * * Новая длина строки dst
  * * NXS_STRING_ERROR_OFFSET	- смещение offset_dst или offset_src больше длин соответствующих строк
- * * NXS_STRING_ERROR_SRC_SIZE	- количество байт n, которые требуется скопироваться со смещением offset_src превышает длину строки src
  * * NXS_STRING_ERROR_DST_SIZE	- результирующая длина строки dst больше, чем допустимый размер строки dst
  * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "dst" или "src" равен NULL
  */
@@ -597,7 +596,7 @@ ssize_t nxs_string_ncpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src,
 
 	if(offset_src + n > src->len){
 
-		return NXS_STRING_ERROR_SRC_SIZE;
+		n = src->len - offset_src;
 	}
 
 	if(n + 1 > dst->size - offset_dst){
@@ -681,7 +680,6 @@ ssize_t nxs_string_cat_dyn(nxs_string_t *dst, nxs_string_t *src)
  *
  * Возвращаемое значение:
  * * Новая длина строки dst
- * * NXS_STRING_ERROR_SRC_SIZE	- если требуемое количество байт 'n' превышает длину строки src
  * * NXS_STRING_ERROR_DST_SIZE	- если результирующий размер строки превышает допустимый для использования размер строки dst
  * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "dst" или "src" равен NULL
  */
@@ -695,7 +693,7 @@ ssize_t nxs_string_ncat(nxs_string_t *dst, nxs_string_t *src, size_t n)
 
 	if(n > src->len){
 
-		return NXS_STRING_ERROR_SRC_SIZE;
+		n = src->len;
 	}
 
 	if(dst->len + n + 1 > dst->size){
