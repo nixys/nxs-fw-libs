@@ -11,7 +11,9 @@
  *
  * <b>Initialize a string</b> - zero-initialize a string by setting nxs_string_s#str to NULL and nxs_string_s#len and nxs_string_s#size to 0.
  *
- * <b>Create a string</b> - allocate memory for a string and fill it with some data.
+ * <b>Create a string</b> - allocate memory for a string and fill it (if nessessary) with some data.
+ *
+ * <b>Clear a string</b> - clear a string by setting nxs_string_s#len to 0, nxs_string_s#str[0] to '\\0' and nxs_string_s#size is unchanged.
  *
  * Nxs-fw strings always end by character '\\0'.
  *
@@ -72,7 +74,7 @@ enum nxs_string_escape_types_e
 			nxs_string_printf2_dyn(str, nxs_string_len(str), msg)
 
 /**
- * @brief Allocates memory for a new string and fill ut with data from an u_char array.
+ * @brief Allocates memory for a new string and fills it with data from an u_char array.
  *
  * * If the pointer to \b new_str is NULL and the \b size is 0 - a pointer to the allocated and zero-initialized memory for struct nxs_string_t will be returned.
  * * If the pointer to \b new_str is NULL and the \b size is greater than 0 - a pointer to a zero-length string with determined size will be returned
@@ -90,8 +92,9 @@ nxs_string_t 			*nxs_string_malloc			(size_t size, u_char *new_str);
 /**
  * @brief Destroys a string.
  *
- * Sets the size and the length of the string to 0 and then frees the pointer to this string.
- * Use this function only if the string was created by nxs_string_malloc().
+ * Sets the nxs_string_s#size and nxs_string_s#len to 0, frees nxs_string_s#str and then frees the string pointed by \b str.
+ *
+ * @warning Use this function only if the string was created by nxs_string_malloc().
  *
  * @param str Pointer to the string to be destroyed.
  *
@@ -104,15 +107,15 @@ nxs_string_t			*nxs_string_destroy			(nxs_string_t *str);
  *
  * By calling this function, nxs_string_s#str is set to NULL, nxs_string_s#size and nxs_string_s#len are set to 0.
  *
- * If the string is declared as "nxs_string_t *str", make sure to allocate memory for it before calling this function.
+ * If the string is declared as "nxs_string_t *", make sure to allocate memory for it before calling this function.
  *
- * This function must be called only before the first use of a \b str.
+ * @warning This function must be called only before the first use of a \b str.
  *
  * Examples:
  * @code
  * ...
  *
- * nxs_string_t	str1;
+ * nxs_string_t str1;
  *
  * nxs_string_init(&str1);
  *
@@ -126,7 +129,7 @@ nxs_string_t			*nxs_string_destroy			(nxs_string_t *str);
  *
  * str2 = nxs_string_malloc(0, NULL);
  *
- * nxs_string_init(&str2);
+ * nxs_string_init(str2);
  *
  * ...
  *
@@ -139,15 +142,15 @@ nxs_string_t			*nxs_string_destroy			(nxs_string_t *str);
 void				nxs_string_init				(nxs_string_t *str);
 
 /**
- * @brief Zero-initializes a string and fills it with data from an u_char array
+ * @brief Zero-initializes a string and fills it with data from an u_char array.
  *
- * If the string is declared as "nxs_string_t *str", make sure to allocate memory for it before calling this function.
- *
- * This function must be called only before the first use of a \b str.
+ * If the string is declared as "nxs_string_t *", make sure to allocate memory for it before calling this function.
  *
  * The resultant string will be a copy of data in \b new_str
  *
  * This function is a conjunction of functions nxs_string_init() and nxs_string_create().
+ *
+ * @warning his function must be called only before the first use of a \b str.
  *
  * Examples:
  *
@@ -169,11 +172,11 @@ void				nxs_string_init				(nxs_string_t *str);
  * {
  * ...
  *
- * nxs_string_t	*str2;
+ * nxs_string_t *str2;
  *
  * str2 = nxs_string_malloc(0, NULL);
  *
- * nxs_string_init2(&str2);
+ * nxs_string_init2(str2, 0, src);
  *
  * ...
  * }
@@ -191,13 +194,13 @@ void				nxs_string_init				(nxs_string_t *str);
 ssize_t				nxs_string_init2			(nxs_string_t *str, size_t size, u_char *new_str);
 
 /**
- * @brief Zero-initializes a string and fills it with data from another string
+ * @brief Zero-initializes a string and fills it with data from another string.
  *
- * If the string is declared as "nxs_string_t *str", make sure to allocate memory for it before calling this function.
- *
- * This function must be called only before the first use of a \b str.
+ * If the string is declared as "nxs_string_t *", make sure to allocate memory for it before calling this function.
  *
  * The resultant string will be a copy of \b src.
+ *
+ * @warning This function must be called only before the first use of a \b str.
  *
  * Examples:
  *
@@ -208,7 +211,7 @@ ssize_t				nxs_string_init2			(nxs_string_t *str, size_t size, u_char *new_str);
  *
  *  nxs_string_t str1;
  *
- *  nxs_string_init3(&str1, &src);
+ *  nxs_string_init3(&str1, src);
  *
  * ...
  * }
@@ -219,11 +222,11 @@ ssize_t				nxs_string_init2			(nxs_string_t *str, size_t size, u_char *new_str);
  * {
  * ...
  *
- * nxs_string_t	*str2;
+ * nxs_string_t *str2;
  *
  * str2 = nxs_string_malloc(0, NULL);
  *
- * nxs_string_init3(&str1, &str2);
+ * nxs_string_init3(str2, src);
  *
  * ...
  * }
@@ -235,7 +238,6 @@ ssize_t				nxs_string_init2			(nxs_string_t *str, size_t size, u_char *new_str);
  * @return
  * * On succes, the new length of the \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR if  either \b str or \src is a null pointer.
- * * To see other possible error return values, view the returns of nxs_string_create().
  */
 ssize_t				nxs_string_init3			(nxs_string_t *str, nxs_string_t *src);
 
@@ -251,6 +253,8 @@ ssize_t				nxs_string_init3			(nxs_string_t *str, nxs_string_t *src);
  * If \b new_str == \b NULL and \b size != 0, a string with specified size and zero length will be created.
  *
  * If \b new_str == \b NULL and \b size == 0, the string will not be created.
+ *
+ * @warning This function must be called only before the first use of a \b str.
  *
  * @param str Pointer to the string.
  * @param size New size of \b str.
@@ -303,6 +307,8 @@ ssize_t				nxs_string_resize			(nxs_string_t *str, size_t new_size);
 
 /**
 * @brief Clears the contents of a string.
+*
+* Clear a string by setting nxs_string_s#len to 0, nxs_string_s#str[0] to '\\0' and nxs_string_s#size is unchanged.
 *
 * @warning Does not free the allocated memory!
 *
