@@ -141,27 +141,34 @@ ssize_t nxs_string_init2(nxs_string_t *str, size_t size, u_char *new_str)
  *
  * Возвращаемое значение:
  * * Длина новой строки
- * * Коды функции nxs_string_create(). В этом случае строка будет в инициализированном состоянии (т.е. память под строку выделена не будет)
+ * * NXS_STRING_ERROR_NULL_PTR
  */
 ssize_t nxs_string_init3(nxs_string_t *str, nxs_string_t *src)
 {
-	ssize_t rc;
 
 	if(str == NULL || src == NULL){
 
 		return NXS_STRING_ERROR_NULL_PTR;
 	}
 
-	str->str	= NULL;
-	str->size	= 0;
-	str->len	= 0;
+	if(src->str == NULL || src->size == 0){
 
-	if((rc = nxs_string_create(str, 0, nxs_string_str(src))) < 0){
+		str->size	= 0;
+		str->len	= 0;
+		str->str	= NULL;
 
-		nxs_string_free(str);
+		return 0;
 	}
 
-	return rc;
+	str->size	= src->len + 1;
+	str->len	= src->len;
+	str->str	= nxs_malloc(NULL, str->size);
+
+	nxs_memcpy(str->str, src->str, src->len);
+
+	str->str[str->len] = '\0';
+
+	return str->len;
 }
 
 /*
