@@ -322,14 +322,13 @@ ssize_t				nxs_string_resize			(nxs_string_t *str, size_t new_size);
 int				nxs_string_clear			(nxs_string_t *str);
 
 /**
- * @brief Writes the string represented by a char array to a string.
+ * @brief Write output to string \b str according to a format specified in \b msg.
  *
- * The string to write is pointed by \b msg and may include format specifiers (begin with %).
- * If there are any format specifiers, the corresponding number of additional arguments must be included to replace their respective specifiers.
+ * The string to write is pointed by \b msg and may include format specifiers (like printf() family functions).
+ * If there are any format specifiers, the corresponding number of additional arguments must be included to replace
+ * their respective specifiers.
  *
  * The size of \b str is increased dynamically by calling nxs_string_resize() function, if it's necessary.
- *
- * Unlike the standard printf() function, the result is written not to stdout but to a string.
  *
  * The supported format specifiers and their corresponding data types are listed in the table below:
  *
@@ -354,7 +353,7 @@ int				nxs_string_clear			(nxs_string_t *str);
  *
  * @param str Pointer to the string.
  * @param msg String that contains the text to be written to \b str with optional format specifiers.
- * @param additional arguments Values to be used to replace format specifiers in the format string \b msg.
+ * @param ... Additional arguments values to be used to replace format specifiers in the format string \b msg.
  *
  * @return
  * * On success, the new length of \b str.
@@ -363,16 +362,13 @@ int				nxs_string_clear			(nxs_string_t *str);
 ssize_t				nxs_string_printf_dyn			(nxs_string_t *str, const char *msg, ...);
 
 /**
- * @brief Writes the string represented by a char array to a string, beginning from a specified position.
+ * @brief Write output to string \b str (with specified \b offset) according to a format specified in \b msg.
  *
- * The data will be written starting from the position specified by \b offset.
- *
- * The string to write is pointed by \b msg and may include format specifiers (begin with %).
- * If there are any format specifiers, the corresponding number of additional arguments must be included to replace their respective specifiers.
+ * The string to write is pointed by \b msg and may include format specifiers (like printf() family functions).
+ * If there are any format specifiers, the corresponding number of additional arguments must be included to replace
+ * their respective specifiers.
  *
  * The size of \b str is increased dynamically by calling nxs_string_resize() function, if it's necessary.
- *
- * Unlike the standard printf() function, the result is written not to stdout but to a string.
  *
  * The supported format specifiers and their corresponding data types are listed in the table below:
  *
@@ -398,7 +394,7 @@ ssize_t				nxs_string_printf_dyn			(nxs_string_t *str, const char *msg, ...);
  * @param str Pointer to the string.
  * @param offset Offset from the beginning of the string.
  * @param msg String that contains the text to be written to \b str with optional format specifiers.
- * @param additional arguments Values to be used to replace format specifiers in the format string \b msg.
+ * @param ... Additional arguments values to be used to replace format specifiers in the format string \b msg.
  *
  * @return
  * * On success, the new length of \b str.
@@ -407,44 +403,16 @@ ssize_t				nxs_string_printf_dyn			(nxs_string_t *str, const char *msg, ...);
 ssize_t				nxs_string_printf2_dyn			(nxs_string_t *str, size_t offset, const char *msg, ...);
 
 /**
- * @brief Writes the string represented by a char array to a string, beginning from a specified position.
+ * @brief Write output to string \b str according to a format specified in \b msg.
  *
- * The data will be written starting from the position specified by \b offset.
- *
- * The string to write is pointed by \b msg and may include format specifiers (begin with %).
- * If there are any format specifiers, the corresponding number of additional arguments must be included to replace their respective specifiers.
- *
- * This function accepts additional arguments as va_list only.
+ * This function is equivalent to the function nxs_string_printf_dyn(), except that they are called with a va_list instead of a
+ * variable number of  arguments. These function do not call the va_end macro.
  *
  * The size of \b str is increased dynamically by calling nxs_string_resize() function, if it's necessary.
  *
- * Unlike the standard printf() function, the result is written not to stdout but to a string.
- *
- * The supported format specifiers and their corresponding data types are listed in the table below:
- *
- * Specifier                  | Output
- * -------------------------- | -------------
- * %[0][width]zu              | size_t
- * %[0][width]zd              | ssize_t
- * %[0][width]d               | int
- * %[0][width]u               | unsigned int
- * %[0][width]lu              | unsigned long int
- * %[0][width]ld              |  unsigned long int
- * %[0][width]llu             | unsigned long long int
- * %[0][width]lld             | long long int
- * %[0][width]o               | oct
- * %[0][width]x               | hex
- * %[0][width][.precision]f   | double
- * %c                         | char
- * %s                         | char * (null-terminated string)
- * %r                         | nxs_string_t *
- * %R                         | nxs_buf_t *
- * %%                         | %
- *
  * @param str Pointer to the string.
- * @param offset Offset from the beginning of the string.
  * @param msg String that contains the text to be written to \b str with optional format specifiers.
- * @param additional arguments Values to be used to replace format specifiers in the format string \b msg.
+ * @param ap va_list to be used to replace format specifiers in the format string \b msg.
  *
  * @return
  * * On success, the new length of \b str.
