@@ -526,7 +526,7 @@ ssize_t				nxs_string_cat				(nxs_string_t *dst, nxs_string_t *src);
 ssize_t				nxs_string_cat_dyn			(nxs_string_t *dst, nxs_string_t *src);
 
 /**
- * @brief Appends at most \n n characters from the \b src string to the \b dst string.
+ * @brief Appends at most \b n characters from the \b src string to the \b dst string.
  *
  * @param dst Pointer to the first string.
  * @param src Pointer to the second string.
@@ -540,7 +540,7 @@ ssize_t				nxs_string_cat_dyn			(nxs_string_t *dst, nxs_string_t *src);
 ssize_t				nxs_string_ncat				(nxs_string_t *dst, nxs_string_t *src, size_t n);
 
 /**
- * @brief Appends at most \n n characters from the \b src string to the \b dst string,
+ * @brief Appends at most \b n characters from the \b src string to the \b dst string,
  * dynamically increasing the size of the string \b dst if it's necessary.
  *
  * If the result size of \b dst is greater than its possible size, \b dst will be resized by calling nxs_string_resize();
