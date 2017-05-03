@@ -785,12 +785,25 @@ ssize_t				nxs_string_char_add_char_dyn		(nxs_string_t *str, u_char c);
 
 
 /**
- * @brief Ejects the filename from a path.
+ * @brief Extracts the component of \b path following the final '/' to string \b dst.
+ * Trailing '/' characters are not counted as part of the pathname.
  *
- * Strips directory and suffix from \b path and puts the filename to \b dst.
+ * If the result size of \b dst is greater than its possible size, \b dst will be resized by calling nxs_string_resize().
  *
- * @param dst String to save the result filename.
- * @param path Path to file.
+ * The following list of examples shows the strings returned by nxs_string_basename() for different paths:
+ *
+ * path       | dst
+ * -----------|-----
+ * (Zero len) | .
+ * /usr/lib   | lib
+ * /usr/      | usr
+ * usr        | usr
+ * /          | /
+ * .          | .
+ * ..         | ..
+ *
+ * @param dst String to save the result.
+ * @param path Path string.
  *
  * @return
  * * none.
@@ -798,12 +811,24 @@ ssize_t				nxs_string_char_add_char_dyn		(nxs_string_t *str, u_char c);
 void				nxs_string_basename			(nxs_string_t *dst, nxs_string_t *path);
 
 /**
- * @brief Ejects the parent directory name from a path.
+ * @brief Extracts the string up to, but not including, the final '/'.
  *
- * Strips non-directory suffix from \b path and puts the parent directory name to \b dst.
+ * If the result size of \b dst is greater than its possible size, \b dst will be resized by calling nxs_string_resize().
  *
- * @param dst String to save the result directory name.
- * @param path Path to file.
+ * The following list of examples shows the strings returned by nxs_string_dirname() for different paths:
+ *
+ * path       | dst
+ * -----------|-----
+ * (Zero len) | .
+ * /usr/lib   | /usr
+ * /usr/      | /
+ * usr        | .
+ * /          | /
+ * .          | .
+ * ..         | .
+ *
+ * @param dst String to save the result.
+ * @param path Path string.
  *
  * @return
  * * none.
