@@ -836,9 +836,9 @@ void				nxs_string_basename			(nxs_string_t *dst, nxs_string_t *path);
 void				nxs_string_dirname			(nxs_string_t *dst, nxs_string_t *path);
 
 /**
- * @brief Replaces a character at specified position of a string with a new character.
+ * @brief Replaces a character \b c at the specified position \b pos of a string \b str.
  *
- * If a character is being placed at the end of the string, it's length will be increased by 1  within the available size.
+ * If the character \b c is being placed at the end of the string \b str, it's length will be increased by 1 within the available size.
  *
  * @param str Pointer to the string.
  * @param pos Position to set the character at.
@@ -846,15 +846,15 @@ void				nxs_string_dirname			(nxs_string_t *dst, nxs_string_t *path);
  *
  * @return
  * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR - If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_NOT_CREATED - If \b str is zero-initialized.
- * * \b NXS_STRING_ERROR_DST_LEN - If \b pos is beyond the length of \b str.
+ * * \b NXS_STRING_ERROR_NULL_PTR	- If \b str is a null pointer.
+ * * \b NXS_STRING_ERROR_NOT_CREATED	- If \b str is zero-initialized.
+ * * \b NXS_STRING_ERROR_DST_LEN	- If \b pos is beyond the length of \b str.
  * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b str is greater than its possible size.
  */
 ssize_t				nxs_string_set_char			(nxs_string_t *str, size_t pos, u_char c);
 
 /**
- * @brief Inserts a character at the specified position of a string.
+ * @brief Inserts the character \b c at the specified position \b pos of a string \b str.
  *
  * Shifts all subsequent characters (if there are any) to the right.
  *
@@ -864,34 +864,34 @@ ssize_t				nxs_string_set_char			(nxs_string_t *str, size_t pos, u_char c);
  * @param pos Position to insert the character at.
  *
  * @return
- * * \b NXS_STRING_ERROR_NULL_PTR - If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_NOT_CREATED - If \b str is zero-initialized.
- * * \b NXS_STRING_ERROR_DST_LEN - If \b pos is beyond the length of \b str.
+ * * \b NXS_STRING_ERROR_NULL_PTR	- If \b str is a null pointer.
+ * * \b NXS_STRING_ERROR_NOT_CREATED	- If \b str is zero-initialized.
+ * * \b NXS_STRING_ERROR_DST_LEN	- If \b pos is beyond the length of \b str.
  * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b str is greater than its possible size.
  */
 ssize_t				nxs_string_ins_char			(nxs_string_t *str, size_t pos, u_char c);
 
 /**
- * @brief Inserts a character at the specified position of a string, dynamically increasing its size if it's necessary.
+ * @brief Inserts a character \b c at the specified position \b pos of a string \b str,
+ * dynamically increasing its size if it's necessary.
  *
  * Shifts all subsequent characters (if there are any) to the right.
  *
- * The length of \b str will be increased by 1 within its available size.
- *
- * If the result size of \b str is greater than its possible size, \b str will be resized by calling nxs_string_resize().
+ * The length of \b str will be increased by 1 and if the result size of \b str is greater
+ * than its possible size, \b str will be resized by calling nxs_string_resize().
  *
  * @param str Pointer to the string.
  * @param pos Position to insert the character at.
  *
  * @return
- * * \b NXS_STRING_ERROR_NULL_PTR - If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_NOT_CREATED - If \b str is zero-initialized.
- * * \b NXS_STRING_ERROR_DST_LEN - If \b pos is beyond the length of \b str.
+ * * \b NXS_STRING_ERROR_NULL_PTR	- If \b str is a null pointer.
+ * * \b NXS_STRING_ERROR_NOT_CREATED	- If \b str is zero-initialized.
+ * * \b NXS_STRING_ERROR_DST_LEN	- If \b pos is beyond the length of \b str.
  */
 ssize_t				nxs_string_ins_char_dyn			(nxs_string_t *str, size_t pos, u_char c);
 
 /**
- * @brief Sets a new length for a string.
+ * @brief Sets length for a string \b str as \b len.
  *
  * The '\0' character will be placed at \b len position.
  *
@@ -902,13 +902,13 @@ ssize_t				nxs_string_ins_char_dyn			(nxs_string_t *str, size_t pos, u_char c);
  *
  * @return
  * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR - If \b str is a null pointer.
+ * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
  * * \b NXS_STRING_ERROR_DST_SIZE	- If \len is greater than the possible size of \b str.
  */
 ssize_t				nxs_string_set_len			(nxs_string_t *str, size_t len);
 
 /**
- * @brief Places the '\0' character at the position corresponding to the length value of the string.
+ * @brief Places the '\0' character at the position corresponding to the length value of the string \b str.
  *
  * As data is sent as a buffer via network communication, the '\0' character is ignored.
  * This function is intended to provide availability to correctly use strings for network communication.
@@ -916,16 +916,16 @@ ssize_t				nxs_string_set_len			(nxs_string_t *str, size_t len);
  * @param str Pointer to the string.
  *
  * @return
- * * \b NXS_STRING_ERROR_NULL_PTR - If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_DST_SIZE - If the size of \b str equals 0.
+ * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
+ * * \b NXS_STRING_ERROR_DST_SIZE 	- If the size of \b str equals 0.
  */
 ssize_t				nxs_string_len_fix			(nxs_string_t *str);
 
 /**
- * @brief Returns the character at the specified position of a string.
+ * @brief Returns the character at the specified position \b pos of a string \b str.
  *
  * @param str Pointer to the string.
- * @pos Position of the character to get.
+ * @param pos Position of the character to get.
  *
  * @return
  * * On success, the character at \b pos.
@@ -934,9 +934,7 @@ ssize_t				nxs_string_len_fix			(nxs_string_t *str);
 u_char				nxs_string_get_char			(nxs_string_t *str, size_t pos);
 
 /**
- * @brief Returns a new u_char array which is a substring of specified string.
- *
- * The substring begins with the character at \offset and extends to the end of \b str.
+ * @brief Returns a substring as u_char array from string \b str with \b offset.
  *
  * @param str Pointer to the string.
  * @param offset Beginning index.
@@ -948,18 +946,16 @@ u_char				nxs_string_get_char			(nxs_string_t *str, size_t pos);
 u_char				*nxs_string_get_substr			(nxs_string_t *str, size_t offset);
 
 /**
- * @brief Searches through a string for the first occurence of a specified substring.
- *
- * Searches through \b str, beginning from the index specified by \b offset, for the first occurence of the substring pointed by \b f_str with a length, specified by \b f_str_len.
+ * @brief Finds the first occurence of a specified u_char array \b f_str with length \b f_str_len in a string \b str whith \b offset.
  *
  * @param str Pointer to the string to search in.
- * @param offset Offset for the source string.
- * @param f_str String to search for.
+ * @param offset Offset the string \b str.
+ * @param f_str Substring to search for.
  * @param f_str_len Length of the string to search for.
  *
  * @return
  * * On success, a pointer to the found substring.
- * * \b NULL
+ * * \b NULL:
  *  * If either \b str or \b f_str is a null pointer.
  *  * If \b f_str_len is greater than the length of \b str.
  *  * If \b offset is greater than the length of \b str.
@@ -968,18 +964,16 @@ u_char				*nxs_string_get_substr			(nxs_string_t *str, size_t offset);
 u_char				*nxs_string_find_substr_first		(nxs_string_t *str, size_t offset, u_char *f_str, size_t f_str_len);
 
 /**
- * @brief Searches through a string for the last occurence of a specified substring.
- *
- * Searches through \b str, beginning from the index specified by \b offset, for the last occurence of the substring pointed  by \b f_str with a length, specified by \b f_str_len.
+ * @brief Finds the last occurence of a specified u_char array \b f_str with length \b f_str_len in a string \b str whith \b offset.
  *
  * @param str Pointer to the string to search in.
- * @param offset Offset for the source string.
+ * @param offset Offset the string \b str.
  * @param f_str String to search for.
  * @param f_str_len Length of the string to search for.
  *
  * @return
  * * On success, a pointer to the found substring.
- * * \b NULL
+ * * \b NULL:
  *  * If either \b str or \b f_str is a null pointer.
  *  * If \b f_str_len is greater than the length of \b str.
  *  * If \b offset is greater than the length of \b str.
@@ -988,17 +982,15 @@ u_char				*nxs_string_find_substr_first		(nxs_string_t *str, size_t offset, u_ch
 u_char				*nxs_string_find_substr_last		(nxs_string_t *str, size_t offset, u_char *f_str, size_t f_str_len);
 
 /**
- * @brief Searches through a string for the first occurence of a specified character.
- *
- * Searches through \b str, beginning from the index specified by \b offset, for the first occurence of the character specified by \b c.
+ * @brief Finds the first occurence of a specified character \b c in a string \b str whith \b offset.
  *
  * @param str Pointer to the string to search in.
- * @param offset Offset for the source string.
+ * @param offset Offset the string \b str.
  * @param c Character to search for.
  *
  * @return
  * * On success, a pointer to the substring beginning with \b c.
- * * \b NULL
+ * * \b NULL:
  *  * If \b str is a null pointer.
  *  * If \b offset is greater than the length of \b str.
  *  * If \b c was not found in \b str.
@@ -1006,17 +998,15 @@ u_char				*nxs_string_find_substr_last		(nxs_string_t *str, size_t offset, u_cha
 u_char				*nxs_string_find_char_first		(nxs_string_t *str, size_t offset, u_char c);
 
 /**
- * @brief Searches through a string for the last occurence of a specified character.
- *
- * Searches through \b str, beginning from the index specified by \b offset, for the last occurence of the character specified by \b c.
+ * @brief Finds the last occurence of a specified character \b c in a string \b str whith \b offset.
  *
  * @param str Pointer to the string to search in.
- * @param offset Offset for the source string.
+ * @param offset Offset the string \b str.
  * @param c Character to search for.
  *
  * @return
  * * On success, a pointer to the substring beginning with \b c.
- * * \bNULL
+ * * \b NULL:
  *  * If \b str is a null pointer.
  *  * If \b offset is greater than the length of \b str.
  *  * If \b c was not found in \b str.
@@ -1024,19 +1014,16 @@ u_char				*nxs_string_find_char_first		(nxs_string_t *str, size_t offset, u_char
 u_char				*nxs_string_find_char_last		(nxs_string_t *str, size_t offset, u_char c);
 
 /**
- * @brief Replaces each substring of the specified string that matches the given substring with the given replacement.
+ * @brief Replaces in string \b str substrings \b f_str to \b d_str \b max_count times and store result in \b dst.
+ * If \b dst is a null pointer, the result will be stored in \b src.
  *
- *  Replaces each occurence of \b f_str by \b d_str in \b src for \b max_count times and saves the result to \b dst.
- *
- *  If \b dst is a null pointer, the result will be stored in \b src.
- *
- *  The maximum number of replacements is defined by \b max_count. To remove the restriction, set \b max_count to 0.
+ * Set \b max_count to 0 to avoid maximum number of replacements restriction.
  *
  * @param src Pointer to the source string.
  * @param dst Pointer to the string to store the result.
  * @param f_str Pointer to the string to be replaced.
  * @param d_str Pointer to the replacement string.
- * @max_count Maximum number of replacements
+ * @param max_count Maximum number of replacements
  *
  * @return
  * * On success, the number of made replacements
@@ -1046,11 +1033,9 @@ size_t				nxs_string_subs				(nxs_string_t *src, nxs_string_t *dst, nxs_string_t
 
 
 /**
- * @brief Converts a string into a buffer.
+ * @brief Converts a string \b str with \b offset into a buffer \b buf.
  *
- * Converts a string \b str, beginning from the index specified by \b offset, to a buffer \b buff.
- *
- * If the size of \b buf is less than the size of \b str, the size of \b buf will be dynamically increased by calling nxs_buf_resize() function.
+ * If the result size of \b buf is greater than its possible size, \b buf will be resized by calling nxs_buf_resize()  function.
  *
  * @param str Pointer to the string.
  * @param offset Offset from the beginning of the string.
@@ -1058,27 +1043,21 @@ size_t				nxs_string_subs				(nxs_string_t *src, nxs_string_t *dst, nxs_string_t
  *
  * @return
  * * On success, a pointer to the u_char array containing the string.
- * * \b NULL
+ * * \b NULL:
  *  * If either \b str or \b buf is a null pointer.
  *  * If \b offset is greater than the length of \b str.
  */
 u_char				*nxs_string_to_buf			(nxs_string_t *str, size_t offset, nxs_buf_t *buf);
 
-/** @brief Get error message by its code
+/** @brief Returns a pointer to a u_char string that describes the nxs-string module error code passed in the argument \b nxs_str_errno.
  *
-* Returns the detailed message for the error constant or its numeric code
+* @param nxs_str_errno The nxs-string module error code
 *
-* @param nxs_str_errno The constant which defines the error or an integer corresponding to an error constant
-*
-* @return A string message for the specified error
+* @return A string message for the specified error code
 */
 u_char				*nxs_string_strerror			(int nxs_str_errno);
 
-/** @brief The length of a string
-*
-* Returns the length of a string.
-*
-* The length is equal to the number of characters in the string.
+/** @brief Returns the length of a string \b str.
 *
 * @param str A pointer to the string
 *
@@ -1088,60 +1067,56 @@ size_t				nxs_string_len				(nxs_string_t *str);
 
 
 /**
-* @brief The size of a string
+* @brief Returns the size (amount of the allocated memory) of a string \b str.
 *
-* Returns the amount of the allocated memory for a string.
-*
-* The return value is 1 byte more it is than available for usage as there is the '\\n' character in each string.
+* For an nxs-strings the available for usage space is always one byte less than its size, because last byte is the '\0'.
 *
 * @param str A pointer to the string
 *
-* @return The size of the string.
+* @return The size of the string \b str.
 */
 size_t				nxs_string_size				(nxs_string_t *str);
 
 
 /**
-* @brief Checks for available space in a string
-*
-* Checks if there is still some available space in memory allocated for a string.
+* @brief Checks for available space in the string \b str.
 *
 * @param str Pointer to the string
 *
 * @return
-* * \b NXS_STRING_NOT_FULL - if there is available space
-* * \b NXS_STRING_FULL - if the string is full and there's no more space available
+* * \b NXS_STRING_NOT_FULL		- if there is available space (one or more bytes)
+* * \b NXS_STRING_FULL			- if the string is full and there's no more space available
 */
 int				nxs_string_check_space			(nxs_string_t *str);
 
 /**
- * @brief Formats time as char array and writes it to a string.
+ * @brief Formats unix time stamp \b t according to the strftime() format specification
+ * (specified in \b fmt) and places the result in the string \b str.
  *
- * Writes \b fmt into \b str, replacing its format specifiers with the corresponding values that represent the time described by \b t.
+ * If the result size of \b str is greater than its possible size, \b str will be resized by calling nxs_string_resize().
  *
  * @param str Pointer to the string.
- * @param fmt String containing any combination of regular characters and special format specifiers.
- * @param t Time value (unix time).
+ * @param fmt The strftime() format specification.
+ * @param t Time value (unix time stamp).
  *
  * @return
  * * On success, the new length of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR - If \b str is a null pointer.
+ * * \b NXS_STRING_ERROR_NULL_PTR	- If \b str is a null pointer.
  */
 ssize_t				nxs_string_strftime			(nxs_string_t *str, u_char *fmt, time_t t);
 
 /**
- * @brief Formats time given in seconds as char array and writes it to a string.
+ * @brief Formats time \b t given in seconds according to the format specification \b fmt
+ * (see description below) and writes it to the string \b str.
  *
- * Writes \b fmt into \b str, replacing its format specifiers with the corresponding values that represent the time described by \b t.
- *
- * The supported format specifiers and their corresponding time units are listed in the table below:
+ * The supported format specifiers:
  *
  * Specifier  | Output
- * ------------- | -------------
- * %d  | days
- * %h  | hours
- * %m  | minutes
- * %s  | seconds
+ * ---------- | -------------
+ * %d         | days
+ * %h         | hours
+ * %m         | minutes
+ * %s         | seconds
  *
  * @param str Pointer to the string.
  * @param fmt String containing any combination of regular characters and special format specifiers.
@@ -1149,26 +1124,37 @@ ssize_t				nxs_string_strftime			(nxs_string_t *str, u_char *fmt, time_t t);
  *
  * @return
  * * On success, the new length of \b str
- * * \b NXS_STRING_ERROR_NULL_PTR - if \b str is a null pointer.
- * * \b NXS_STRING_ERROR_SPEC_OVERFLOW
- * * \b NXS_STRING_ERROR_SPEC_UNKNOWN - if there is an unknown format specifier in \b fmt.
+ * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
+ * * \b NXS_STRING_ERROR_SPEC_OVERFLOW	- If one or more specifiers in \b fmt used more than one times.
+ * * \b NXS_STRING_ERROR_SPEC_UNKNOWN	- if there is an unknown format specifier in \b fmt.
  */
 ssize_t				nxs_string_fmt_time_interval		(nxs_string_t *str, u_char *fmt, time_t t);
 
 /**
- * @brief Adds escape symbols to all metacharacters in a string.
+ * @brief Adds escape symbols to an metacharacters according to the \b type in the string \b str_from and
+ * store result to string \b str_to.
  *
- * 	Adds escape symbols to all metacharaterc in \b str_from and saves the result to \b str_to.
+ * If \b str_from is a null pointer, the function will work with \b str_to.
  *
- * 	If \b str_from is a null pointer, the function will work with \b str_to.
+ * Available types:
+ * * NXS_STRING_ESCAPE_TYPE_GENERIC
+ * * NXS_STRING_ESCAPE_TYPE_JSON
  *
- * 	The string can be either a regular string or a JSON string.
+ * Character | Escapes in GENERIC type | Escapes in  JSON type
+ * ----------|---------|------
+ * \         | yes     | yes
+ * \"        | yes     | yes
+ * '         | yes     | no
+ * /         | yes     | yes
+ * \\b       | yes     | yes
+ * \\f       | yes     | yes
+ * \\n       | yes     | yes
+ * \\r       | yes     | yes
+ * \\t       | yes     | yes
  *
- * 	The type of the string is defined by \b type.
- *
- * 	@param str_to Pointer to the result string.
- * 	@param str_from Pointer to the source string.
- * 	@param type Constant defining the type of the string. Can be either \b NXS_STRING_ESCAPE_TYPE_GENERIC or \b NXS_STRING_ESCAPE_TYPE_JSON.
+ * @param str_to Pointer to the result string.
+ * @param str_from Pointer to the source string.
+ * @param type Constant defining the type of the string. Can be either \b NXS_STRING_ESCAPE_TYPE_GENERIC or \b NXS_STRING_ESCAPE_TYPE_JSON.
  *
  * @return
  * * none
