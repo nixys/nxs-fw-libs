@@ -597,9 +597,7 @@ int				nxs_string_cmp				(nxs_string_t *str1, size_t offset1, nxs_string_t *str2
 int				nxs_string_ncmp				(nxs_string_t *str1, size_t offset, nxs_string_t *str2, size_t offset2, size_t n);
 
 /**
- * @brief Copies the values of all bytes from an u_char array to a string.
- *
- * Copies the values of all bytes from \b ch_str array to \b str with an \b offset in \b str.
+ * @brief Copies the u_char array \b ch_str, excluding the terminating null byte ('\0'), to a string \b str with specified \b offset.
  *
  * @param str Pointer to the destination string.
  * @param offset Offset from the beginning of \b str.
@@ -608,15 +606,14 @@ int				nxs_string_ncmp				(nxs_string_t *str1, size_t offset, nxs_string_t *str2
  * @return
  * * On success, the new length value of \b str.
  * * \b NXS_STRING_ERROR_OFFSET - If \b offset is greater than the length of the string.
- * * \b NXS_STRING_ERROR_NULL_PTR - If either \b str or \b ch_str is a null pointer.
- * * \b NXS_STRING_ERROR_DST_SIZE - If the result size of \b str is greater than its possible size.
+ * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_STRING_ERROR_DST_SIZE 	- If the result size of \b str is greater than its possible size.
  */
 ssize_t				nxs_string_char_cpy			(nxs_string_t *str, size_t offset, u_char *ch_str);
 
 /**
- * @brief Copies the values of all bytes from an u_char array to a string, dynamically increasing its size if it's necessary..
- *
- * Copies the values of all bytes from \b ch_str array to \b str with an \b offset in \b str.
+ * @brief Copies the u_char array \b ch_str, excluding the terminating null byte ('\0'), to a string \b str with specified \b offset,
+ * dynamically increasing its size if it's necessary.
  *
  * If the result size of \b str is greater than its possible size, \b str will be resized by calling nxs_string_resize().
  *
@@ -626,15 +623,13 @@ ssize_t				nxs_string_char_cpy			(nxs_string_t *str, size_t offset, u_char *ch_s
  *
  * @return
  * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_OFFSET - If \b offset is greater than the length of the string.
- * * \b NXS_STRING_ERROR_NULL_PTR - If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_STRING_ERROR_OFFSET 	- If \b offset is greater than the length of the string.
+ * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b str or \b ch_str is a null pointer.
  */
 ssize_t				nxs_string_char_cpy_dyn			(nxs_string_t *str, size_t offset, u_char *ch_str);
 
 /**
- * @brief Copies the values of a specified number of bytes from an u_char array to a string.
- *
- * Copies the values of first \b n bytes of \b ch_str array to \b str beginning from the index specified by \b offset.
+ * @brief Copies \b n first bytes of u_char array \b ch_str to a string \b str with specified \b offset.
  *
  * @param str Pointer to the destination string.
  * @param offset Offset from the beginning of \b str.
@@ -643,16 +638,15 @@ ssize_t				nxs_string_char_cpy_dyn			(nxs_string_t *str, size_t offset, u_char *
  *
  * @return
  * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_OFFSET - If \b offset is greater than the length of the string.
- * * \b NXS_STRING_ERROR_NULL_PTR - If either \b str or \b ch_str is a null pointer.
- * * \b NXS_STRING_ERROR_DST_SIZE - If the result size of \b str is greater than its possible size.
+ * * \b NXS_STRING_ERROR_OFFSET 	- If \b offset is greater than the length of the string.
+ * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b str is greater than its possible size.
  */
 ssize_t				nxs_string_char_ncpy			(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n);
 
 /**
- * @brief Copies the values of a specified number of bytes from an u_char array to a string, dynamically increasing its size if it's necessary.
- *
- * Copies the values of first \b n bytes of \b ch_str array to \b str beginning from the index specified by \b offset.
+ * @brief Copies \b n first bytes of u_char array \b ch_str to a string \b str with specified \b offset,
+ * dynamically increasing its size if it's necessary.
  *
  * If the result size of \b str is greater than its possible size, \b str will be resized by calling nxs_string_resize().
  *
@@ -669,9 +663,7 @@ ssize_t				nxs_string_char_ncpy			(nxs_string_t *str, size_t offset, u_char *ch_
 ssize_t				nxs_string_char_ncpy_dyn		(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n);
 
 /**
- * @brief Concatenates a string and an u_char array.
- *
- * Concatenates \b str and u_char array \b ch_str.
+ * @brief Concatenates a string \b str and an u_char array \b ch_str terminated by null byte ('\0').
  *
  * @param str Pointer to the string.
  * @param ch_str Pointer to u_char array.
@@ -684,9 +676,8 @@ ssize_t				nxs_string_char_ncpy_dyn		(nxs_string_t *str, size_t offset, u_char *
 ssize_t				nxs_string_char_cat			(nxs_string_t *str, u_char *ch_str);
 
 /**
- * @brief Concatenates a string and an u_char array, dynamically increasing the size of the result string if it's necessary.
- *
- * Concatenates \b str and u_char array \b ch_str, dynamically increasing the size of \b str if it's necessary.
+ * @brief Concatenates a string \b str and an u_char array \b ch_str terminated by null byte ('\0'),
+ * dynamically increasing the size of the string \b str if it's necessary.
  *
  * If the result size of \b str is greater than its possible size, \b str will be resized by calling nxs_string_resize();
  *
@@ -700,9 +691,7 @@ ssize_t				nxs_string_char_cat			(nxs_string_t *str, u_char *ch_str);
 ssize_t				nxs_string_char_cat_dyn			(nxs_string_t *str, u_char *ch_str);
 
 /**
- * @brief Concatenates a string and first n bytes of an u_char array.
- *
- * Concatenates \b str and first \b n bytes of \b ch_str
+ * @brief Concatenates a string \b str and first \b n bytes of u_char array \b ch_str.
  *
  * @param str Pointer to the string.
  * @param ch_str Pointer to u_char array.
@@ -716,9 +705,8 @@ ssize_t				nxs_string_char_cat_dyn			(nxs_string_t *str, u_char *ch_str);
 ssize_t				nxs_string_char_ncat			(nxs_string_t *str, u_char *ch_str, size_t n);
 
 /**
- * @brief Concatenates a string and first n bytes of u_char array, dynamically increasing the size of the result string if it's necessary.
- *
- * Concatenates \b str and first \b n bytes of \b ch_str, dynamically increasing the size of \b str if it's necessary.
+ * @brief Concatenates a string \b str and first \b n bytes of u_char array \b ch_str,
+ * dynamically increasing the size of the string \b str if it's necessary.
  *
  * If the result size of \b str is greater than its possible size, \b str will be resized by calling nxs_string_resize();
  *
@@ -734,9 +722,7 @@ ssize_t				nxs_string_char_ncat_dyn		(nxs_string_t *str, u_char *ch_str, size_t 
 
 
 /**
- * @brief Compares a string with a specified offset to an u_char array.
- *
- * Compares \b str beginning from the index specified by \b offset to \b ch_str
+ * @brief Compares a string \b str with a specified \b offset to an u_char array \b ch_str terminated by null byte ('\0').
  *
  * The comparision is case-sensitive.
  *
@@ -745,36 +731,34 @@ ssize_t				nxs_string_char_ncat_dyn		(nxs_string_t *str, u_char *ch_str, size_t 
  * @param ch_str Pointer to u_char array.
  *
  * @return
- * * \b NXS_STRING_CMP_EQ - If the compared strings are equal.
- * * \b NXS_STRING_CMP_NE - If the compared strings are not equal.
- * * \b NXS_STRING_ERROR_OFFSET - If \b offset is greater than the length of \b str.
+ * * \b NXS_STRING_CMP_EQ 		- If the compared strings are equal.
+ * * \b NXS_STRING_CMP_NE 		- If the compared strings are not equal.
+ * * \b NXS_STRING_ERROR_OFFSET 	- If \b offset is greater than the length of \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
  */
 int				nxs_string_char_cmp			(nxs_string_t *str, size_t offset, u_char *ch_str);
 
 /**
- * @brief Compares a string with a specified offset to a specified number of bytes of an u_char array.
- *
- * Compares \b str beginning from the index specified by \b offset to first \b n bytes of \b ch_str.
+ * @brief Compares \b n bytes of a string \b str with a specified \b offset to an u_char array \b ch_str.
  *
  * The comparision is case-sensitive.
  *
  * @param str Pointer to the string.
  * @param offset Offset from the beginning of \b str.
  * @param ch_str Pointer to u_char array.
- * @param n Number of bytes from \b ch_str to compare to.
+ * @param n Number of bytes to compare to.
  *
  * @return
- * * \b NXS_STRING_CMP_EQ - If the compared strings are equal.
- * * \b NXS_STRING_CMP_NE - If the compared strings are not equal.
- * * \b NXS_STRING_ERROR_OFFSET - If \b offset is greater than the length of \b str.
+ * * \b NXS_STRING_CMP_EQ 		- If the compared strings are equal.
+ * * \b NXS_STRING_CMP_NE 		- If the compared strings are not equal.
+ * * \b NXS_STRING_ERROR_OFFSET 	- If \b offset is greater than the length of \b str.
  * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
  */
 int				nxs_string_char_ncmp			(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n);
 
 
 /**
- * @brief Adds a character to a string.
+ * @brief Adds a character \b c to a string \b str.
  *
  * @param str Pointer to the string.
  * @param c Character to be added.
@@ -786,7 +770,7 @@ int				nxs_string_char_ncmp			(nxs_string_t *str, size_t offset, u_char *ch_str,
 ssize_t				nxs_string_char_add_char		(nxs_string_t *str, u_char c);
 
 /**
- * @brief Adds a character to a string, dynamically increasing the size of the string if it's necessary.
+ * @brief Adds a character \b c to a string \b str, dynamically increasing the size of the string if it's necessary.
  *
  * If the result size of \b str is greater than its possible size, \b str will be resized by calling nxs_string_resize().
  *
