@@ -322,7 +322,7 @@ ssize_t				nxs_string_resize			(nxs_string_t *str, size_t new_size);
 int				nxs_string_clear			(nxs_string_t *str);
 
 /**
- * @brief Write output to string \b str according to a format specified in \b msg.
+ * @brief Prints formatted data to string \b str according to a format specified in \b msg.
  *
  * The string to write is pointed by \b msg and may include format specifiers (like printf() family functions).
  * If there are any format specifiers, the corresponding number of additional arguments must be included to replace
@@ -362,7 +362,7 @@ int				nxs_string_clear			(nxs_string_t *str);
 ssize_t				nxs_string_printf_dyn			(nxs_string_t *str, const char *msg, ...);
 
 /**
- * @brief Write output to string \b str (with specified \b offset) according to a format specified in \b msg.
+ * @brief Prints formatted data to string \b str (with specified \b offset) according to a format specified in \b msg.
  *
  * The string to write is pointed by \b msg and may include format specifiers (like printf() family functions).
  * If there are any format specifiers, the corresponding number of additional arguments must be included to replace
@@ -403,10 +403,10 @@ ssize_t				nxs_string_printf_dyn			(nxs_string_t *str, const char *msg, ...);
 ssize_t				nxs_string_printf2_dyn			(nxs_string_t *str, size_t offset, const char *msg, ...);
 
 /**
- * @brief Write output to string \b str according to a format specified in \b msg.
+ * @brief Prints formatted data to string \b str according to a format specified in \b msg.
  *
  * This function is equivalent to the function nxs_string_printf_dyn(), except that they are called with a va_list instead of a
- * variable number of  arguments. These function do not call the va_end macro.
+ * variable number of arguments. These function do not call the va_end macro.
  *
  * The size of \b str is increased dynamically by calling nxs_string_resize() function, if it's necessary.
  *
