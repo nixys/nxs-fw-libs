@@ -1,38 +1,66 @@
+// clang-format off
+
+/* Module includes */
+
 #include <nxs-core/nxs-core.h>
 
+/* Module definitions */
+
 #define nxs_wstring_check_not_created(str)	if(str->size == 0 || str->str == NULL){ \
-												return NXS_WSTRING_E_NOT_CREATED; \
-											}
+							return NXS_WSTRING_E_NOT_CREATED; \
+						}
+
+/* Module typedefs */
+
+
+
+/* Module declarations */
+
+
+
+/* Module internal (static) functions prototypes */
+
+// clang-format on
+
+// clang-format off
+
+/* Module initializations */
+
+
+
+/* Module global functions */
+
+// clang-format on
 
 void nxs_wstring_ctx_init(void)
 {
 
-	setlocale(LC_ALL,"");
+	setlocale(LC_ALL, "");
 }
 
 nxs_wstring_t *nxs_wstring_malloc(size_t size, wchar_t *new_str)
 {
-	nxs_wstring_t	*str = NULL;
-	size_t			s;
+	nxs_wstring_t *str = NULL;
+	size_t         s;
 
 	str = nxs_calloc(str, sizeof(nxs_wstring_t));
 
-	if(new_str != NULL){
+	if(new_str != NULL) {
 
-		if(size == 0){
+		if(size == 0) {
 
 			s = wcslen((const wchar_t *)new_str) + 1;
 		}
-		else{
+		else {
 
 			s = size;
 		}
 
 		nxs_wstring_create(str, s, new_str);
 	}
-	else{
+	else {
 
-		if(size == 0){
+		if(size == 0) {
 
 			return str;
 		}
@@ -46,7 +74,7 @@ nxs_wstring_t *nxs_wstring_malloc(size_t size, wchar_t *new_str)
 nxs_wstring_t *nxs_wstring_destroy(nxs_wstring_t *str)
 {
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return NULL;
 	}
@@ -63,14 +91,14 @@ nxs_wstring_t *nxs_wstring_destroy(nxs_wstring_t *str)
 void nxs_wstring_init(nxs_wstring_t *str)
 {
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return;
 	}
 
-	str->str = NULL;
+	str->str  = NULL;
 	str->size = 0;
-	str->len = 0;
+	str->len  = 0;
 }
 
 /*
@@ -85,16 +113,16 @@ ssize_t nxs_wstring_init2(nxs_wstring_t *str, size_t size, wchar_t *new_str)
 {
 	ssize_t rc;
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	str->str = NULL;
+	str->str  = NULL;
 	str->size = 0;
-	str->len = 0;
+	str->len  = 0;
 
-	if((rc = nxs_wstring_create(str, size, new_str)) < 0){
+	if((rc = nxs_wstring_create(str, size, new_str)) < 0) {
 
 		nxs_wstring_free(str);
 	}
@@ -118,22 +146,22 @@ ssize_t nxs_wstring_init2(nxs_wstring_t *str, size_t size, wchar_t *new_str)
  */
 ssize_t nxs_wstring_create(nxs_wstring_t *str, size_t size, wchar_t *new_str)
 {
-	size_t		s;
-	ssize_t		len;
+	size_t  s;
+	ssize_t len;
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(str->str != NULL){
+	if(str->str != NULL) {
 
 		return NXS_WSTRING_E_INIT;
 	}
 
-	if(new_str != NULL){
+	if(new_str != NULL) {
 
-		if(size == 0){
+		if(size == 0) {
 
 			/*
 			 * Необходимо вычислить размер под новую строку
@@ -141,24 +169,24 @@ ssize_t nxs_wstring_create(nxs_wstring_t *str, size_t size, wchar_t *new_str)
 
 			s = wcslen((const wchar_t *)new_str) + 1;
 		}
-		else{
+		else {
 
 			s = size;
 		}
 
-		str->str = nxs_calloc(NULL, sizeof(wchar_t) * s);
+		str->str  = nxs_calloc(NULL, sizeof(wchar_t) * s);
 		str->size = s;
 
-		if((len = nxs_wstring_wchar_cpy(str, 0, new_str)) < 0){
+		if((len = nxs_wstring_wchar_cpy(str, 0, new_str)) < 0) {
 
 			return len;
 		}
 
 		str->len = len;
 	}
-	else{
+	else {
 
-		if(size == 0){
+		if(size == 0) {
 
 			/*
 			 * Если требуемый размер строки 0
@@ -167,7 +195,7 @@ ssize_t nxs_wstring_create(nxs_wstring_t *str, size_t size, wchar_t *new_str)
 			return NXS_WSTRING_E_NOT_CREATED;
 		}
 
-		str->str = nxs_calloc(NULL, sizeof(wchar_t) * size);
+		str->str  = nxs_calloc(NULL, sizeof(wchar_t) * size);
 		str->size = size;
 		nxs_wstring_clear(str);
 	}
@@ -186,19 +214,19 @@ ssize_t nxs_wstring_create(nxs_wstring_t *str, size_t size, wchar_t *new_str)
 int nxs_wstring_free(nxs_wstring_t *str)
 {
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(str->size == 0 || str->str == NULL){
+	if(str->size == 0 || str->str == NULL) {
 
 		return NXS_WSTRING_E_NOT_CREATED;
 	}
 
 	str->str = nxs_free(str->str);
 
-	str->len = 0;
+	str->len  = 0;
 	str->size = 0;
 
 	return NXS_WSTRING_E_OK;
@@ -217,7 +245,7 @@ int nxs_wstring_free(nxs_wstring_t *str)
 ssize_t nxs_wstring_resize(nxs_wstring_t *str, size_t new_size)
 {
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
@@ -225,14 +253,14 @@ ssize_t nxs_wstring_resize(nxs_wstring_t *str, size_t new_size)
 	/*
 	 * Если new_size == 0 - память, выделенная под строку, будет освобождена, а строка инициализирована.
 	 */
-	if(new_size == 0){
+	if(new_size == 0) {
 
 		nxs_wstring_free(str);
 
 		return str->size;
 	}
 
-	if(str->size == 0 || str->str == NULL){
+	if(str->size == 0 || str->str == NULL) {
 
 		/*
 		 * Если строка ещё не создана - создаём её
@@ -240,7 +268,7 @@ ssize_t nxs_wstring_resize(nxs_wstring_t *str, size_t new_size)
 
 		nxs_wstring_create(str, new_size, NULL);
 	}
-	else{
+	else {
 
 		/*
 		 * Если строка уже создана - изменяем её размер
@@ -248,7 +276,7 @@ ssize_t nxs_wstring_resize(nxs_wstring_t *str, size_t new_size)
 
 		str->str = nxs_realloc(str->str, sizeof(wchar_t) * new_size);
 
-		if(new_size < str->len + 1){
+		if(new_size < str->len + 1) {
 
 			str->len = new_size - 1;
 
@@ -272,18 +300,18 @@ ssize_t nxs_wstring_resize(nxs_wstring_t *str, size_t new_size)
 int nxs_wstring_clear(nxs_wstring_t *str)
 {
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(str->size == 0 || str->str == NULL){
+	if(str->size == 0 || str->str == NULL) {
 
 		return NXS_WSTRING_E_NOT_CREATED;
 	}
 
 	str->str[0] = '\0';
-	str->len = 0;
+	str->len    = 0;
 
 	return NXS_WSTRING_E_OK;
 }
@@ -300,29 +328,29 @@ int nxs_wstring_clear(nxs_wstring_t *str)
 ssize_t nxs_wstring_cpy(nxs_wstring_t *dst, size_t offset_dst, nxs_wstring_t *src, size_t offset_src)
 {
 
-	if(dst == NULL || src == NULL){
+	if(dst == NULL || src == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(offset_src > src->len){
+	if(offset_src > src->len) {
 
 		return NXS_WSTRING_E_OFFSET;
 	}
 
-	if(offset_dst > dst->len){
+	if(offset_dst > dst->len) {
 
 		return NXS_WSTRING_E_OFFSET;
 	}
 
-	if(src->len - offset_src + 1 > dst->size - offset_dst){
+	if(src->len - offset_src + 1 > dst->size - offset_dst) {
 
 		return NXS_WSTRING_E_DST_SIZE;
 	}
 
 	nxs_memcpy(dst->str + offset_dst, src->str + offset_src, sizeof(wchar_t) * (src->len - offset_src));
 
-	dst->len = offset_dst + src->len - offset_src;
+	dst->len           = offset_dst + src->len - offset_src;
 	dst->str[dst->len] = '\0';
 
 	return dst->len;
@@ -332,7 +360,7 @@ ssize_t nxs_wstring_cpy_dyn(nxs_wstring_t *dst, size_t offset_dst, nxs_wstring_t
 {
 	ssize_t rc;
 
-	if((rc = nxs_wstring_cpy(dst, offset_dst, src, offset_src)) == NXS_WSTRING_E_DST_SIZE){
+	if((rc = nxs_wstring_cpy(dst, offset_dst, src, offset_src)) == NXS_WSTRING_E_DST_SIZE) {
 
 		nxs_wstring_resize(dst, src->len - offset_src + offset_dst + 1);
 
@@ -355,34 +383,34 @@ ssize_t nxs_wstring_cpy_dyn(nxs_wstring_t *dst, size_t offset_dst, nxs_wstring_t
 ssize_t nxs_wstring_ncpy(nxs_wstring_t *dst, size_t offset_dst, nxs_wstring_t *src, size_t offset_src, size_t n)
 {
 
-	if(dst == NULL || src == NULL){
+	if(dst == NULL || src == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(offset_src > src->len){
+	if(offset_src > src->len) {
 
 		return NXS_WSTRING_E_OFFSET;
 	}
 
-	if(offset_dst > dst->len){
+	if(offset_dst > dst->len) {
 
 		return NXS_WSTRING_E_OFFSET;
 	}
 
-	if(offset_src + n > src->len){
+	if(offset_src + n > src->len) {
 
 		return NXS_WSTRING_E_SRC_SIZE;
 	}
 
-	if(n + 1 > dst->size - offset_dst){
+	if(n + 1 > dst->size - offset_dst) {
 
 		return NXS_WSTRING_E_DST_SIZE;
 	}
 
 	nxs_memcpy(dst->str + offset_dst, src->str + offset_src, sizeof(wchar_t) * n);
 
-	dst->len = offset_dst + n;
+	dst->len           = offset_dst + n;
 	dst->str[dst->len] = '\0';
 
 	return dst->len;
@@ -392,7 +420,7 @@ ssize_t nxs_wstring_ncpy_dyn(nxs_wstring_t *dst, size_t offset_dst, nxs_wstring_
 {
 	ssize_t rc;
 
-	if((rc = nxs_wstring_ncpy(dst, offset_dst, src, offset_src, n)) == NXS_WSTRING_E_DST_SIZE){
+	if((rc = nxs_wstring_ncpy(dst, offset_dst, src, offset_src, n)) == NXS_WSTRING_E_DST_SIZE) {
 
 		nxs_wstring_resize(dst, offset_dst + n + 1);
 
@@ -413,12 +441,12 @@ ssize_t nxs_wstring_ncpy_dyn(nxs_wstring_t *dst, size_t offset_dst, nxs_wstring_
 ssize_t nxs_wstring_cat(nxs_wstring_t *dst, nxs_wstring_t *src)
 {
 
-	if(dst == NULL || src == NULL){
+	if(dst == NULL || src == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(dst->len + src->len + 1 > dst->size){
+	if(dst->len + src->len + 1 > dst->size) {
 
 		return NXS_WSTRING_E_DST_SIZE;
 	}
@@ -435,7 +463,7 @@ ssize_t nxs_wstring_cat_dyn(nxs_wstring_t *dst, nxs_wstring_t *src)
 {
 	ssize_t rc;
 
-	if((rc = nxs_wstring_cat(dst, src)) == NXS_WSTRING_E_DST_SIZE){
+	if((rc = nxs_wstring_cat(dst, src)) == NXS_WSTRING_E_DST_SIZE) {
 
 		nxs_wstring_resize(dst, dst->len + src->len + 1);
 
@@ -457,17 +485,17 @@ ssize_t nxs_wstring_cat_dyn(nxs_wstring_t *dst, nxs_wstring_t *src)
 ssize_t nxs_wstring_ncat(nxs_wstring_t *dst, nxs_wstring_t *src, size_t n)
 {
 
-	if(dst == NULL || src == NULL){
+	if(dst == NULL || src == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(n > src->len){
+	if(n > src->len) {
 
 		return NXS_WSTRING_E_SRC_SIZE;
 	}
 
-	if(dst->len + n + 1 > dst->size){
+	if(dst->len + n + 1 > dst->size) {
 
 		return NXS_WSTRING_E_DST_SIZE;
 	}
@@ -484,7 +512,7 @@ ssize_t nxs_wstring_ncat_dyn(nxs_wstring_t *dst, nxs_wstring_t *src, size_t n)
 {
 	ssize_t rc;
 
-	if((rc = nxs_wstring_ncat(dst, src, n)) == NXS_WSTRING_E_DST_SIZE){
+	if((rc = nxs_wstring_ncat(dst, src, n)) == NXS_WSTRING_E_DST_SIZE) {
 
 		nxs_wstring_resize(dst, dst->len + n + 1);
 
@@ -507,29 +535,29 @@ int nxs_wstring_cmp(nxs_wstring_t *str1, size_t offset1, nxs_wstring_t *str2, si
 {
 	size_t i;
 
-	if(str1 == NULL || str2 == NULL){
+	if(str1 == NULL || str2 == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(offset1 > str1->len){
+	if(offset1 > str1->len) {
 
 		return NXS_WSTRING_E_OFFSET;
 	}
 
-	if(offset2 > str2->len){
+	if(offset2 > str2->len) {
 
 		return NXS_WSTRING_E_OFFSET;
 	}
 
-	if(str1->len - offset1 != str2->len - offset2){
+	if(str1->len - offset1 != str2->len - offset2) {
 
 		return NXS_WSTRING_CMP_NE;
 	}
 
-	for(i = 0; i < str1->len - offset1; i++){
+	for(i = 0; i < str1->len - offset1; i++) {
 
-		if(str1->str[offset1 + i] != str2->str[offset2 + i]){
+		if(str1->str[offset1 + i] != str2->str[offset2 + i]) {
 
 			return NXS_WSTRING_CMP_NE;
 		}
@@ -551,29 +579,29 @@ int nxs_wstring_ncmp(nxs_wstring_t *str1, size_t offset1, nxs_wstring_t *str2, s
 {
 	size_t i;
 
-	if(str1 == NULL || str2 == NULL){
+	if(str1 == NULL || str2 == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(offset1 > str1->len){
+	if(offset1 > str1->len) {
 
 		return NXS_WSTRING_E_OFFSET;
 	}
 
-	if(offset2 > str2->len){
+	if(offset2 > str2->len) {
 
 		return NXS_WSTRING_E_OFFSET;
 	}
 
-	if(n > str1->len - offset1 || n > str2->len - offset2){
+	if(n > str1->len - offset1 || n > str2->len - offset2) {
 
 		return NXS_WSTRING_CMP_NE;
 	}
 
-	for(i = 0; i < n; i++){
+	for(i = 0; i < n; i++) {
 
-		if(str1->str[offset1 + i] != str2->str[offset2 + i]){
+		if(str1->str[offset1 + i] != str2->str[offset2 + i]) {
 
 			return NXS_WSTRING_CMP_NE;
 		}
@@ -595,26 +623,26 @@ ssize_t nxs_wstring_wchar_cpy(nxs_wstring_t *str, size_t offset, wchar_t *ch_str
 {
 	size_t len;
 
-	if(str == NULL || ch_str == NULL){
+	if(str == NULL || ch_str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(offset > 0 && offset > str->len){
+	if(offset > 0 && offset > str->len) {
 
 		return NXS_WSTRING_E_OFFSET;
 	}
 
 	len = wcslen((const wchar_t *)ch_str);
 
-	if(offset + len + 1 > str->size){
+	if(offset + len + 1 > str->size) {
 
 		return NXS_WSTRING_E_DST_SIZE;
 	}
 
 	nxs_memcpy(str->str + offset, ch_str, sizeof(wchar_t) * len);
 
-	str->len = offset + len;
+	str->len           = offset + len;
 	str->str[str->len] = '\0';
 
 	return str->len;
@@ -622,17 +650,17 @@ ssize_t nxs_wstring_wchar_cpy(nxs_wstring_t *str, size_t offset, wchar_t *ch_str
 
 ssize_t nxs_wstring_wchar_cpy_dyn(nxs_wstring_t *str, size_t offset, wchar_t *ch_str)
 {
-	size_t		len;
-	ssize_t		rc;
+	size_t  len;
+	ssize_t rc;
 
-	if(ch_str == NULL){
+	if(ch_str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
 	len = wcslen((const wchar_t *)ch_str);
 
-	if((rc = nxs_wstring_wchar_cpy(str, offset, ch_str)) == NXS_WSTRING_E_DST_SIZE){
+	if((rc = nxs_wstring_wchar_cpy(str, offset, ch_str)) == NXS_WSTRING_E_DST_SIZE) {
 
 		nxs_wstring_resize(str, offset + len + 1);
 
@@ -656,24 +684,24 @@ ssize_t nxs_wstring_wchar_cpy_dyn(nxs_wstring_t *str, size_t offset, wchar_t *ch
 ssize_t nxs_wstring_wchar_ncpy(nxs_wstring_t *str, size_t offset, wchar_t *ch_str, size_t n)
 {
 
-	if(str == NULL || ch_str == NULL){
+	if(str == NULL || ch_str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(offset > 0 && offset > str->len){
+	if(offset > 0 && offset > str->len) {
 
 		return NXS_WSTRING_E_OFFSET;
 	}
 
-	if(offset + n + 1 > str->size){
+	if(offset + n + 1 > str->size) {
 
 		return NXS_WSTRING_E_DST_SIZE;
 	}
 
 	nxs_memcpy(str->str + offset, ch_str, sizeof(wchar_t) * n);
 
-	str->len = offset + n;
+	str->len           = offset + n;
 	str->str[str->len] = '\0';
 
 	return str->len;
@@ -683,7 +711,7 @@ ssize_t nxs_wstring_wchar_ncpy_dyn(nxs_wstring_t *str, size_t offset, wchar_t *c
 {
 	ssize_t rc;
 
-	if((rc = nxs_wstring_wchar_ncpy(str, offset, ch_str, n)) == NXS_WSTRING_E_DST_SIZE){
+	if((rc = nxs_wstring_wchar_ncpy(str, offset, ch_str, n)) == NXS_WSTRING_E_DST_SIZE) {
 
 		nxs_wstring_resize(str, offset + n + 1);
 
@@ -705,14 +733,14 @@ ssize_t nxs_wstring_wchar_cat(nxs_wstring_t *str, wchar_t *ch_str)
 {
 	size_t len;
 
-	if(str == NULL || ch_str == NULL){
+	if(str == NULL || ch_str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
 	len = wcslen((const wchar_t *)ch_str);
 
-	if(str->len + len + 1 > str->size){
+	if(str->len + len + 1 > str->size) {
 
 		return NXS_WSTRING_E_DST_SIZE;
 	}
@@ -727,17 +755,17 @@ ssize_t nxs_wstring_wchar_cat(nxs_wstring_t *str, wchar_t *ch_str)
 
 ssize_t nxs_wstring_wchar_cat_dyn(nxs_wstring_t *str, wchar_t *ch_str)
 {
-	size_t		len;
-	ssize_t		rc;
+	size_t  len;
+	ssize_t rc;
 
-	if(ch_str == NULL){
+	if(ch_str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
 	len = wcslen((const wchar_t *)ch_str);
 
-	if((rc = nxs_wstring_wchar_cat(str, ch_str)) == NXS_WSTRING_E_DST_SIZE){
+	if((rc = nxs_wstring_wchar_cat(str, ch_str)) == NXS_WSTRING_E_DST_SIZE) {
 
 		nxs_wstring_resize(str, str->len + len + 1);
 
@@ -760,12 +788,12 @@ ssize_t nxs_wstring_wchar_cat_dyn(nxs_wstring_t *str, wchar_t *ch_str)
 ssize_t nxs_wstring_wchar_ncat(nxs_wstring_t *str, wchar_t *ch_str, size_t n)
 {
 
-	if(str == NULL || ch_str == NULL){
+	if(str == NULL || ch_str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(str->len + n + 1 > str->size){
+	if(str->len + n + 1 > str->size) {
 
 		return NXS_WSTRING_E_DST_SIZE;
 	}
@@ -782,7 +810,7 @@ ssize_t nxs_wstring_wchar_ncat_dyn(nxs_wstring_t *str, wchar_t *ch_str, size_t n
 {
 	ssize_t rc;
 
-	if((rc = nxs_wstring_wchar_ncat(str, ch_str, n)) == NXS_WSTRING_E_DST_SIZE){
+	if((rc = nxs_wstring_wchar_ncat(str, ch_str, n)) == NXS_WSTRING_E_DST_SIZE) {
 
 		nxs_wstring_resize(str, str->len + n + 1);
 
@@ -805,26 +833,26 @@ int nxs_wstring_wchar_cmp(nxs_wstring_t *str, size_t offset, wchar_t *ch_str)
 {
 	size_t i, len;
 
-	if(str == NULL || ch_str == NULL){
+	if(str == NULL || ch_str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(offset + 1 > str->len){
+	if(offset + 1 > str->len) {
 
 		return NXS_WSTRING_E_OFFSET;
 	}
 
 	len = wcslen((const wchar_t *)ch_str);
 
-	if(str->len - offset != len){
+	if(str->len - offset != len) {
 
 		return NXS_WSTRING_CMP_NE;
 	}
 
-	for(i = 0; i < str->len - offset; i++){
+	for(i = 0; i < str->len - offset; i++) {
 
-		if(str->str[offset + i] != ch_str[i]){
+		if(str->str[offset + i] != ch_str[i]) {
 
 			return NXS_WSTRING_CMP_NE;
 		}
@@ -847,24 +875,24 @@ int nxs_wstring_wchar_ncmp(nxs_wstring_t *str, size_t offset, wchar_t *ch_str, s
 {
 	size_t i;
 
-	if(str == NULL || ch_str == NULL){
+	if(str == NULL || ch_str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(offset + 1 > str->len){
+	if(offset + 1 > str->len) {
 
 		return NXS_WSTRING_E_OFFSET;
 	}
 
-	if(n > str->len){
+	if(n > str->len) {
 
 		return NXS_WSTRING_CMP_NE;
 	}
 
-	for(i = 0; i < n; i++){
+	for(i = 0; i < n; i++) {
 
-		if(str->str[offset + i] != ch_str[i]){
+		if(str->str[offset + i] != ch_str[i]) {
 
 			return NXS_WSTRING_CMP_NE;
 		}
@@ -884,23 +912,23 @@ int nxs_wstring_wchar_ncmp(nxs_wstring_t *str, size_t offset, wchar_t *ch_str, s
 ssize_t nxs_wstring_wchar_add_wchar(nxs_wstring_t *str, wchar_t c)
 {
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(c == '\0'){
+	if(c == '\0') {
 
-		if(str->len + 1 > str->size){
+		if(str->len + 1 > str->size) {
 
 			return NXS_WSTRING_E_DST_SIZE;
 		}
 
 		str->str[str->len] = c;
 	}
-	else{
+	else {
 
-		if(str->len + 2 > str->size){
+		if(str->len + 2 > str->size) {
 
 			return NXS_WSTRING_E_DST_SIZE;
 		}
@@ -918,7 +946,7 @@ ssize_t nxs_wstring_wchar_add_wchar_dyn(nxs_wstring_t *str, wchar_t c)
 {
 	ssize_t rc;
 
-	if((rc = nxs_wstring_wchar_add_wchar(str, c)) == NXS_WSTRING_E_DST_SIZE){
+	if((rc = nxs_wstring_wchar_add_wchar(str, c)) == NXS_WSTRING_E_DST_SIZE) {
 
 		nxs_wstring_resize(str, str->len + 2);
 
@@ -930,91 +958,95 @@ ssize_t nxs_wstring_wchar_add_wchar_dyn(nxs_wstring_t *str, wchar_t c)
 
 void nxs_wstring_basename(nxs_wstring_t *dst, nxs_wstring_t *path)
 {
-	size_t 		i, len;
-	ssize_t		l;
+	size_t  i, len;
+	ssize_t l;
 
-	if(dst == NULL || path == NULL){
+	if(dst == NULL || path == NULL) {
 
 		return;
 	}
 
 	len = path->len;
 
-	if(len == 0){
+	if(len == 0) {
 
 		nxs_wstring_wchar_cpy_dyn(dst, 0, (wchar_t *)".");
 
 		return;
 	}
 
-	while(len > 1 && path->str[len - 1] == L'/'){
+	while(len > 1 && path->str[len - 1] == L'/') {
 
 		len--;
 	}
 
-	if(len == 1){
+	if(len == 1) {
 
 		nxs_wstring_ncpy_dyn(dst, 0, path, 0, 1);
 
 		return;
 	}
 
-	for(l = len - 1; l >= 0 && path->str[l] != L'/'; l--);
+	for(l = len - 1; l >= 0 && path->str[l] != L'/'; l--)
+		;
 
 	l++;
 
-	if(dst->size < len - l + 1){
+	if(dst->size < len - l + 1) {
 
 		nxs_wstring_resize(dst, len - l + 1);
 	}
 
-	for(i = l; i < len; i++){
+	for(i = l; i < len; i++) {
 
 		dst->str[i - l] = path->str[i];
 	}
 
 	dst->str[i - l] = L'\0';
-	dst->len = i - l;
+	dst->len        = i - l;
 }
 
 void nxs_wstring_dirname(nxs_wstring_t *dst, nxs_wstring_t *path)
 {
-	ssize_t 		l, i;
+	ssize_t l, i;
 
-	if(dst == NULL || path == NULL){
+	if(dst == NULL || path == NULL) {
 
 		return;
 	}
 
-	for(l = path->len - 1; l >= 0 && path->str[l] == L'/'; l--);
-	for(                 ; l >= 0 && path->str[l] != L'/'; l--);
-	for(                 ; l >= 0 && path->str[l] == L'/'; l--);
+	for(l = path->len - 1; l >= 0 && path->str[l] == L'/'; l--)
+		;
+	for(; l >= 0 && path->str[l] != L'/'; l--)
+		;
+	for(; l >= 0 && path->str[l] == L'/'; l--)
+		;
 
-	if(l < 0){
+	if(l < 0) {
 
-		if(path->str[0] == L'/'){
+		if(path->str[0] == L'/') {
 
 			nxs_wstring_wchar_cpy_dyn(dst, 0, (wchar_t *)"/");
 		}
-		else{
+		else {
 
 			nxs_wstring_wchar_cpy_dyn(dst, 0, (wchar_t *)".");
 		}
 	}
-	else{
+	else {
 
-		if(dst->size < (size_t)l + 2){
+		if(dst->size < (size_t)l + 2) {
 
 			nxs_wstring_resize(dst, l + 2);
 		}
 
-		for(i = 0; i <= l; i++){
+		for(i = 0; i <= l; i++) {
 
 			dst->str[i] = path->str[i];
 		}
 
 		dst->str[i] = L'\0';
-		dst->len = i;
+		dst->len    = i;
 	}
 }
 
@@ -1032,19 +1064,19 @@ void nxs_wstring_dirname(nxs_wstring_t *dst, nxs_wstring_t *path)
 ssize_t nxs_wstring_set_wchar(nxs_wstring_t *str, size_t pos, wchar_t c)
 {
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
 	nxs_wstring_check_not_created(str);
 
-	if(pos > str->len){
+	if(pos > str->len) {
 
 		return NXS_WSTRING_E_DST_LEN;
 	}
 
-	if(pos == str->len){
+	if(pos == str->len) {
 
 		return nxs_wstring_wchar_add_wchar(str, c);
 	}
@@ -1055,7 +1087,8 @@ ssize_t nxs_wstring_set_wchar(nxs_wstring_t *str, size_t pos, wchar_t c)
 }
 
 /*
- * Задать новую длину строки. Будет установлен символ конца строки в позицию len (соответствующим образом будет изменено значение длины строки).
+ * Задать новую длину строки. Будет установлен символ конца строки в позицию len (соответствующим образом будет изменено значение длины
+ * строки).
  * Проверка наличия других символов '\0' в строке не проверяется.
  *
  * Возвращаемое значение:
@@ -1066,12 +1099,12 @@ ssize_t nxs_wstring_set_wchar(nxs_wstring_t *str, size_t pos, wchar_t c)
 ssize_t nxs_wstring_set_len(nxs_wstring_t *str, size_t len)
 {
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(len >= str->size){
+	if(len >= str->size) {
 
 		return NXS_WSTRING_E_DST_SIZE;
 	}
@@ -1093,12 +1126,12 @@ ssize_t nxs_wstring_set_len(nxs_wstring_t *str, size_t len)
 ssize_t nxs_wstring_len_fix(nxs_wstring_t *str)
 {
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return NXS_WSTRING_E_PTR;
 	}
 
-	if(str->size == 0){
+	if(str->size == 0) {
 
 		return NXS_WSTRING_E_DST_SIZE;
 	}
@@ -1118,12 +1151,12 @@ ssize_t nxs_wstring_len_fix(nxs_wstring_t *str)
 wchar_t nxs_wstring_get_wchar(nxs_wstring_t *str, size_t pos)
 {
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return 0;
 	}
 
-	if(pos > str->len - 1){
+	if(pos > str->len - 1) {
 
 		return 0;
 	}
@@ -1141,12 +1174,12 @@ wchar_t nxs_wstring_get_wchar(nxs_wstring_t *str, size_t pos)
 wchar_t *nxs_wstring_get_substr(nxs_wstring_t *str, size_t offset)
 {
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return NULL;
 	}
 
-	if(offset >= str->size){
+	if(offset >= str->size) {
 
 		return NULL;
 	}
@@ -1159,40 +1192,41 @@ wchar_t *nxs_wstring_get_substr(nxs_wstring_t *str, size_t offset)
  *
  * Возвращаемое значение:
  * * Указатель на найденную подстроку в строке str
- * * NULL - если подстрока не найдена, длина искомой строки больше длины строки str или смещение offset в строке str больше длины строки str, либо
+ * * NULL - если подстрока не найдена, длина искомой строки больше длины строки str или смещение offset в строке str больше длины строки
+ * str, либо
  * 				хотя бы один из указателей "str" или "f_str" равен NULL
  */
 wchar_t *nxs_wstring_find_substr_first(nxs_wstring_t *str, size_t offset, wchar_t *f_str, size_t f_str_len)
 {
 	size_t i, j;
 
-	if(str == NULL || f_str == NULL){
+	if(str == NULL || f_str == NULL) {
 
 		return NULL;
 	}
 
-	if(f_str_len > str->len){
+	if(f_str_len > str->len) {
 
 		return NULL;
 	}
 
-	if(offset + 1 > str->len){
+	if(offset + 1 > str->len) {
 
 		return NULL;
 	}
 
-	for(i = offset, j = 0; i < str->len; i++){
+	for(i = offset, j = 0; i < str->len; i++) {
 
-		if(str->str[i] == f_str[j]){
+		if(str->str[i] == f_str[j]) {
 
-			if(j + 1 == f_str_len){
+			if(j + 1 == f_str_len) {
 
 				return str->str + i - j;
 			}
 
 			j++;
 		}
-		else{
+		else {
 
 			j = 0;
 		}
@@ -1200,7 +1234,7 @@ wchar_t *nxs_wstring_find_substr_first(nxs_wstring_t *str, size_t offset, wchar_
 		/*
 		 * Если в строке str осталось для проверки символов меньше, чем необхо проверить в строке f_str
 		 */
-		if(str->len - (i + 1) < f_str_len - j){
+		if(str->len - (i + 1) < f_str_len - j) {
 
 			return NULL;
 		}
@@ -1214,40 +1248,41 @@ wchar_t *nxs_wstring_find_substr_first(nxs_wstring_t *str, size_t offset, wchar_
  *
  * Возвращаемое значение:
  * * Указатель на найденную подстроку в строке str
- * * NULL - если подстрока не найдена, длина искомой строки больше длины строки str или смещение offset в строке str больше длины строки str, либо
+ * * NULL - если подстрока не найдена, длина искомой строки больше длины строки str или смещение offset в строке str больше длины строки
+ * str, либо
  * 				хотя бы один из указателей "str" или "f_str" равен NULL
  */
 wchar_t *nxs_wstring_find_substr_last(nxs_wstring_t *str, size_t offset, wchar_t *f_str, size_t f_str_len)
 {
 	size_t i, j;
 
-	if(str == NULL || f_str == NULL){
+	if(str == NULL || f_str == NULL) {
 
 		return NULL;
 	}
 
-	if(str->len < f_str_len){
+	if(str->len < f_str_len) {
 
 		return NULL;
 	}
 
-	if(str->len < offset + 1){
+	if(str->len < offset + 1) {
 
 		return NULL;
 	}
 
-	for(i = str->len - 1, j = f_str_len - 1; i >= offset; i--){
+	for(i = str->len - 1, j = f_str_len - 1; i >= offset; i--) {
 
-		if(str->str[i] == f_str[j]){
+		if(str->str[i] == f_str[j]) {
 
-			if(j == 0){
+			if(j == 0) {
 
 				return str->str + i;
 			}
 
 			j--;
 		}
-		else{
+		else {
 
 			j = f_str_len - 1;
 		}
@@ -1255,7 +1290,7 @@ wchar_t *nxs_wstring_find_substr_last(nxs_wstring_t *str, size_t offset, wchar_t
 		/*
 		 * Если в строке str осталось для проверки символов меньше, чем необхо проверить в строке f_str
 		 */
-		if(i - offset < j + 1){
+		if(i - offset < j + 1) {
 
 			return NULL;
 		}
@@ -1266,10 +1301,12 @@ wchar_t *nxs_wstring_find_substr_last(nxs_wstring_t *str, size_t offset, wchar_t
 /*
 size_t	nxs_wstring_to_string(nxs_wstring_t *src, nxs_string_t *dst)
 {
-	size_t n;
+        size_t n;
 
-	n = wcstombs(dst->str, src->str, dst->size - 1);
+        n = wcstombs(dst->str, src->str, dst->size - 1);
 
 
 }
 */
+
+/* Module internal (static) functions */

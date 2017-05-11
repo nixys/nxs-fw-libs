@@ -1,4 +1,28 @@
+// clang-format off
+
+/* Module includes */
+
 #include <nxs-core/nxs-core.h>
+
+/* Module definitions */
+
+
+
+/* Module typedefs */
+
+
+
+/* Module declarations */
+
+
+
+/* Module internal (static) functions prototypes */
+
+// clang-format on
+
+// clang-format off
+
+/* Module initializations */
 
 static const u_char nxs_base64_encoding_table[] =
 {
@@ -34,10 +58,14 @@ static const u_char nxs_base64_decoding_table[] =
 
 static size_t nxs_base64_mod_table[] = {0, 2, 1};
 
+/* Module global functions */
+
+// clang-format on
+
 void nxs_base64_encode_string(nxs_string_t *dst, nxs_string_t *src)
 {
-	size_t		i, j, il, ol;
-	uint32_t	octet_a, octet_b, octet_c, triple;
+	size_t   i, j, il, ol;
+	uint32_t octet_a, octet_b, octet_c, triple;
 
 	il = nxs_string_len(src);
 	ol = 4 * ((il + 2) / 3);
@@ -59,7 +87,7 @@ void nxs_base64_encode_string(nxs_string_t *dst, nxs_string_t *src)
 		nxs_string_set_char(dst, j++, nxs_base64_encoding_table[(triple >> 0 * 6) & 0x3F]);
 	}
 
-	for(i = 0; i < nxs_base64_mod_table[il % 3]; i++){
+	for(i = 0; i < nxs_base64_mod_table[il % 3]; i++) {
 
 		nxs_string_set_char(dst, ol - i - 1, (u_char)'=');
 	}
@@ -69,24 +97,24 @@ void nxs_base64_encode_string(nxs_string_t *dst, nxs_string_t *src)
 
 void nxs_base64_decode_string(nxs_string_t *dst, nxs_string_t *src)
 {
-	size_t		i, j, il, ol;
-    uint32_t	sextet_a, sextet_b, sextet_c, sextet_d, triple;
+	size_t   i, j, il, ol;
+	uint32_t sextet_a, sextet_b, sextet_c, sextet_d, triple;
 
-    il = nxs_string_len(src);
+	il = nxs_string_len(src);
 
-	if(il % 4 != 0){
+	if(il % 4 != 0) {
 
 		return;
 	}
 
 	ol = il / 4 * 3;
 
-	if(nxs_string_get_char(src, il - 1) == (u_char)'='){
+	if(nxs_string_get_char(src, il - 1) == (u_char)'=') {
 
 		ol--;
 	}
 
-	if(nxs_string_get_char(src, il - 2) == (u_char)'='){
+	if(nxs_string_get_char(src, il - 2) == (u_char)'=') {
 
 		ol--;
 	}
@@ -94,29 +122,33 @@ void nxs_base64_decode_string(nxs_string_t *dst, nxs_string_t *src)
 	nxs_string_resize(dst, ol + 1);
 	nxs_string_set_len(dst, ol);
 
-	for (i = 0, j = 0; i < il;) {
+	for(i = 0, j = 0; i < il;) {
 
-		sextet_a = (uint32_t)(nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
-		sextet_b = (uint32_t)(nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
-		sextet_c = (uint32_t)(nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
-		sextet_d = (uint32_t)(nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
+		sextet_a = (uint32_t)(
+		        nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
+		sextet_b = (uint32_t)(
+		        nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
+		sextet_c = (uint32_t)(
+		        nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
+		sextet_d = (uint32_t)(
+		        nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
 
-		triple = (sextet_a << 3 * 6)
-					+ (sextet_b << 2 * 6)
-					+ (sextet_c << 1 * 6)
-					+ (sextet_d << 0 * 6);
+		triple = (sextet_a << 3 * 6) + (sextet_b << 2 * 6) + (sextet_c << 1 * 6) + (sextet_d << 0 * 6);
 
-		if (j < ol) nxs_string_set_char(dst, j++, (u_char)((triple >> 2 * 8) & 0xFF));
-		if (j < ol) nxs_string_set_char(dst, j++, (u_char)((triple >> 1 * 8) & 0xFF));
-		if (j < ol) nxs_string_set_char(dst, j++, (u_char)((triple >> 0 * 8) & 0xFF));
+		if(j < ol)
+			nxs_string_set_char(dst, j++, (u_char)((triple >> 2 * 8) & 0xFF));
+		if(j < ol)
+			nxs_string_set_char(dst, j++, (u_char)((triple >> 1 * 8) & 0xFF));
+		if(j < ol)
+			nxs_string_set_char(dst, j++, (u_char)((triple >> 0 * 8) & 0xFF));
 	}
 }
 
 void nxs_base64_encode_void(nxs_string_t *dst, void *src_data, size_t src_len)
 {
-	size_t		i, j, ol;
-	uint32_t	octet_a, octet_b, octet_c, triple;
-	u_char		*src;
+	size_t   i, j, ol;
+	uint32_t octet_a, octet_b, octet_c, triple;
+	u_char * src;
 
 	src = (u_char *)src_data;
 
@@ -139,7 +171,7 @@ void nxs_base64_encode_void(nxs_string_t *dst, void *src_data, size_t src_len)
 		nxs_string_set_char(dst, j++, nxs_base64_encoding_table[(triple >> 0 * 6) & 0x3F]);
 	}
 
-	for(i = 0; i < nxs_base64_mod_table[src_len % 3]; i++){
+	for(i = 0; i < nxs_base64_mod_table[src_len % 3]; i++) {
 
 		nxs_string_set_char(dst, ol - i - 1, (u_char)'=');
 	}
@@ -147,52 +179,58 @@ void nxs_base64_encode_void(nxs_string_t *dst, void *src_data, size_t src_len)
 
 size_t nxs_base64_decode_void(void *dst_data, size_t dst_max_len, nxs_string_t *src)
 {
-	size_t		i, j, il, ol;
-    uint32_t	sextet_a, sextet_b, sextet_c, sextet_d, triple;
-    u_char		*dst;
+	size_t   i, j, il, ol;
+	uint32_t sextet_a, sextet_b, sextet_c, sextet_d, triple;
+	u_char * dst;
 
-    il = nxs_string_len(src);
+	il = nxs_string_len(src);
 
-	if(il % 4 != 0){
+	if(il % 4 != 0) {
 
 		return 0;
 	}
 
 	ol = il / 4 * 3;
 
-	if(nxs_string_get_char(src, il - 1) == (u_char)'='){
+	if(nxs_string_get_char(src, il - 1) == (u_char)'=') {
 
 		ol--;
 	}
 
-	if(nxs_string_get_char(src, il - 2) == (u_char)'='){
+	if(nxs_string_get_char(src, il - 2) == (u_char)'=') {
 
 		ol--;
 	}
 
-	if(ol > dst_max_len){
+	if(ol > dst_max_len) {
 
 		return 0;
 	}
 
 	dst = (u_char *)dst_data;
 
-	for (i = 0, j = 0; i < il;) {
+	for(i = 0, j = 0; i < il;) {
 
-		sextet_a = (uint32_t)(nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
-		sextet_b = (uint32_t)(nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
-		sextet_c = (uint32_t)(nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
-		sextet_d = (uint32_t)(nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
+		sextet_a = (uint32_t)(
+		        nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
+		sextet_b = (uint32_t)(
+		        nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
+		sextet_c = (uint32_t)(
+		        nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
+		sextet_d = (uint32_t)(
+		        nxs_string_get_char(src, i) == (u_char)'=' ? 0 & i++ : nxs_base64_decoding_table[nxs_string_get_char(src, i++)]);
 
-		triple = (sextet_a << 3 * 6)
-					+ (sextet_b << 2 * 6)
-					+ (sextet_c << 1 * 6)
-					+ (sextet_d << 0 * 6);
+		triple = (sextet_a << 3 * 6) + (sextet_b << 2 * 6) + (sextet_c << 1 * 6) + (sextet_d << 0 * 6);
 
-		if (j < ol) dst[j++] = (u_char)((triple >> 2 * 8) & 0xFF);
-		if (j < ol) dst[j++] = (u_char)((triple >> 1 * 8) & 0xFF);
-		if (j < ol) dst[j++] = (u_char)((triple >> 0 * 8) & 0xFF);
+		if(j < ol)
+			dst[j++] = (u_char)((triple >> 2 * 8) & 0xFF);
+		if(j < ol)
+			dst[j++] = (u_char)((triple >> 1 * 8) & 0xFF);
+		if(j < ol)
+			dst[j++] = (u_char)((triple >> 0 * 8) & 0xFF);
 	}
 
 	return ol;
 }
+
+/* Module internal (static) functions */

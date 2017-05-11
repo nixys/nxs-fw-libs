@@ -1,69 +1,105 @@
+// clang-format off
+
+/* Module includes */
+
 #include <nxs-core/nxs-core.h>
 
-#define NXS_CFG_CONF_READ_OK		0
-#define NXS_CFG_CONF_READ_ERROR		1
-#define NXS_CFG_CONF_READ_EOF		2
+/* Module definitions */
 
-#define	NXS_CFG_READ_STATUS_WAIT_OPT			0
-#define	NXS_CFG_READ_STATUS_B_COMMENT			1
-#define	NXS_CFG_READ_STATUS_READ_OPT			2
-#define	NXS_CFG_READ_STATUS_WAIT_SEP			3
-#define	NXS_CFG_READ_STATUS_READ_SEP			4
-#define	NXS_CFG_READ_STATUS_WAIT_VAL			5
-#define	NXS_CFG_READ_STATUS_READ_VAL			6
-#define	NXS_CFG_READ_STATUS_WAIT_EOL			7
-#define	NXS_CFG_READ_STATUS_E_COMMENT			8
-#define	NXS_CFG_READ_STATUS_EOL					9
-#define	NXS_CFG_READ_STATUS_READ_QUETED_VAL		10
+#define NXS_CFG_CONF_READ_OK			0
+#define NXS_CFG_CONF_READ_ERROR			1
+#define NXS_CFG_CONF_READ_EOF			2
+
+#define	NXS_CFG_READ_STATUS_WAIT_OPT		0
+#define	NXS_CFG_READ_STATUS_B_COMMENT		1
+#define	NXS_CFG_READ_STATUS_READ_OPT		2
+#define	NXS_CFG_READ_STATUS_WAIT_SEP		3
+#define	NXS_CFG_READ_STATUS_READ_SEP		4
+#define	NXS_CFG_READ_STATUS_WAIT_VAL		5
+#define	NXS_CFG_READ_STATUS_READ_VAL		6
+#define	NXS_CFG_READ_STATUS_WAIT_EOL		7
+#define	NXS_CFG_READ_STATUS_E_COMMENT		8
+#define	NXS_CFG_READ_STATUS_EOL			9
+#define	NXS_CFG_READ_STATUS_READ_QUETED_VAL	10
 
 #define	NXS_CFG_OPT_VAL_CHANK_SIZE		10
 
-unsigned char nxs_cfg_char_delimiter[]		=	{' ', '\t', '\0'};
-unsigned char nxs_cfg_char_eol				=	'\n';
-unsigned char nxs_cfg_char_sep				=	'=';
-unsigned char nxs_cfg_char_comment			=	'#';
-unsigned char nxs_cfg_char_quote			=	'"';
-unsigned char nxs_cfg_char_opt_set[]		=	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890/_.-:*";
-unsigned char nxs_cfg_char_val_set[]		=	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZабвгдеёжзийклмнопрстуфхцчшщьыъэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯ1234567890|\\/~`!@$%^&*:;.,()-_=+№?'[]{}<>";
+/* Module typedefs */
 
-typedef struct
+typedef struct			nxs_cfg_parse_info_s			nxs_cfg_parse_info_t;
+
+/* Module declarations */
+
+struct nxs_cfg_parse_info_s
 {
-	int		line;
-	int		pos;
-} nxs_cfg_parse_info_t;
+	int			line;
+	int			pos;
+};
 
-static void			nxs_cfg_required_list_fill		(nxs_list_t *required_list, nxs_cfg_par_t *cfg_par);
-static void			nxs_cfg_required_list_del		(nxs_list_t *required_list, nxs_cfg_par_t cfg_par, int option_id);
-static int			nxs_cfg_required_list_check		(nxs_process_t *proc, nxs_list_t *required_list, nxs_cfg_par_t *cfg_par);
-static void			nxs_cfg_definition_list_add		(nxs_list_t *definition_list, int option_id);
-static int			nxs_cfg_definition_list_check	(nxs_list_t *definition_list, nxs_cfg_par_t *cfg_par, int option_id);
-static int			nxs_cfg_process_option			(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_parse_info_t parse_info, nxs_list_t *required_list, nxs_list_t *definition_list, nxs_string_t *opt, nxs_string_t *value);
-static int			nxs_cfg_eop						(nxs_cfg_par_t cfg);
-static int			nxs_cfg_check_delimiter			(unsigned char c);
-static int			nxs_cfg_check_charset			(unsigned char c, unsigned char *charset_srt);
-static void			nxs_cfg_optval_add_char			(nxs_string_t *str, unsigned char c);
-static int			nxs_cfg_read_char				(int fd, nxs_cfg_parse_info_t *parse_info, unsigned char *c);
-static int			nxs_cfg_read_next				(int fd, nxs_cfg_parse_info_t *parse_info, nxs_string_t *opt, nxs_string_t *value);
+/* Module internal (static) functions prototypes */
 
-static int			nxs_cfg_type_handler_int		(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par);
-static int			nxs_cfg_type_handler_string		(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par);
-static int			nxs_cfg_type_handler_num		(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par);
-static int			nxs_cfg_type_handler_list		(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par, nxs_bool_t distinct);
-static int			nxs_cfg_type_handler_list_num	(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par, nxs_bool_t distinct);
+// clang-format on
+
+static void nxs_cfg_required_list_fill(nxs_list_t *required_list, nxs_cfg_par_t *cfg_par);
+static void nxs_cfg_required_list_del(nxs_list_t *required_list, nxs_cfg_par_t cfg_par, int option_id);
+static int nxs_cfg_required_list_check(nxs_process_t *proc, nxs_list_t *required_list, nxs_cfg_par_t *cfg_par);
+static void nxs_cfg_definition_list_add(nxs_list_t *definition_list, int option_id);
+static int nxs_cfg_definition_list_check(nxs_list_t *definition_list, nxs_cfg_par_t *cfg_par, int option_id);
+static int nxs_cfg_process_option(nxs_process_t *      proc,
+                                  nxs_cfg_t            cfg,
+                                  nxs_cfg_parse_info_t parse_info,
+                                  nxs_list_t *         required_list,
+                                  nxs_list_t *         definition_list,
+                                  nxs_string_t *       opt,
+                                  nxs_string_t *       value);
+static int nxs_cfg_eop(nxs_cfg_par_t cfg);
+static int nxs_cfg_check_delimiter(unsigned char c);
+static int nxs_cfg_check_charset(unsigned char c, unsigned char *charset_srt);
+static void nxs_cfg_optval_add_char(nxs_string_t *str, unsigned char c);
+static int nxs_cfg_read_char(int fd, nxs_cfg_parse_info_t *parse_info, unsigned char *c);
+static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_string_t *opt, nxs_string_t *value);
+
+static int nxs_cfg_type_handler_int(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par);
+static int nxs_cfg_type_handler_string(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par);
+static int nxs_cfg_type_handler_num(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par);
+static int
+        nxs_cfg_type_handler_list(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par, nxs_bool_t distinct);
+static int nxs_cfg_type_handler_list_num(nxs_process_t *proc,
+                                         nxs_string_t * opt,
+                                         nxs_string_t * val,
+                                         nxs_cfg_par_t *cfg_par,
+                                         nxs_bool_t     distinct);
+
+// clang-format off
+
+/* Module initializations */
+
+static unsigned char nxs_cfg_char_delimiter[]	= {' ', '\t', '\0'};
+static unsigned char nxs_cfg_char_eol		= '\n';
+static unsigned char nxs_cfg_char_sep		= '=';
+static unsigned char nxs_cfg_char_comment	= '#';
+static unsigned char nxs_cfg_char_quote		= '"';
+static unsigned char nxs_cfg_char_opt_set[]	= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890/_.-:*";
+static unsigned char nxs_cfg_char_val_set[]	= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZабвгдеёжзийклмнопрстуфхцчшщьыъэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯ1234567890|\\/~`!@$%^&*:;.,()-_=+№?'[]{}<>";
+
+/* Module global functions */
+
+// clang-format on
 
 /*
  * Чтение конфигурационного файла "cfg.cfg_path"
  */
 int nxs_cfg_read(nxs_process_t *proc, nxs_cfg_t cfg)
 {
-	int						fd, rc, ret;
-	nxs_string_t			opt, value;
-	nxs_cfg_parse_info_t	parse_info = {1, 0};
-	nxs_list_t				required_list, definition_list;
+	int                  fd, rc, ret;
+	nxs_string_t         opt, value;
+	nxs_cfg_parse_info_t parse_info = {1, 0};
+	nxs_list_t           required_list, definition_list;
 
-	if((fd = nxs_fs_open(&cfg.cfg_path, O_RDONLY)) == -1){
+	if((fd = nxs_fs_open(&cfg.cfg_path, O_RDONLY)) == -1) {
 
-		nxs_log_write_debug(proc, "config error: can't open config file: %s (config file: %s)", strerror(errno), nxs_string_str(&cfg.cfg_path));
+		nxs_log_write_debug(
+		        proc, "config error: can't open config file: %s (config file: %s)", strerror(errno), nxs_string_str(&cfg.cfg_path));
 
 		return NXS_CFG_CONF_ERROR;
 	}
@@ -80,9 +116,9 @@ int nxs_cfg_read(nxs_process_t *proc, nxs_cfg_t cfg)
 	/*
 	 * Если задано - производим вызов начальной функции, которая произведёт подготовительные действия
 	 */
-	if(cfg.prep_function != NULL){
+	if(cfg.prep_function != NULL) {
 
-		if(cfg.prep_function(cfg) != NXS_CFG_CONF_OK){
+		if(cfg.prep_function(cfg) != NXS_CFG_CONF_OK) {
 
 			nxs_log_write_error(proc, "fatal config error");
 
@@ -95,27 +131,29 @@ int nxs_cfg_read(nxs_process_t *proc, nxs_cfg_t cfg)
 	 * Обработка (чтение) параметров конфигурационного файла
 	 */
 
-	while((rc = nxs_cfg_read_next(fd, &parse_info, &opt, &value)) == NXS_CFG_CONF_READ_OK){
+	while((rc = nxs_cfg_read_next(fd, &parse_info, &opt, &value)) == NXS_CFG_CONF_READ_OK) {
 
-		if(nxs_cfg_process_option(proc, cfg, parse_info, &required_list, &definition_list, &opt, &value) != NXS_CFG_CONF_OK){
+		if(nxs_cfg_process_option(proc, cfg, parse_info, &required_list, &definition_list, &opt, &value) != NXS_CFG_CONF_OK) {
 
 			ret = NXS_CFG_CONF_ERROR;
 			goto error;
 		}
 	}
 
-	if(rc == NXS_CFG_CONF_READ_ERROR){
+	if(rc == NXS_CFG_CONF_READ_ERROR) {
 
-		nxs_log_write_error(proc, "fatal config error: unexpected character (line: %d, pos: %d)", parse_info.line, parse_info.pos - 1);
+		nxs_log_write_error(
+		        proc, "fatal config error: unexpected character (line: %d, pos: %d)", parse_info.line, parse_info.pos - 1);
 
 		ret = NXS_CFG_CONF_ERROR;
 		goto error;
 	}
-	else{
+	else {
 
-		if(nxs_string_len(&opt) > 0){
+		if(nxs_string_len(&opt) > 0) {
 
-			if(nxs_cfg_process_option(proc, cfg, parse_info, &required_list, &definition_list, &opt, &value) != NXS_CFG_CONF_OK){
+			if(nxs_cfg_process_option(proc, cfg, parse_info, &required_list, &definition_list, &opt, &value) !=
+			   NXS_CFG_CONF_OK) {
 
 				ret = NXS_CFG_CONF_ERROR;
 				goto error;
@@ -126,7 +164,7 @@ int nxs_cfg_read(nxs_process_t *proc, nxs_cfg_t cfg)
 	/*
 	 * Проверка на определение обязательных опций
 	 */
-	if(nxs_cfg_required_list_check(proc, &required_list, cfg.cfg_par) != NXS_CFG_CONF_OK){
+	if(nxs_cfg_required_list_check(proc, &required_list, cfg.cfg_par) != NXS_CFG_CONF_OK) {
 
 		nxs_log_write_error(proc, "fatal config error");
 
@@ -137,9 +175,9 @@ int nxs_cfg_read(nxs_process_t *proc, nxs_cfg_t cfg)
 	/*
 	 * Если задано - производим вызов постконфигурационной функции, которая произведёт завершающие (проверочные) действия
 	 */
-	if(cfg.post_function != NULL){
+	if(cfg.post_function != NULL) {
 
-		if(cfg.post_function(cfg) != NXS_CFG_CONF_OK){
+		if(cfg.post_function(cfg) != NXS_CFG_CONF_OK) {
 
 			nxs_log_write_error(proc, "fatal config error");
 
@@ -161,6 +199,8 @@ error:
 	return ret;
 }
 
+/* Module internal (static) functions */
+
 /*
  * Заполнение списка номерами параметров, которые являются обязательными
  */
@@ -170,9 +210,9 @@ static void nxs_cfg_required_list_fill(nxs_list_t *required_list, nxs_cfg_par_t 
 
 	nxs_list_init(required_list, sizeof(int));
 
-	for(i = 0; !nxs_cfg_eop(cfg_par[i]); i++){
+	for(i = 0; !nxs_cfg_eop(cfg_par[i]); i++) {
 
-		if(cfg_par[i].required == NXS_CFG_REQUIRED_YES){
+		if(cfg_par[i].required == NXS_CFG_REQUIRED_YES) {
 
 			index = nxs_list_add_tail(required_list);
 
@@ -188,11 +228,12 @@ static void nxs_cfg_required_list_del(nxs_list_t *required_list, nxs_cfg_par_t c
 {
 	int *index;
 
-	if(cfg_par.required == NXS_CFG_REQUIRED_YES){
+	if(cfg_par.required == NXS_CFG_REQUIRED_YES) {
 
-		for(index = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, required_list); index != NULL; index = nxs_list_ptr_next(required_list)){
+		for(index = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, required_list); index != NULL;
+		    index = nxs_list_ptr_next(required_list)) {
 
-			if(*index == option_id){
+			if(*index == option_id) {
 
 				nxs_list_del(required_list, NXS_LIST_MOVE_NEXT);
 
@@ -214,12 +255,12 @@ static int nxs_cfg_required_list_check(nxs_process_t *proc, nxs_list_t *required
 {
 	int *index;
 
-	if(nxs_list_count(required_list) == 0){
+	if(nxs_list_count(required_list) == 0) {
 
 		return NXS_CFG_CONF_OK;
 	}
 
-	for(index = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, required_list); index != NULL; index = nxs_list_ptr_next(required_list)){
+	for(index = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, required_list); index != NULL; index = nxs_list_ptr_next(required_list)) {
 
 		nxs_log_write_error(proc, "required option was not defined (option: \"%s\")", nxs_string_str(&cfg_par[*index].name));
 	}
@@ -232,7 +273,7 @@ static int nxs_cfg_required_list_check(nxs_process_t *proc, nxs_list_t *required
  */
 static void nxs_cfg_definition_list_add(nxs_list_t *definition_list, int option_id)
 {
-	int	*index;
+	int *index;
 
 	index = nxs_list_add_tail(definition_list);
 
@@ -251,14 +292,14 @@ static int nxs_cfg_definition_list_check(nxs_list_t *definition_list, nxs_cfg_pa
 {
 	int *index;
 
-	if(cfg_par[option_id].twice_def == NXS_CFG_TWICE_DEFINITION_YES){
+	if(cfg_par[option_id].twice_def == NXS_CFG_TWICE_DEFINITION_YES) {
 
 		return NXS_CFG_CONF_OK;
 	}
 
-	for(index = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, definition_list); index != NULL; index = nxs_list_ptr_next(definition_list)){
+	for(index = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, definition_list); index != NULL; index = nxs_list_ptr_next(definition_list)) {
 
-		if(*index == option_id){
+		if(*index == option_id) {
 
 			return NXS_CFG_CONF_ERROR;
 		}
@@ -270,13 +311,19 @@ static int nxs_cfg_definition_list_check(nxs_list_t *definition_list, nxs_cfg_pa
 /*
  * Обработка конкретной опции
  */
-static int nxs_cfg_process_option(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_parse_info_t parse_info, nxs_list_t *required_list, nxs_list_t *definition_list, nxs_string_t *opt, nxs_string_t *value)
+static int nxs_cfg_process_option(nxs_process_t *      proc,
+                                  nxs_cfg_t            cfg,
+                                  nxs_cfg_parse_info_t parse_info,
+                                  nxs_list_t *         required_list,
+                                  nxs_list_t *         definition_list,
+                                  nxs_string_t *       opt,
+                                  nxs_string_t *       value)
 {
 	int flag_found_opt, i;
 
-	for(flag_found_opt = 0, i = 0; !nxs_cfg_eop(cfg.cfg_par[i]); i++){
+	for(flag_found_opt = 0, i = 0; !nxs_cfg_eop(cfg.cfg_par[i]); i++) {
 
-		if(nxs_string_cmp(&cfg.cfg_par[i].name, NXS_STRING_NO_OFFSET, opt, NXS_STRING_NO_OFFSET) == NXS_STRING_CMP_EQ){
+		if(nxs_string_cmp(&cfg.cfg_par[i].name, NXS_STRING_NO_OFFSET, opt, NXS_STRING_NO_OFFSET) == NXS_STRING_CMP_EQ) {
 
 			flag_found_opt = 1;
 
@@ -284,41 +331,50 @@ static int nxs_cfg_process_option(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_pa
 		}
 	}
 
-	if(flag_found_opt == 0){
+	if(flag_found_opt == 0) {
 
-		nxs_log_write_error(proc, "fatal config error: unknown option at line %d (option name: \"%s\")", parse_info.line - 1, nxs_string_str(opt));
+		nxs_log_write_error(proc,
+		                    "fatal config error: unknown option at line %d (option name: \"%s\")",
+		                    parse_info.line - 1,
+		                    nxs_string_str(opt));
 
 		return NXS_CFG_CONF_ERROR;
 	}
-	else{
+	else {
 
 		/*
 		 * Проверка наличия этой опции в списке ранее определённых опций
 		 */
-		if(nxs_cfg_definition_list_check(definition_list, cfg.cfg_par, i) != NXS_CFG_CONF_OK){
+		if(nxs_cfg_definition_list_check(definition_list, cfg.cfg_par, i) != NXS_CFG_CONF_OK) {
 
-			nxs_log_write_error(proc, "fatal config error: double definition option at line %d (option name: \"%s\")", parse_info.line - 1, nxs_string_str(opt));
+			nxs_log_write_error(proc,
+			                    "fatal config error: double definition option at line %d (option name: \"%s\")",
+			                    parse_info.line - 1,
+			                    nxs_string_str(opt));
 
 			return NXS_CFG_CONF_ERROR;
 		}
 
+		if(cfg.cfg_par[i].init_function != NULL) {
 
-		if(cfg.cfg_par[i].init_function != NULL){
-
-			if(cfg.cfg_par[i].init_function(opt, value, &cfg.cfg_par[i]) != NXS_CFG_CONF_OK){
+			if(cfg.cfg_par[i].init_function(opt, value, &cfg.cfg_par[i]) != NXS_CFG_CONF_OK) {
 
 				nxs_log_write_error(proc, "fatal config error at line %d", parse_info.line - 1);
 
 				return NXS_CFG_CONF_ERROR;
 			}
 		}
-		else{
+		else {
 
-			switch(cfg.cfg_par[i].type){
+			switch(cfg.cfg_par[i].type) {
 
 				case NXS_CFG_TYPE_VOID:
 
-					nxs_log_write_error(proc, "fatal config error: options with type 'void' must have handlers (option name: \"%s\", line: %d)", nxs_string_str(opt), parse_info.line - 1);
+					nxs_log_write_error(proc,
+					                    "fatal config error: options with type 'void' must have handlers (option name: "
+					                    "\"%s\", line: %d)",
+					                    nxs_string_str(opt),
+					                    parse_info.line - 1);
 
 					return NXS_CFG_CONF_ERROR;
 
@@ -326,7 +382,7 @@ static int nxs_cfg_process_option(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_pa
 
 				case NXS_CFG_TYPE_INT:
 
-					if(nxs_cfg_type_handler_int(proc, opt, value, &cfg.cfg_par[i]) != NXS_CFG_CONF_OK){
+					if(nxs_cfg_type_handler_int(proc, opt, value, &cfg.cfg_par[i]) != NXS_CFG_CONF_OK) {
 
 						nxs_log_write_error(proc, "fatal config error at line %d", parse_info.line - 1);
 
@@ -337,7 +393,7 @@ static int nxs_cfg_process_option(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_pa
 
 				case NXS_CFG_TYPE_STRING:
 
-					if(nxs_cfg_type_handler_string(proc, opt, value, &cfg.cfg_par[i]) != NXS_CFG_CONF_OK){
+					if(nxs_cfg_type_handler_string(proc, opt, value, &cfg.cfg_par[i]) != NXS_CFG_CONF_OK) {
 
 						nxs_log_write_error(proc, "fatal config error at line %d", parse_info.line - 1);
 
@@ -348,7 +404,7 @@ static int nxs_cfg_process_option(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_pa
 
 				case NXS_CFG_TYPE_NUM:
 
-					if(nxs_cfg_type_handler_num(proc, opt, value, &cfg.cfg_par[i]) != NXS_CFG_CONF_OK){
+					if(nxs_cfg_type_handler_num(proc, opt, value, &cfg.cfg_par[i]) != NXS_CFG_CONF_OK) {
 
 						nxs_log_write_error(proc, "fatal config error at line %d", parse_info.line - 1);
 
@@ -359,7 +415,7 @@ static int nxs_cfg_process_option(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_pa
 
 				case NXS_CFG_TYPE_LIST:
 
-					if(nxs_cfg_type_handler_list(proc, opt, value, &cfg.cfg_par[i], NXS_NO) != NXS_CFG_CONF_OK){
+					if(nxs_cfg_type_handler_list(proc, opt, value, &cfg.cfg_par[i], NXS_NO) != NXS_CFG_CONF_OK) {
 
 						nxs_log_write_error(proc, "fatal config error at line %d", parse_info.line - 1);
 
@@ -370,7 +426,7 @@ static int nxs_cfg_process_option(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_pa
 
 				case NXS_CFG_TYPE_LIST_DISTINCT:
 
-					if(nxs_cfg_type_handler_list(proc, opt, value, &cfg.cfg_par[i], NXS_YES) != NXS_CFG_CONF_OK){
+					if(nxs_cfg_type_handler_list(proc, opt, value, &cfg.cfg_par[i], NXS_YES) != NXS_CFG_CONF_OK) {
 
 						nxs_log_write_error(proc, "fatal config error at line %d", parse_info.line - 1);
 
@@ -381,7 +437,7 @@ static int nxs_cfg_process_option(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_pa
 
 				case NXS_CFG_TYPE_LIST_NUM:
 
-					if(nxs_cfg_type_handler_list_num(proc, opt, value, &cfg.cfg_par[i], NXS_NO) != NXS_CFG_CONF_OK){
+					if(nxs_cfg_type_handler_list_num(proc, opt, value, &cfg.cfg_par[i], NXS_NO) != NXS_CFG_CONF_OK) {
 
 						nxs_log_write_error(proc, "fatal config error at line %d", parse_info.line - 1);
 
@@ -392,7 +448,7 @@ static int nxs_cfg_process_option(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_pa
 
 				case NXS_CFG_TYPE_LIST_NUM_DISTINCT:
 
-					if(nxs_cfg_type_handler_list_num(proc, opt, value, &cfg.cfg_par[i], NXS_YES) != NXS_CFG_CONF_OK){
+					if(nxs_cfg_type_handler_list_num(proc, opt, value, &cfg.cfg_par[i], NXS_YES) != NXS_CFG_CONF_OK) {
 
 						nxs_log_write_error(proc, "fatal config error at line %d", parse_info.line - 1);
 
@@ -403,7 +459,10 @@ static int nxs_cfg_process_option(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_pa
 
 				default:
 
-					nxs_log_write_error(proc, "fatal config error: unknown type of option (option name: \"%s\", line: %d)", nxs_string_str(opt), parse_info.line - 1);
+					nxs_log_write_error(proc,
+					                    "fatal config error: unknown type of option (option name: \"%s\", line: %d)",
+					                    nxs_string_str(opt),
+					                    parse_info.line - 1);
 
 					return NXS_CFG_CONF_ERROR;
 
@@ -417,7 +476,8 @@ static int nxs_cfg_process_option(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_pa
 		nxs_cfg_definition_list_add(definition_list, i);
 
 		/*
-		 * Проверка является ли данная опция обязательной и если да - удаление её из списка, который содержит обязательные для определения опции
+		 * Проверка является ли данная опция обязательной и если да - удаление её из списка, который содержит обязательные для
+		 * определения опции
 		 */
 		nxs_cfg_required_list_del(required_list, cfg.cfg_par[i], i);
 	}
@@ -435,7 +495,7 @@ static int nxs_cfg_process_option(nxs_process_t *proc, nxs_cfg_t cfg, nxs_cfg_pa
 static int nxs_cfg_eop(nxs_cfg_par_t cfg)
 {
 
-	if(nxs_string_str(&cfg.name) == NULL){
+	if(nxs_string_str(&cfg.name) == NULL) {
 
 		return 1;
 	}
@@ -452,11 +512,11 @@ static int nxs_cfg_eop(nxs_cfg_par_t cfg)
  */
 static int nxs_cfg_check_delimiter(unsigned char c)
 {
-	int	i;
+	int i;
 
-	for(i = 0; nxs_cfg_char_delimiter[i] != '\0'; i++){
+	for(i = 0; nxs_cfg_char_delimiter[i] != '\0'; i++) {
 
-		if(c == nxs_cfg_char_delimiter[i]){
+		if(c == nxs_cfg_char_delimiter[i]) {
 
 			return 1;
 		}
@@ -474,11 +534,11 @@ static int nxs_cfg_check_delimiter(unsigned char c)
  */
 static int nxs_cfg_check_charset(unsigned char c, unsigned char *charset_srt)
 {
-	int	i;
+	int i;
 
-	for(i = 0; charset_srt[i] != '\0'; i++){
+	for(i = 0; charset_srt[i] != '\0'; i++) {
 
-		if(c == charset_srt[i]){
+		if(c == charset_srt[i]) {
 
 			return 1;
 		}
@@ -489,12 +549,13 @@ static int nxs_cfg_check_charset(unsigned char c, unsigned char *charset_srt)
 
 /*
  * Добавить символ "c" к строке str.
- * Если строка str не достаточного размера, чтобы вместить новый символ - её размер будет увеличен (шаг увеличения: NXS_CFG_OPT_VAL_CHANK_SIZE)
+ * Если строка str не достаточного размера, чтобы вместить новый символ - её размер будет увеличен (шаг увеличения:
+ * NXS_CFG_OPT_VAL_CHANK_SIZE)
  */
 static void nxs_cfg_optval_add_char(nxs_string_t *str, unsigned char c)
 {
 
-	while(nxs_string_char_add_char(str, (u_char)c) == NXS_STRING_ERROR_DST_SIZE){
+	while(nxs_string_char_add_char(str, (u_char)c) == NXS_STRING_ERROR_DST_SIZE) {
 
 		nxs_string_resize(str, nxs_string_size(str) + NXS_CFG_OPT_VAL_CHANK_SIZE);
 	}
@@ -506,25 +567,25 @@ static void nxs_cfg_optval_add_char(nxs_string_t *str, unsigned char c)
  */
 static int nxs_cfg_read_char(int fd, nxs_cfg_parse_info_t *parse_info, unsigned char *c)
 {
-	int 		rb;
-	static int	f_utf8 = 0;
+	int        rb;
+	static int f_utf8 = 0;
 
 	rb = read(fd, c, 1);
 
-	if(rb > 0){
+	if(rb > 0) {
 
-		if(*c == '\n'){
+		if(*c == '\n') {
 
 			parse_info->line++;
 			parse_info->pos = 0;
 		}
-		else{
+		else {
 
 			/*
 			 * Подсчёт позиции с учётом киррилических символов
 			 */
 
-			if(*c == 0xd0){
+			if(*c == 0xd0) {
 
 				f_utf8 = 1;
 
@@ -533,7 +594,7 @@ static int nxs_cfg_read_char(int fd, nxs_cfg_parse_info_t *parse_info, unsigned 
 				return rb;
 			}
 
-			if(*c == 0xd1){
+			if(*c == 0xd1) {
 
 				f_utf8 = 2;
 
@@ -542,7 +603,7 @@ static int nxs_cfg_read_char(int fd, nxs_cfg_parse_info_t *parse_info, unsigned 
 				return rb;
 			}
 
-			if((f_utf8 == 1 && *c >= 0x80 && *c <= 0xbf) || (f_utf8 == 2 && *c >= 0x80 && *c <= 0x9f)){
+			if((f_utf8 == 1 && *c >= 0x80 && *c <= 0xbf) || (f_utf8 == 2 && *c >= 0x80 && *c <= 0x9f)) {
 
 				f_utf8 = 0;
 
@@ -570,8 +631,8 @@ static int nxs_cfg_read_char(int fd, nxs_cfg_parse_info_t *parse_info, unsigned 
  */
 static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_string_t *opt, nxs_string_t *value)
 {
-	unsigned char 	c;
-	int				status, rb;
+	unsigned char c;
+	int           status, rb;
 
 	nxs_string_clear(opt);
 	nxs_string_clear(value);
@@ -582,9 +643,9 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 	parse_info->pos = 0;
 
-	while(rb > 0 && status != NXS_CFG_READ_STATUS_EOL){
+	while(rb > 0 && status != NXS_CFG_READ_STATUS_EOL) {
 
-		switch(status){
+		switch(status) {
 
 			case NXS_CFG_READ_STATUS_WAIT_OPT:
 
@@ -593,13 +654,13 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 				 * Все символы-разделители, включая символ '\n' пропускаются
 				 */
 
-				if(nxs_cfg_check_delimiter(c) == 1){
+				if(nxs_cfg_check_delimiter(c) == 1) {
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
-				else{
+				else {
 
-					if(c == nxs_cfg_char_eol){
+					if(c == nxs_cfg_char_eol) {
 
 						/*
 						 * EOL
@@ -607,19 +668,19 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 						rb = nxs_cfg_read_char(fd, parse_info, &c);
 					}
-					else{
+					else {
 
-						if(c == nxs_cfg_char_comment){
+						if(c == nxs_cfg_char_comment) {
 
 							status = NXS_CFG_READ_STATUS_B_COMMENT;
 						}
-						else{
+						else {
 
-							if(nxs_cfg_check_charset(c, nxs_cfg_char_opt_set) == 1){
+							if(nxs_cfg_check_charset(c, nxs_cfg_char_opt_set) == 1) {
 
 								status = NXS_CFG_READ_STATUS_READ_OPT;
 							}
-							else{
+							else {
 
 								/*
 								 * ERROR
@@ -635,7 +696,7 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_B_COMMENT:
 
-				if(c == nxs_cfg_char_eol){
+				if(c == nxs_cfg_char_eol) {
 
 					/*
 					 * EOL
@@ -651,28 +712,29 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 			case NXS_CFG_READ_STATUS_READ_OPT:
 
 				/*
-				 * Чтение имени опции до первого символа, который не находится во множестве допустимых символов для имени опций
+				 * Чтение имени опции до первого символа, который не находится во множестве допустимых символов для имени
+				 * опций
 				 */
 
-				if(nxs_cfg_check_charset(c, nxs_cfg_char_opt_set) == 1){
+				if(nxs_cfg_check_charset(c, nxs_cfg_char_opt_set) == 1) {
 
 					nxs_cfg_optval_add_char(opt, c);
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
-				else{
+				else {
 
-					if(nxs_cfg_check_delimiter(c) == 1){
+					if(nxs_cfg_check_delimiter(c) == 1) {
 
 						status = NXS_CFG_READ_STATUS_WAIT_SEP;
 					}
-					else{
+					else {
 
-						if(c == nxs_cfg_char_sep){
+						if(c == nxs_cfg_char_sep) {
 
 							status = NXS_CFG_READ_STATUS_READ_SEP;
 						}
-						else{
+						else {
 
 							/*
 							 * ERROR
@@ -687,17 +749,17 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_WAIT_SEP:
 
-				if(nxs_cfg_check_delimiter(c) == 1){
+				if(nxs_cfg_check_delimiter(c) == 1) {
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
-				else{
+				else {
 
-					if(c == nxs_cfg_char_sep){
+					if(c == nxs_cfg_char_sep) {
 
 						status = NXS_CFG_READ_STATUS_READ_SEP;
 					}
-					else{
+					else {
 
 						/*
 						 * ERROR
@@ -711,13 +773,13 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_READ_SEP:
 
-				if(c == nxs_cfg_char_sep){
+				if(c == nxs_cfg_char_sep) {
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 
 					status = NXS_CFG_READ_STATUS_WAIT_VAL;
 				}
-				else{
+				else {
 
 					/*
 					 * ERROR
@@ -730,25 +792,25 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_WAIT_VAL:
 
-				if(nxs_cfg_check_delimiter(c) == 1){
+				if(nxs_cfg_check_delimiter(c) == 1) {
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
-				else{
+				else {
 
-					if(nxs_cfg_check_charset(c, nxs_cfg_char_val_set) == 1){
+					if(nxs_cfg_check_charset(c, nxs_cfg_char_val_set) == 1) {
 
 						status = NXS_CFG_READ_STATUS_READ_VAL;
 					}
-					else{
+					else {
 
-						if(c == nxs_cfg_char_quote){
+						if(c == nxs_cfg_char_quote) {
 
 							rb = nxs_cfg_read_char(fd, parse_info, &c);
 
 							status = NXS_CFG_READ_STATUS_READ_QUETED_VAL;
 						}
-						else{
+						else {
 
 							printf("ERROR: %c\n", c);
 
@@ -765,31 +827,31 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_READ_VAL:
 
-				if(nxs_cfg_check_charset(c, nxs_cfg_char_val_set) == 1){
+				if(nxs_cfg_check_charset(c, nxs_cfg_char_val_set) == 1) {
 
 					nxs_cfg_optval_add_char(value, c);
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
-				else{
+				else {
 
-					if(nxs_cfg_check_delimiter(c) == 1){
+					if(nxs_cfg_check_delimiter(c) == 1) {
 
 						status = NXS_CFG_READ_STATUS_WAIT_EOL;
 					}
-					else{
+					else {
 
-						if(c == nxs_cfg_char_comment){
+						if(c == nxs_cfg_char_comment) {
 
 							status = NXS_CFG_READ_STATUS_E_COMMENT;
 						}
-						else{
+						else {
 
-							if(c == nxs_cfg_char_eol){
+							if(c == nxs_cfg_char_eol) {
 
 								status = NXS_CFG_READ_STATUS_EOL;
 							}
-							else{
+							else {
 
 								/*
 								 * ERROR
@@ -805,21 +867,22 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_READ_QUETED_VAL:
 
-				if(nxs_cfg_check_charset(c, nxs_cfg_char_val_set) == 1 || nxs_cfg_check_delimiter(c) == 1 || c == nxs_cfg_char_comment || c == nxs_cfg_char_eol){
+				if(nxs_cfg_check_charset(c, nxs_cfg_char_val_set) == 1 || nxs_cfg_check_delimiter(c) == 1 ||
+				   c == nxs_cfg_char_comment || c == nxs_cfg_char_eol) {
 
 					nxs_cfg_optval_add_char(value, c);
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
-				else{
+				else {
 
-					if(c == nxs_cfg_char_quote){
+					if(c == nxs_cfg_char_quote) {
 
 						rb = nxs_cfg_read_char(fd, parse_info, &c);
 
 						status = NXS_CFG_READ_STATUS_WAIT_EOL;
 					}
-					else{
+					else {
 
 						/*
 						 * ERROR
@@ -833,23 +896,23 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_WAIT_EOL:
 
-				if(nxs_cfg_check_delimiter(c) == 1){
+				if(nxs_cfg_check_delimiter(c) == 1) {
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
-				else{
+				else {
 
-					if(c == nxs_cfg_char_eol){
+					if(c == nxs_cfg_char_eol) {
 
 						status = NXS_CFG_READ_STATUS_EOL;
 					}
-					else{
+					else {
 
-						if(c == nxs_cfg_char_comment){
+						if(c == nxs_cfg_char_comment) {
 
 							status = NXS_CFG_READ_STATUS_E_COMMENT;
 						}
-						else{
+						else {
 
 							/*
 							 * ERROR
@@ -864,11 +927,11 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_E_COMMENT:
 
-				if(c != nxs_cfg_char_eol){
+				if(c != nxs_cfg_char_eol) {
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
-				else{
+				else {
 
 					/*
 					 * EOL
@@ -889,23 +952,20 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 		}
 	}
 
-	if(rb == 0){
+	if(rb == 0) {
 
-		if(status == NXS_CFG_READ_STATUS_WAIT_OPT	||
-		   status == NXS_CFG_READ_STATUS_B_COMMENT	||
-		   status == NXS_CFG_READ_STATUS_WAIT_EOL	||
-		   status == NXS_CFG_READ_STATUS_READ_VAL	||
-		   status == NXS_CFG_READ_STATUS_E_COMMENT	||
-		   status == NXS_CFG_READ_STATUS_EOL){
+		if(status == NXS_CFG_READ_STATUS_WAIT_OPT || status == NXS_CFG_READ_STATUS_B_COMMENT ||
+		   status == NXS_CFG_READ_STATUS_WAIT_EOL || status == NXS_CFG_READ_STATUS_READ_VAL ||
+		   status == NXS_CFG_READ_STATUS_E_COMMENT || status == NXS_CFG_READ_STATUS_EOL) {
 
 			return NXS_CFG_CONF_READ_EOF;
 		}
-		else{
+		else {
 
 			return NXS_CFG_CONF_READ_ERROR;
 		}
 	}
-	else{
+	else {
 
 		return NXS_CFG_CONF_READ_OK;
 	}
@@ -913,14 +973,17 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 static int nxs_cfg_type_handler_int(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par)
 {
-	int		*var = nxs_cfg_get_val(cfg_par);
-	size_t	i;
+	int *  var = nxs_cfg_get_val(cfg_par);
+	size_t i;
 
-	for(i = 0; i < nxs_string_len(val); i++){
+	for(i = 0; i < nxs_string_len(val); i++) {
 
-		if(nxs_string_get_char(val, i) != '-' && (nxs_string_get_char(val, i) < '0' || nxs_string_get_char(val, i) > '9')){
+		if(nxs_string_get_char(val, i) != '-' && (nxs_string_get_char(val, i) < '0' || nxs_string_get_char(val, i) > '9')) {
 
-			nxs_log_write_error(proc, "config error: bad value for integer option (option: \"%s\", value: \"%s\")", nxs_string_str(opt), nxs_string_str(val));
+			nxs_log_write_error(proc,
+			                    "config error: bad value for integer option (option: \"%s\", value: \"%s\")",
+			                    nxs_string_str(opt),
+			                    nxs_string_str(val));
 
 			return NXS_CFG_CONF_ERROR;
 		}
@@ -928,18 +991,30 @@ static int nxs_cfg_type_handler_int(nxs_process_t *proc, nxs_string_t *opt, nxs_
 
 	*var = nxs_string_atoi(val);
 
-	if(cfg_par->min_val != 0 || cfg_par->max_val != 0){
+	if(cfg_par->min_val != 0 || cfg_par->max_val != 0) {
 
-		if(*var < cfg_par->min_val){
+		if(*var < cfg_par->min_val) {
 
-			nxs_log_write_error(proc, "config error: value of integer option less then allowed minimum value (option: \"%s\", value: \"%s\", allowed values: from '%d' till '%d')", nxs_string_str(opt), nxs_string_str(val), cfg_par->min_val, cfg_par->max_val);
+			nxs_log_write_error(proc,
+			                    "config error: value of integer option less then allowed minimum value (option: \"%s\", value: "
+			                    "\"%s\", allowed values: from '%d' till '%d')",
+			                    nxs_string_str(opt),
+			                    nxs_string_str(val),
+			                    cfg_par->min_val,
+			                    cfg_par->max_val);
 
 			return NXS_CFG_CONF_ERROR;
 		}
 
-		if(*var > cfg_par->max_val){
+		if(*var > cfg_par->max_val) {
 
-			nxs_log_write_error(proc, "config error: value of integer option more then allowed maximum value (option: \"%s\", value: \"%s\", allowed values: from '%d' till '%d')", nxs_string_str(opt), nxs_string_str(val), cfg_par->min_val, cfg_par->max_val);
+			nxs_log_write_error(proc,
+			                    "config error: value of integer option more then allowed maximum value (option: \"%s\", value: "
+			                    "\"%s\", allowed values: from '%d' till '%d')",
+			                    nxs_string_str(opt),
+			                    nxs_string_str(val),
+			                    cfg_par->min_val,
+			                    cfg_par->max_val);
 
 			return NXS_CFG_CONF_ERROR;
 		}
@@ -959,14 +1034,17 @@ static int nxs_cfg_type_handler_string(nxs_process_t *proc, nxs_string_t *opt, n
 
 static int nxs_cfg_type_handler_num(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par)
 {
-	size_t			i;
-	nxs_string_t	*var = nxs_cfg_get_val(cfg_par);
+	size_t        i;
+	nxs_string_t *var = nxs_cfg_get_val(cfg_par);
 
-	for(i = 0; i < nxs_string_len(val); i++){
+	for(i = 0; i < nxs_string_len(val); i++) {
 
-		if(nxs_string_get_char(val, i) < '0' || nxs_string_get_char(val, i) > '9'){
+		if(nxs_string_get_char(val, i) < '0' || nxs_string_get_char(val, i) > '9') {
 
-			nxs_log_write_error(proc, "config error: bad value for integer option (option: \"%s\", value: \"%s\")", nxs_string_str(opt), nxs_string_str(val));
+			nxs_log_write_error(proc,
+			                    "config error: bad value for integer option (option: \"%s\", value: \"%s\")",
+			                    nxs_string_str(opt),
+			                    nxs_string_str(val));
 
 			return NXS_CFG_CONF_ERROR;
 		}
@@ -979,14 +1057,14 @@ static int nxs_cfg_type_handler_num(nxs_process_t *proc, nxs_string_t *opt, nxs_
 
 static int nxs_cfg_type_handler_list(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par, nxs_bool_t distinct)
 {
-	nxs_list_t		*var = nxs_cfg_get_val(cfg_par);
-	nxs_string_t	*el, *p;
+	nxs_list_t *  var = nxs_cfg_get_val(cfg_par);
+	nxs_string_t *el, *p;
 
-	if(distinct == NXS_YES){
+	if(distinct == NXS_YES) {
 
-		for(p = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, var); p != NULL; p = nxs_list_ptr_next(var)){
+		for(p = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, var); p != NULL; p = nxs_list_ptr_next(var)) {
 
-			if(nxs_string_cmp(p, NXS_STRING_NO_OFFSET, val, NXS_STRING_NO_OFFSET) == NXS_STRING_CMP_EQ){
+			if(nxs_string_cmp(p, NXS_STRING_NO_OFFSET, val, NXS_STRING_NO_OFFSET) == NXS_STRING_CMP_EQ) {
 
 				return NXS_CFG_CONF_OK;
 			}
@@ -1000,28 +1078,35 @@ static int nxs_cfg_type_handler_list(nxs_process_t *proc, nxs_string_t *opt, nxs
 	return NXS_CFG_CONF_OK;
 }
 
-static int nxs_cfg_type_handler_list_num(nxs_process_t *proc, nxs_string_t *opt, nxs_string_t *val, nxs_cfg_par_t *cfg_par, nxs_bool_t distinct)
+static int nxs_cfg_type_handler_list_num(nxs_process_t *proc,
+                                         nxs_string_t * opt,
+                                         nxs_string_t * val,
+                                         nxs_cfg_par_t *cfg_par,
+                                         nxs_bool_t     distinct)
 {
-	size_t			i;
-	nxs_list_t		*var = nxs_cfg_get_val(cfg_par);
-	nxs_string_t	*el, *p;
+	size_t        i;
+	nxs_list_t *  var = nxs_cfg_get_val(cfg_par);
+	nxs_string_t *el, *p;
 
-	if(distinct == NXS_YES){
+	if(distinct == NXS_YES) {
 
-		for(p = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, var); p != NULL; p = nxs_list_ptr_next(var)){
+		for(p = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, var); p != NULL; p = nxs_list_ptr_next(var)) {
 
-			if(nxs_string_cmp(p, NXS_STRING_NO_OFFSET, val, NXS_STRING_NO_OFFSET) == NXS_STRING_CMP_EQ){
+			if(nxs_string_cmp(p, NXS_STRING_NO_OFFSET, val, NXS_STRING_NO_OFFSET) == NXS_STRING_CMP_EQ) {
 
 				return NXS_CFG_CONF_OK;
 			}
 		}
 	}
 
-	for(i = 0; i < nxs_string_len(val); i++){
+	for(i = 0; i < nxs_string_len(val); i++) {
 
-		if(nxs_string_get_char(val, i) < '0' || nxs_string_get_char(val, i) > '9'){
+		if(nxs_string_get_char(val, i) < '0' || nxs_string_get_char(val, i) > '9') {
 
-			nxs_log_write_error(proc, "config error: bad value for integer option (option: \"%s\", value: \"%s\")", nxs_string_str(opt), nxs_string_str(val));
+			nxs_log_write_error(proc,
+			                    "config error: bad value for integer option (option: \"%s\", value: \"%s\")",
+			                    nxs_string_str(opt),
+			                    nxs_string_str(val));
 
 			return NXS_CFG_CONF_ERROR;
 		}

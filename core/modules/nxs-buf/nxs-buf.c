@@ -1,4 +1,34 @@
+// clang-format off
+
+/* Module includes */
+
 #include <nxs-core/nxs-core.h>
+
+/* Module definitions */
+
+
+
+/* Module typedefs */
+
+
+
+/* Module declarations */
+
+
+
+/* Module internal (static) functions prototypes */
+
+// clang-format on
+
+// clang-format off
+
+/* Module initializations */
+
+
+
+/* Module global functions */
+
+// clang-format on
 
 nxs_buf_t *nxs_buf_malloc(size_t size)
 {
@@ -13,7 +43,7 @@ nxs_buf_t *nxs_buf_malloc(size_t size)
 nxs_buf_t *nxs_buf_destroy(nxs_buf_t *buf)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NULL;
 	}
@@ -26,7 +56,7 @@ nxs_buf_t *nxs_buf_destroy(nxs_buf_t *buf)
 int nxs_buf_init(nxs_buf_t *buf, size_t size)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NXS_BUF_E_NULL;
 	}
@@ -44,7 +74,7 @@ int nxs_buf_init_string(nxs_buf_t *buf, u_char *str)
 {
 	size_t len;
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NXS_BUF_E_NULL;
 	}
@@ -54,21 +84,21 @@ int nxs_buf_init_string(nxs_buf_t *buf, u_char *str)
 	buf->data = (u_char *)nxs_malloc(NULL, len + 1);
 
 	buf->size = len + 1;
-	buf->len = 0;
+	buf->len  = 0;
 
-//	return nxs_buf_cpy(buf, 0, str, len + 1);
+	//	return nxs_buf_cpy(buf, 0, str, len + 1);
 	return nxs_buf_fill_str(buf, str);
 }
 
 int nxs_buf_free(nxs_buf_t *buf)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NXS_BUF_E_NULL;
 	}
 
-	if(buf->size == 0 || buf->data == NULL){
+	if(buf->size == 0 || buf->data == NULL) {
 
 		return NXS_BUF_E_NOT_CREATED;
 	}
@@ -76,19 +106,19 @@ int nxs_buf_free(nxs_buf_t *buf)
 	buf->data = (u_char *)nxs_free(buf->data);
 
 	buf->size = 0;
-	buf->len = 0;
+	buf->len  = 0;
 
 	return NXS_BUF_E_OK;
 }
 
 int nxs_buf_clear(nxs_buf_t *buf)
 {
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NXS_BUF_E_NULL;
 	}
 
-	if(buf->size == 0 || buf->data == NULL){
+	if(buf->size == 0 || buf->data == NULL) {
 
 		return NXS_BUF_E_NOT_CREATED;
 	}
@@ -103,20 +133,20 @@ int nxs_buf_clear(nxs_buf_t *buf)
 int nxs_buf_resize(nxs_buf_t *buf, size_t new_size)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NXS_BUF_E_NULL;
 	}
 
-	if(buf->size == 0 || buf->data == NULL){
+	if(buf->size == 0 || buf->data == NULL) {
 
 		nxs_buf_init(buf, new_size);
 	}
-	else{
+	else {
 
 		buf->data = nxs_realloc(buf->data, new_size);
 
-		if(new_size < buf->len){
+		if(new_size < buf->len) {
 
 			buf->len = new_size;
 		}
@@ -130,29 +160,29 @@ int nxs_buf_resize(nxs_buf_t *buf, size_t new_size)
 int nxs_buf_cpy(nxs_buf_t *buf, size_t offset, void *data, size_t size)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NXS_BUF_E_NULL;
 	}
 
-	if(offset + size > buf->size){
+	if(offset + size > buf->size) {
 
 		return NXS_BUF_E_SIZE_EXCEEDED;
 	}
 
-	if(size == 0){
+	if(size == 0) {
 
 		return NXS_BUF_E_OK;
 	}
 
-	if(data == NULL){
+	if(data == NULL) {
 
 		return NXS_BUF_E_NULL_SRC_DATA;
 	}
 
 	nxs_memcpy(buf->data + offset, data, size);
 
-	if(offset + size > buf->len){
+	if(offset + size > buf->len) {
 
 		buf->len = offset + size;
 	}
@@ -164,7 +194,7 @@ int nxs_buf_cpy_dyn(nxs_buf_t *buf, size_t offset, void *data, size_t size)
 {
 	int rc;
 
-	if((rc = nxs_buf_cpy(buf, offset, data, size)) == NXS_BUF_E_SIZE_EXCEEDED){
+	if((rc = nxs_buf_cpy(buf, offset, data, size)) == NXS_BUF_E_SIZE_EXCEEDED) {
 
 		nxs_buf_resize(buf, offset + size);
 
@@ -176,7 +206,7 @@ int nxs_buf_cpy_dyn(nxs_buf_t *buf, size_t offset, void *data, size_t size)
 
 int nxs_buf_clone(nxs_buf_t *buf_dst, nxs_buf_t *buf_src)
 {
-	size_t	src_len;
+	size_t src_len;
 
 	src_len = buf_src->len;
 
@@ -192,22 +222,22 @@ int nxs_buf_clone(nxs_buf_t *buf_dst, nxs_buf_t *buf_src)
 int nxs_buf_cat(nxs_buf_t *buf, void *data, size_t size)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NXS_BUF_E_NULL;
 	}
 
-	if(buf->len + size > buf->size){
+	if(buf->len + size > buf->size) {
 
 		return NXS_BUF_E_SIZE_EXCEEDED;
 	}
 
-	if(size == 0){
+	if(size == 0) {
 
 		return NXS_BUF_E_OK;
 	}
 
-	if(data == NULL){
+	if(data == NULL) {
 
 		return NXS_BUF_E_NULL_SRC_DATA;
 	}
@@ -223,7 +253,7 @@ int nxs_buf_cat_dyn(nxs_buf_t *buf, void *data, size_t size)
 {
 	int rc;
 
-	if((rc = nxs_buf_cat(buf, data, size)) == NXS_BUF_E_SIZE_EXCEEDED){
+	if((rc = nxs_buf_cat(buf, data, size)) == NXS_BUF_E_SIZE_EXCEEDED) {
 
 		nxs_buf_resize(buf, buf->len + size);
 
@@ -237,24 +267,24 @@ int nxs_buf_cmp(nxs_buf_t *buf1, size_t offset1, nxs_buf_t *buf2, size_t offset2
 {
 	size_t i;
 
-	if(offset1 > buf1->len){
+	if(offset1 > buf1->len) {
 
 		return NXS_BUF_E_OFFSET;
 	}
 
-	if(offset2 > buf2->len){
+	if(offset2 > buf2->len) {
 
 		return NXS_BUF_E_OFFSET;
 	}
 
-	if(buf1->len - offset1 != buf2->len - offset2){
+	if(buf1->len - offset1 != buf2->len - offset2) {
 
 		return NXS_BUF_CMP_NE;
 	}
 
-	for(i = 0; i < buf1->len - offset1; i++){
+	for(i = 0; i < buf1->len - offset1; i++) {
 
-		if(buf1->data[offset1 + i] != buf2->data[offset2 + i]){
+		if(buf1->data[offset1 + i] != buf2->data[offset2 + i]) {
 
 			return NXS_BUF_CMP_NE;
 		}
@@ -267,24 +297,24 @@ int nxs_buf_ncmp(nxs_buf_t *buf1, size_t offset1, nxs_buf_t *buf2, size_t offset
 {
 	size_t i;
 
-	if(offset1 > buf1->len){
+	if(offset1 > buf1->len) {
 
 		return NXS_BUF_E_OFFSET;
 	}
 
-	if(offset2 > buf2->len){
+	if(offset2 > buf2->len) {
 
 		return NXS_BUF_E_OFFSET;
 	}
 
-	if(n > buf1->len - offset1 || n > buf2->len - offset2){
+	if(n > buf1->len - offset1 || n > buf2->len - offset2) {
 
 		return NXS_BUF_CMP_NE;
 	}
 
-	for(i = 0; i < n; i++){
+	for(i = 0; i < n; i++) {
 
-		if(buf1->data[offset1 + i] != buf2->data[offset2 + i]){
+		if(buf1->data[offset1 + i] != buf2->data[offset2 + i]) {
 
 			return NXS_BUF_CMP_NE;
 		}
@@ -296,12 +326,12 @@ int nxs_buf_ncmp(nxs_buf_t *buf1, size_t offset1, nxs_buf_t *buf2, size_t offset
 int nxs_buf_add_char(nxs_buf_t *buf, u_char c)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NXS_BUF_E_NULL;
 	}
 
-	if(buf->len >= buf->size){
+	if(buf->len >= buf->size) {
 
 		return NXS_BUF_E_SIZE_EXCEEDED;
 	}
@@ -317,7 +347,7 @@ int nxs_buf_add_char_dyn(nxs_buf_t *buf, u_char c)
 {
 	int rc;
 
-	if((rc = nxs_buf_add_char(buf, c)) == NXS_BUF_E_SIZE_EXCEEDED){
+	if((rc = nxs_buf_add_char(buf, c)) == NXS_BUF_E_SIZE_EXCEEDED) {
 
 		nxs_buf_resize(buf, buf->len + 1);
 
@@ -330,19 +360,19 @@ int nxs_buf_add_char_dyn(nxs_buf_t *buf, u_char c)
 int nxs_buf_set_char(nxs_buf_t *buf, size_t pos, u_char c)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NXS_BUF_E_NULL;
 	}
 
-	if(pos >= buf->size){
+	if(pos >= buf->size) {
 
 		return NXS_BUF_E_SIZE_EXCEEDED;
 	}
 
 	buf->data[pos] = c;
 
-	if(pos >= buf->len){
+	if(pos >= buf->len) {
 
 		buf->len = pos + 1;
 	}
@@ -353,12 +383,12 @@ int nxs_buf_set_char(nxs_buf_t *buf, size_t pos, u_char c)
 int nxs_buf_set_len(nxs_buf_t *buf, size_t new_len)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NXS_BUF_E_NULL;
 	}
 
-	if(new_len > buf->size){
+	if(new_len > buf->size) {
 
 		return NXS_BUF_E_SIZE_EXCEEDED;
 	}
@@ -371,12 +401,12 @@ int nxs_buf_set_len(nxs_buf_t *buf, size_t new_len)
 u_char *nxs_buf_get_subbuf(nxs_buf_t *buf, size_t offset)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NULL;
 	}
 
-	if(offset > buf->size){
+	if(offset > buf->size) {
 
 		return NULL;
 	}
@@ -387,17 +417,17 @@ u_char *nxs_buf_get_subbuf(nxs_buf_t *buf, size_t offset)
 int nxs_buf_get_mem(nxs_buf_t *buf, size_t offset, void *mem, size_t size)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NXS_BUF_E_NULL;
 	}
 
-	if(offset >= buf->len){
+	if(offset >= buf->len) {
 
 		return NXS_BUF_E_OFFSET;
 	}
 
-	if(offset + size > buf->len){
+	if(offset + size > buf->len) {
 
 		return NXS_BUF_E_LEN_EXCEEDED;
 	}
@@ -410,12 +440,12 @@ int nxs_buf_get_mem(nxs_buf_t *buf, size_t offset, void *mem, size_t size)
 u_char nxs_buf_get_char(nxs_buf_t *buf, size_t pos)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return 0;
 	}
 
-	if(pos >= buf->size){
+	if(pos >= buf->size) {
 
 		return 0;
 	}
@@ -426,7 +456,7 @@ u_char nxs_buf_get_char(nxs_buf_t *buf, size_t pos)
 size_t nxs_buf_get_size(nxs_buf_t *buf)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return 0;
 	}
@@ -437,7 +467,7 @@ size_t nxs_buf_get_size(nxs_buf_t *buf)
 size_t nxs_buf_get_len(nxs_buf_t *buf)
 {
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return 0;
 	}
@@ -445,30 +475,30 @@ size_t nxs_buf_get_len(nxs_buf_t *buf)
 	return buf->len;
 }
 
-u_char *nxs_buf_to_string(nxs_buf_t *buf, size_t offset,  nxs_string_t *str)
+u_char *nxs_buf_to_string(nxs_buf_t *buf, size_t offset, nxs_string_t *str)
 {
 	size_t len;
 
-	if(str == NULL){
+	if(str == NULL) {
 
 		return NULL;
 	}
 
-	if(buf == NULL){
+	if(buf == NULL) {
 
 		return NULL;
 	}
 
-	if(offset >= buf->size){
+	if(offset >= buf->size) {
 
 		return NULL;
 	}
 
-	if(buf->data[buf->len -1] == '\0'){
+	if(buf->data[buf->len - 1] == '\0') {
 
 		len = buf->len - 1;
 	}
-	else{
+	else {
 
 		len = buf->len;
 	}
@@ -488,3 +518,5 @@ int nxs_buf_fill_str(nxs_buf_t *buf, u_char *str)
 
 	return nxs_buf_add_char_dyn(buf, (u_char)'\0');
 }
+
+/* Module internal (static) functions */

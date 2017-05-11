@@ -1,6 +1,36 @@
+// clang-format off
+
+/* Module includes */
+
 #include <nxs-core/nxs-core.h>
 
-nxs_poll_t *nxs_poll_malloc()
+/* Module definitions */
+
+
+
+/* Module typedefs */
+
+
+
+/* Module declarations */
+
+
+
+/* Module internal (static) functions prototypes */
+
+// clang-format on
+
+// clang-format off
+
+/* Module initializations */
+
+
+
+/* Module global functions */
+
+// clang-format on
+
+nxs_poll_t *nxs_poll_malloc(void)
 {
 	nxs_poll_t *p = NULL;
 
@@ -14,7 +44,7 @@ nxs_poll_t *nxs_poll_malloc()
 nxs_poll_t *nxs_poll_destroy(nxs_poll_t *p)
 {
 
-	if(p == NULL){
+	if(p == NULL) {
 
 		return NULL;
 	}
@@ -27,13 +57,13 @@ nxs_poll_t *nxs_poll_destroy(nxs_poll_t *p)
 int nxs_poll_init(nxs_poll_t *p)
 {
 
-	if(p == NULL){
+	if(p == NULL) {
 
 		return NXS_POLL_E_INIT;
 	}
 
-	p->fds = NULL;
-	p->nfds = 0;
+	p->fds       = NULL;
+	p->nfds      = 0;
 	p->fds_ready = 0;
 
 	return NXS_POLL_E_OK;
@@ -42,13 +72,13 @@ int nxs_poll_init(nxs_poll_t *p)
 int nxs_poll_free(nxs_poll_t *p)
 {
 
-	if(p == NULL){
+	if(p == NULL) {
 
 		return NXS_POLL_E_INIT;
 	}
 
-	p->fds = (struct pollfd	*)nxs_free(p->fds);
-	p->nfds = 0;
+	p->fds       = (struct pollfd *)nxs_free(p->fds);
+	p->nfds      = 0;
 	p->fds_ready = 0;
 
 	return NXS_POLL_E_OK;
@@ -58,24 +88,24 @@ int nxs_poll_exec(nxs_poll_t *p, int timeout)
 {
 	int i, rc;
 
-	if(p == NULL){
+	if(p == NULL) {
 
 		return NXS_POLL_E_INIT;
 	}
 
 	p->fds_ready = 0;
 
-	for(i = 0; i < p->nfds; i++){
+	for(i = 0; i < p->nfds; i++) {
 
 		p->fds[i].revents = 0;
 	}
 
-	if((rc = poll(p->fds, p->nfds, timeout)) == -1){
+	if((rc = poll(p->fds, p->nfds, timeout)) == -1) {
 
 		return errno;
 	}
 
-	if(rc == 0){
+	if(rc == 0) {
 
 		return NXS_POLL_E_TIMEOUT;
 	}
@@ -89,19 +119,19 @@ int nxs_poll_add(nxs_poll_t *p, int fd, short events)
 {
 	int i;
 
-	if(p == NULL){
+	if(p == NULL) {
 
 		return NXS_POLL_E_INIT;
 	}
 
-	if(fd < 0){
+	if(fd < 0) {
 
 		return NXS_POLL_E_INDEX;
 	}
 
-	for(i = 0; i < p->nfds; i++){
+	for(i = 0; i < p->nfds; i++) {
 
-		if(p->fds[i].fd == fd){
+		if(p->fds[i].fd == fd) {
 
 			p->fds[i].events |= events;
 
@@ -112,10 +142,10 @@ int nxs_poll_add(nxs_poll_t *p, int fd, short events)
 	}
 
 	p->nfds++;
-	p->fds = (struct pollfd	*)nxs_realloc(p->fds, sizeof(struct pollfd) * p->nfds);
+	p->fds = (struct pollfd *)nxs_realloc(p->fds, sizeof(struct pollfd) * p->nfds);
 
-	p->fds[p->nfds - 1].fd = fd;
-	p->fds[p->nfds - 1].events = events;
+	p->fds[p->nfds - 1].fd      = fd;
+	p->fds[p->nfds - 1].events  = events;
 	p->fds[p->nfds - 1].revents = 0;
 
 	return NXS_POLL_E_OK;
@@ -125,23 +155,23 @@ int nxs_poll_del(nxs_poll_t *p, int fd)
 {
 	int i, j;
 
-	if(p == NULL){
+	if(p == NULL) {
 
 		return NXS_POLL_E_INIT;
 	}
 
-	if(fd < 0){
+	if(fd < 0) {
 
 		return NXS_POLL_E_INDEX;
 	}
 
-	for(i = 0; i < p->nfds; i++){
+	for(i = 0; i < p->nfds; i++) {
 
-		if(p->fds[i].fd == fd){
+		if(p->fds[i].fd == fd) {
 
-			for(j = i + 1; j < p->nfds; j++){
+			for(j = i + 1; j < p->nfds; j++) {
 
-				p->fds[j - 1].fd = p->fds[j].fd;
+				p->fds[j - 1].fd     = p->fds[j].fd;
 				p->fds[j - 1].events = p->fds[j].events;
 			}
 
@@ -159,27 +189,27 @@ int nxs_poll_del_event(nxs_poll_t *p, int fd, short events)
 {
 	int i, j;
 
-	if(p == NULL){
+	if(p == NULL) {
 
 		return NXS_POLL_E_INIT;
 	}
 
-	if(fd < 0){
+	if(fd < 0) {
 
 		return NXS_POLL_E_INDEX;
 	}
 
-	for(i = 0; i < p->nfds; i++){
+	for(i = 0; i < p->nfds; i++) {
 
-		if(p->fds[i].fd == fd){
+		if(p->fds[i].fd == fd) {
 
 			p->fds[i].events &= ~events;
 
-			if(p->fds[i].events == 0){
+			if(p->fds[i].events == 0) {
 
-				for(j = i + 1; j < p->nfds; j++){
+				for(j = i + 1; j < p->nfds; j++) {
 
-					p->fds[j - 1].fd = p->fds[j].fd;
+					p->fds[j - 1].fd     = p->fds[j].fd;
 					p->fds[j - 1].events = p->fds[j].events;
 				}
 
@@ -198,19 +228,19 @@ short nxs_poll_get_res(nxs_poll_t *p, int fd)
 {
 	int i;
 
-	if(p == NULL){
+	if(p == NULL) {
 
 		return NXS_POLL_E_INIT;
 	}
 
-	if(fd < 0){
+	if(fd < 0) {
 
 		return NXS_POLL_E_INDEX;
 	}
 
-	for(i = 0; i < p->nfds; i++){
+	for(i = 0; i < p->nfds; i++) {
 
-		if(p->fds[i].fd == fd){
+		if(p->fds[i].fd == fd) {
 
 			return p->fds[i].revents;
 		}
@@ -223,21 +253,21 @@ short nxs_poll_check_events(nxs_poll_t *p, int fd, short events)
 {
 	int i;
 
-	if(p == NULL){
+	if(p == NULL) {
 
 		return NXS_POLL_E_INIT;
 	}
 
-	if(fd < 0){
+	if(fd < 0) {
 
 		return NXS_POLL_E_INDEX;
 	}
 
-	for(i = 0; i < p->nfds; i++){
+	for(i = 0; i < p->nfds; i++) {
 
-		if(p->fds[i].fd == fd){
+		if(p->fds[i].fd == fd) {
 
-			if((p->fds[i].revents & events) == events){
+			if((p->fds[i].revents & events) == events) {
 
 				return NXS_POLL_EVENTS_TRUE;
 			}
@@ -254,3 +284,5 @@ u_int nxs_poll_fds_ready(nxs_poll_t *p)
 
 	return p->fds_ready;
 }
+
+/* Module internal (static) functions */

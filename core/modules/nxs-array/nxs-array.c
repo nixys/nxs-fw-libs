@@ -1,8 +1,38 @@
+// clang-format off
+
+/* Module includes */
+
 #include <nxs-core/nxs-core.h>
+
+/* Module definitions */
+
+
+
+/* Module typedefs */
+
+
+
+/* Module declarations */
+
+
+
+/* Module internal (static) functions prototypes */
+
+// clang-format on
+
+// clang-format off
+
+/* Module initializations */
+
+
+
+/* Module global functions */
+
+// clang-format on
 
 nxs_array_t *nxs_array_malloc(u_int nalloc, size_t size, u_int step)
 {
-	nxs_array_t	*array = NULL;
+	nxs_array_t *array = NULL;
 
 	array = nxs_calloc(array, sizeof(nxs_array_t));
 
@@ -14,7 +44,7 @@ nxs_array_t *nxs_array_malloc(u_int nalloc, size_t size, u_int step)
 void *nxs_array_destroy(nxs_array_t *array)
 {
 
-	if(array == NULL){
+	if(array == NULL) {
 
 		return NULL;
 	}
@@ -27,23 +57,23 @@ void *nxs_array_destroy(nxs_array_t *array)
 void nxs_array_init(nxs_array_t *array, u_int nalloc, size_t size, u_int step)
 {
 
-	if(array == NULL){
+	if(array == NULL) {
 
 		return;
 	}
 
-	if(size == 0){
+	if(size == 0) {
 
 		return;
 	}
 
-	array->size = size;
+	array->size  = size;
 	array->count = 0;
-	array->step = step == 0 ? NXS_ARRAY_STEP_DEFAULT : step;
+	array->step  = step == 0 ? NXS_ARRAY_STEP_DEFAULT : step;
 
 	array->el = NULL;
 
-	if(nalloc == 0){
+	if(nalloc == 0) {
 
 		array->nalloc = 0;
 
@@ -51,13 +81,13 @@ void nxs_array_init(nxs_array_t *array, u_int nalloc, size_t size, u_int step)
 	}
 
 	array->nalloc = nalloc;
-	array->el = nxs_calloc(array->el, array->size * array->nalloc);
+	array->el     = nxs_calloc(array->el, array->size * array->nalloc);
 }
 
 void nxs_array_free(nxs_array_t *array)
 {
 
-	if(array == NULL){
+	if(array == NULL) {
 
 		return;
 	}
@@ -70,7 +100,7 @@ void nxs_array_free(nxs_array_t *array)
 void nxs_array_clear(nxs_array_t *array)
 {
 
-	if(array == NULL){
+	if(array == NULL) {
 
 		return;
 	}
@@ -83,7 +113,7 @@ void *nxs_array_add(nxs_array_t *array)
 
 	array->count++;
 
-	if(array->count > array->nalloc){
+	if(array->count > array->nalloc) {
 
 		array->el = nxs_realloc(array->el, array->size * (array->nalloc + array->step));
 
@@ -97,17 +127,18 @@ void *nxs_array_add(nxs_array_t *array)
 
 /*
  * Добавление в массив i-го элемента.
- * Если размер массива меньше номера добавляемого элемента - он будет расширен до требуемых значений. Память, выделенная под новые элементы будет обнулена
+ * Если размер массива меньше номера добавляемого элемента - он будет расширен до требуемых значений. Память, выделенная под новые элементы
+ * будет обнулена
  */
 void *nxs_array_add_i(nxs_array_t *array, u_int i)
 {
 
-	if(i >= array->count){
+	if(i >= array->count) {
 
 		array->count = i + 1;
 	}
 
-	if(array->count > array->nalloc){
+	if(array->count > array->nalloc) {
 
 		array->el = nxs_realloc(array->el, array->size * array->count);
 
@@ -125,12 +156,12 @@ void *nxs_array_add_i(nxs_array_t *array, u_int i)
 void *nxs_array_get(nxs_array_t *array, u_int i)
 {
 
-	if(array == NULL){
+	if(array == NULL) {
 
 		return NULL;
 	}
 
-	if(i >= array->count){
+	if(i >= array->count) {
 
 		return NULL;
 	}
@@ -141,7 +172,7 @@ void *nxs_array_get(nxs_array_t *array, u_int i)
 u_int nxs_array_nalloc(nxs_array_t *array)
 {
 
-	if(array == NULL){
+	if(array == NULL) {
 
 		return 0;
 	}
@@ -152,7 +183,7 @@ u_int nxs_array_nalloc(nxs_array_t *array)
 u_int nxs_array_count(nxs_array_t *array)
 {
 
-	if(array == NULL){
+	if(array == NULL) {
 
 		return 0;
 	}
@@ -163,7 +194,7 @@ u_int nxs_array_count(nxs_array_t *array)
 u_int nxs_array_size(nxs_array_t *array)
 {
 
-	if(array == NULL){
+	if(array == NULL) {
 
 		return 0;
 	}
@@ -174,10 +205,12 @@ u_int nxs_array_size(nxs_array_t *array)
 u_int nxs_array_step(nxs_array_t *array)
 {
 
-	if(array == NULL){
+	if(array == NULL) {
 
 		return 0;
 	}
 
 	return array->step;
 }
+
+/* Module internal (static) functions */

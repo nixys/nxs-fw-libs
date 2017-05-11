@@ -1,22 +1,36 @@
+// clang-format off
+
+/* Module includes */
+
 #include <nxs-core/nxs-core.h>
+
+/* Module definitions */
 
 #define	NXS_ILIST_STEP_DEFAULT	10
 
-static int nxs_ilist_string_index_calc(nxs_array_t *iarray, u_char *str)
-{
-	u_int	*d;
+/* Module typedefs */
 
-	if(str == NULL){
 
-		return -1;
-	}
 
-	d = nxs_array_add(iarray);
+/* Module declarations */
 
-	(*d) = str[0];
 
-	return nxs_array_count(iarray);
-}
+
+/* Module internal (static) functions prototypes */
+
+// clang-format on
+
+static int nxs_ilist_string_index_calc(nxs_array_t *iarray, u_char *str);
+
+// clang-format off
+
+/* Module initializations */
+
+
+
+/* Module global functions */
+
+// clang-format on
 
 /*
  * Инициализация индексного списка
@@ -40,15 +54,15 @@ void nxs_ilist_init(nxs_ilist_t *ilist, u_int el_size, void *el_index_f, void *e
  */
 void *nxs_ilist_add(nxs_ilist_t *ilist, void *el, void *key)
 {
-	void			*el_data;
-	nxs_list_t		*el_iarray;
-	nxs_list_el_t	**el_iarray_data;
-	int				index;
+	void *          el_data;
+	nxs_list_t *    el_iarray;
+	nxs_list_el_t **el_iarray_data;
+	int             index;
 
 	/*
 	 * Получение индексов добавленного элемента
 	 */
-	if((index = ilist->el_index_f(key)) == NXS_ILIST_INDEX_UNDEF){
+	if((index = ilist->el_index_f(key)) == NXS_ILIST_INDEX_UNDEF) {
 
 		return NULL;
 	}
@@ -73,7 +87,7 @@ void *nxs_ilist_add(nxs_ilist_t *ilist, void *el, void *key)
 	/*
 	 * Если список не инициализирован
 	 */
-	if(nxs_list_size(el_iarray) == 0){
+	if(nxs_list_size(el_iarray) == 0) {
 
 		/*
 		 * В качестве данных этот список содержит указатели на элементы списка "els"
@@ -85,7 +99,7 @@ void *nxs_ilist_add(nxs_ilist_t *ilist, void *el, void *key)
 	 * Добавляем новый элемент в список "ilist->iarray[index]".
 	 * Новый элемент этого списка указывает на последний созданный элемент списка "els".
 	 */
-	el_iarray_data = nxs_list_add_tail(el_iarray);
+	el_iarray_data    = nxs_list_add_tail(el_iarray);
 	(*el_iarray_data) = ilist->els->tail;
 
 	return el_data;
@@ -93,7 +107,7 @@ void *nxs_ilist_add(nxs_ilist_t *ilist, void *el, void *key)
 
 nxs_list_el_t *nxs_ilist_add_no_index(nxs_ilist_t *ilist, void *el)
 {
-	void			*el_data;
+	void *el_data;
 
 	/*
 	 * Добавление элемента в конец списка
@@ -106,12 +120,12 @@ nxs_list_el_t *nxs_ilist_add_no_index(nxs_ilist_t *ilist, void *el)
 
 int nxs_ilist_add_index(nxs_ilist_t *ilist, nxs_list_el_t *list_el, void *key)
 {
-	int				index;
+	int index;
 
 	/*
 	 * Получение индексов для ключа key
 	 */
-	if((index = ilist->el_index_f(key)) == NXS_ILIST_INDEX_UNDEF){
+	if((index = ilist->el_index_f(key)) == NXS_ILIST_INDEX_UNDEF) {
 
 		return NULL;
 	}
@@ -128,7 +142,7 @@ int nxs_ilist_add_index(nxs_ilist_t *ilist, nxs_list_el_t *list_el, void *key)
 	/*
 	 * Если список не инициализирован
 	 */
-	if(nxs_list_size(el_iarray) == 0){
+	if(nxs_list_size(el_iarray) == 0) {
 
 		/*
 		 * В качестве данных этот список содержит указатели на элементы списка "els"
@@ -140,7 +154,7 @@ int nxs_ilist_add_index(nxs_ilist_t *ilist, nxs_list_el_t *list_el, void *key)
 	 * Добавляем новый элемент в список "ilist->iarray[index]".
 	 * Новый элемент этого списка указывает на последний созданный элемент списка "els".
 	 */
-	el_iarray_data = nxs_list_add_tail(el_iarray);
+	el_iarray_data    = nxs_list_add_tail(el_iarray);
 	(*el_iarray_data) = list_el;
 
 	return 0;
@@ -151,14 +165,14 @@ int nxs_ilist_add_index(nxs_ilist_t *ilist, nxs_list_el_t *list_el, void *key)
  */
 void *nxs_ilist_find(nxs_ilist_t *ilist, void *key)
 {
-	nxs_list_t		*el_iarray;
-	nxs_list_el_t	**el_iarray_data;
-	int				index;
+	nxs_list_t *    el_iarray;
+	nxs_list_el_t **el_iarray_data;
+	int             index;
 
 	/*
 	 * Получение индекса элемента по ключу "key"
 	 */
-	if((index = ilist->el_index_f(key)) == NXS_ILIST_INDEX_UNDEF){
+	if((index = ilist->el_index_f(key)) == NXS_ILIST_INDEX_UNDEF) {
 
 		return NULL;
 	}
@@ -168,7 +182,7 @@ void *nxs_ilist_find(nxs_ilist_t *ilist, void *key)
 	/*
 	 * Получение списка с указателями на элементы из массива индексов для индекса "index"
 	 */
-	if((el_iarray = nxs_array_get(ilist->iarray, index)) == NULL){
+	if((el_iarray = nxs_array_get(ilist->iarray, index)) == NULL) {
 
 		return NULL;
 	}
@@ -176,11 +190,12 @@ void *nxs_ilist_find(nxs_ilist_t *ilist, void *key)
 	/*
 	 * Проход по всем элементам списка "el_iarray" и поиск нужного элемента
 	 */
-	for(el_iarray_data = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, el_iarray); el_iarray_data != NULL; el_iarray_data = nxs_list_ptr_next(el_iarray)){
+	for(el_iarray_data = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, el_iarray); el_iarray_data != NULL;
+	    el_iarray_data = nxs_list_ptr_next(el_iarray)) {
 
 		printf("index: %d, ilist->index: %p\n", index, (*el_iarray_data));
 
-		if(ilist->el_check_f((*el_iarray_data)->data, key) == NXS_ILIST_EL_MATCH){
+		if(ilist->el_check_f((*el_iarray_data)->data, key) == NXS_ILIST_EL_MATCH) {
 
 			return (*el_iarray_data)->data;
 		}
@@ -197,4 +212,22 @@ void nxs_ilist_string_init(nxs_ilist_t *ilist)
 	ilist->iarray = nxs_array_malloc(0, sizeof(nxs_list_el_t), NXS_ILIST_STEP_DEFAULT);
 
 	ilist->el_index_f = nxs_ilist_string_index_calc;
+}
+
+/* Module internal (static) functions */
+
+static int nxs_ilist_string_index_calc(nxs_array_t *iarray, u_char *str)
+{
+	u_int *d;
+
+	if(str == NULL) {
+
+		return -1;
+	}
+
+	d = nxs_array_add(iarray);
+
+	(*d) = str[0];
+
+	return nxs_array_count(iarray);
 }

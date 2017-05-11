@@ -1,8 +1,38 @@
+// clang-format off
+
+/* Module includes */
+
 #include <nxs-core/nxs-core.h>
+
+/* Module definitions */
+
+
+
+/* Module typedefs */
+
+
+
+/* Module declarations */
+
+
+
+/* Module internal (static) functions prototypes */
+
+// clang-format on
+
+// clang-format off
+
+/* Module initializations */
+
+
+
+/* Module global functions */
+
+// clang-format on
 
 void *nxs_memzero(void *ptr, size_t size)
 {
-	if(ptr != NULL){
+	if(ptr != NULL) {
 
 		return memset(ptr, 0, size);
 	}
@@ -13,7 +43,7 @@ void *nxs_memzero(void *ptr, size_t size)
 void *nxs_memcpy(void *dst, void *src, size_t size)
 {
 
-	if(dst == NULL || src == NULL){
+	if(dst == NULL || src == NULL) {
 
 		return NULL;
 	}
@@ -24,7 +54,7 @@ void *nxs_memcpy(void *dst, void *src, size_t size)
 void *nxs_malloc(void *old_ptr, size_t size)
 {
 
-	if(old_ptr != NULL){
+	if(old_ptr != NULL) {
 
 		exit(1);
 	}
@@ -34,9 +64,9 @@ void *nxs_malloc(void *old_ptr, size_t size)
 
 void *nxs_calloc(void *old_ptr, size_t size)
 {
-	void	*ptr = NULL;
+	void *ptr = NULL;
 
-	if((ptr = nxs_malloc(old_ptr, size)) != NULL){
+	if((ptr = nxs_malloc(old_ptr, size)) != NULL) {
 
 		nxs_memzero(ptr, size);
 	}
@@ -52,10 +82,12 @@ void *nxs_realloc(void *old_ptr, size_t size)
 
 void *nxs_free(void *ptr)
 {
-	if(ptr != NULL){
+	if(ptr != NULL) {
 
 		free(ptr);
 	}
 
 	return NULL;
 }
+
+/* Module internal (static) functions */

@@ -1,6 +1,15 @@
 #ifndef _INCLUDE_NXS_MYSQL_H
 #define _INCLUDE_NXS_MYSQL_H
 
+// clang-format off
+
+/** @addtogroup nxs-mysql
+ *
+ * @brief Module 'nxs-mysql' is a basic module providing functions to work with MySQL.
+ *
+ *  @{
+ */
+
 #include <nxs-core/nxs-core.h>
 
 enum nxs_mysql_err_e
@@ -61,7 +70,7 @@ struct nxs_mysql_s
 	/*
 	 * Строка, содержащая порт MySQL-сервера для подключения
 	 */
-	uint16_t			db_port;
+	uint16_t		db_port;
 
 	/*
 	 * Кодировка подключения
@@ -71,12 +80,12 @@ struct nxs_mysql_s
 	/*
 	 * Указатель на объект подключения к MySQL
 	 */
-	MYSQL 				*conn;
+	MYSQL 			*conn;
 
 	/*
 	 * Указатель на текст с ошибкой (если ошибки не было - NULL)
 	 */
-	u_char				*err_str;
+	u_char			*err_str;
 
 	/*
 	 * Номер ошибки (если ошибки не было - NXS_MYSQL_E_OK)
@@ -86,14 +95,14 @@ struct nxs_mysql_s
 
 struct nxs_mysql_res_s
 {
-	size_t				fields;
-	size_t				rows;
+	size_t			fields;
+	size_t			rows;
 
-	size_t				last_ins;
+	size_t			last_ins;
 
-	size_t				affected_rows;
+	size_t			affected_rows;
 
-	nxs_array_t			*res_tbl;
+	nxs_array_t		*res_tbl;
 };
 
 /*
@@ -115,9 +124,9 @@ struct nxs_mysql_res_s
  * * NXS_MYSQL_ERR_EPORT	- параметр "db_port" выходит за границы (0, 65535]
  * * NXS_MYSQL_ERR_ECHARSET	- параметр "db_charset" не задан
  */
-nxs_mysql_err_t						nxs_mysql_init				(nxs_mysql_t *mysql, nxs_string_t *db_host, nxs_string_t *db_name, nxs_string_t *db_user, nxs_string_t *db_pass, uint16_t db_port, nxs_string_t *db_charset);
+nxs_mysql_err_t			nxs_mysql_init				(nxs_mysql_t *mysql, nxs_string_t *db_host, nxs_string_t *db_name, nxs_string_t *db_user, nxs_string_t *db_pass, uint16_t db_port, nxs_string_t *db_charset);
 
-void								nxs_mysql_free				(nxs_mysql_t *mysql);
+void				nxs_mysql_free				(nxs_mysql_t *mysql);
 
 /*
  * Подключение к MySQL с параметрами, заданными при инициализации подключения.
@@ -135,7 +144,7 @@ void								nxs_mysql_free				(nxs_mysql_t *mysql);
  * * NXS_MYSQL_ERR_ECHARSET_CONN	- ошибка установления требуемой кодировки подключения (не является критической ошибкой, будет использована
  * 										кодировка по умолчанию).
  */
-nxs_mysql_err_t						nxs_mysql_connect			(nxs_mysql_t *mysql);
+nxs_mysql_err_t			nxs_mysql_connect			(nxs_mysql_t *mysql);
 
 /*
  * Завершение соединения с MySQL.
@@ -151,7 +160,7 @@ nxs_mysql_err_t						nxs_mysql_connect			(nxs_mysql_t *mysql);
  * Дополнительные коды:
  * Отсутствуют.
  */
-nxs_mysql_err_t						nxs_mysql_disconnect		(nxs_mysql_t *mysql);
+nxs_mysql_err_t			nxs_mysql_disconnect			(nxs_mysql_t *mysql);
 
 /*
  * Проверка соединения с MySQL.
@@ -169,7 +178,7 @@ nxs_mysql_err_t						nxs_mysql_disconnect		(nxs_mysql_t *mysql);
  * Дополнительные коды:
  * * Дополнительные коды функции nxs_mysql_connect()
  */
-nxs_mysql_err_t						nxs_mysql_check_conn		(nxs_mysql_t *mysql);
+nxs_mysql_err_t			nxs_mysql_check_conn			(nxs_mysql_t *mysql);
 
 /*
  * Подготовка SQL-валидную строку (экранирование соответствующих символов).
@@ -178,7 +187,7 @@ nxs_mysql_err_t						nxs_mysql_check_conn		(nxs_mysql_t *mysql);
  * Если указатель на строку str_from != NULL, то это значит, что исходная строка, которую необходимо подготовить, это str_from.
  * Это необходимо на тот случай, когда необходимо исходную строку оставить в неизменном виде (например, для дальнейшего использования).
  */
-void								nxs_mysql_escape_string		(nxs_mysql_t *mysql, nxs_string_t *str_to, nxs_string_t *str_from);
+void				nxs_mysql_escape_string			(nxs_mysql_t *mysql, nxs_string_t *str_to, nxs_string_t *str_from);
 
 /*
  * Выполнение запроса к MySQL.
@@ -195,7 +204,7 @@ void								nxs_mysql_escape_string		(nxs_mysql_t *mysql, nxs_string_t *str_to, 
  * * NXS_MYSQL_ERR_EQUERY	- ошибка при выолнении запроса
  * * NXS_MYSQL_ERR_ESTORE	- ошибка получения данных в запросе типа "NXS_MYSQL_QUERY_TYPE_SELECT"
  */
-nxs_mysql_err_t						nxs_mysql_query				(nxs_mysql_t *mysql, nxs_mysql_query_type_t type, nxs_mysql_res_t *res, const char *query, ...);
+nxs_mysql_err_t			nxs_mysql_query				(nxs_mysql_t *mysql, nxs_mysql_query_type_t type, nxs_mysql_res_t *res, const char *query, ...);
 
 /*
  * Создание структуры для хранения результата запроса MySQL типа "NXS_MYSQL_QUERY_TYPE_SELECT".
@@ -204,7 +213,7 @@ nxs_mysql_err_t						nxs_mysql_query				(nxs_mysql_t *mysql, nxs_mysql_query_typ
  * Возвращаемые значения:
  * * Указатель на созданный элемент
  */
-nxs_mysql_res_t						*nxs_mysql_res_malloc		();
+nxs_mysql_res_t			*nxs_mysql_res_malloc			(void);
 
 /*
  * Очистить структуру для хранения результата запроса MySQL типа "NXS_MYSQL_QUERY_TYPE_SELECT" и освободить память, выделенную ранее под указатель.
@@ -212,7 +221,7 @@ nxs_mysql_res_t						*nxs_mysql_res_malloc		();
  * Возвращаемые значения:
  * * NULL
  */
-nxs_mysql_res_t						*nxs_mysql_res_destroy		(nxs_mysql_res_t *res);
+nxs_mysql_res_t			*nxs_mysql_res_destroy			(nxs_mysql_res_t *res);
 
 /*
  * Инициализация структуры для хранения результата запроса MySQL типа "NXS_MYSQL_QUERY_TYPE_SELECT"
@@ -220,7 +229,7 @@ nxs_mysql_res_t						*nxs_mysql_res_destroy		(nxs_mysql_res_t *res);
  * Возвращаемые значения:
  * * Отсутствуют
  */
-void								nxs_mysql_res_init			(nxs_mysql_res_t *res);
+void				nxs_mysql_res_init			(nxs_mysql_res_t *res);
 
 /*
  * Освобождение памяти под элементы структуры для хранения результата запроса MySQL типа "NXS_MYSQL_QUERY_TYPE_SELECT".
@@ -228,8 +237,8 @@ void								nxs_mysql_res_init			(nxs_mysql_res_t *res);
  * Возвращаемые значения:
  * * Отсутствуют
  */
-void								nxs_mysql_res_free			(nxs_mysql_res_t *res);
-void								nxs_mysql_res_clear			(nxs_mysql_res_t *res);
+void				nxs_mysql_res_free			(nxs_mysql_res_t *res);
+void				nxs_mysql_res_clear			(nxs_mysql_res_t *res);
 
 /*
  * Получение элемента таблицы (строка типа "nxs_string_t") с заданными коррдинатами.
@@ -238,10 +247,11 @@ void								nxs_mysql_res_clear			(nxs_mysql_res_t *res);
  * * Указатель на строку
  * * NULL					- если элемент с заданными индексами не найден или сам элемент равен NULL
  */
-nxs_string_t						*nxs_mysql_res_get			(nxs_mysql_res_t *res, size_t row, size_t col);
-size_t								nxs_mysql_res_rows			(nxs_mysql_res_t *res);
-size_t								nxs_mysql_res_fields		(nxs_mysql_res_t *res);
-size_t								nxs_mysql_res_last_ins		(nxs_mysql_res_t *res);
-size_t								nxs_mysql_res_affected		(nxs_mysql_res_t *res);
+nxs_string_t			*nxs_mysql_res_get			(nxs_mysql_res_t *res, size_t row, size_t col);
+size_t				nxs_mysql_res_rows			(nxs_mysql_res_t *res);
+size_t				nxs_mysql_res_fields			(nxs_mysql_res_t *res);
+size_t				nxs_mysql_res_last_ins			(nxs_mysql_res_t *res);
+size_t				nxs_mysql_res_affected			(nxs_mysql_res_t *res);
 
+/** @} */ // end of nxs-mysql
 #endif /* _INCLUDE_NXS_MYSQL_H */

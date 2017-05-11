@@ -1,19 +1,53 @@
+// clang-format off
+
+/* Module includes */
+
 #include <nxs-core/nxs-core.h>
 
-#define NXS_MYSQL_ERR_EPORT_STR				(u_char *)"db port incorrect"
-#define NXS_MYSQL_ERR_EHOST_STR				(u_char *)"db host incorrect"
-#define NXS_MYSQL_ERR_ENAME_STR				(u_char *)"db name incorrect"
-#define NXS_MYSQL_ERR_EUSER_STR				(u_char *)"db user incorrect"
-#define NXS_MYSQL_ERR_EPASS_STR				(u_char *)"db pass incorrect"
-#define NXS_MYSQL_ERR_ECHARSET_STR			(u_char *)"db charset incorrect"
-#define NXS_MYSQL_ERR_EALLOC_STR			(u_char *)"can't allocate memory"
+/* Module definitions */
+
+#define NXS_MYSQL_ERR_EPORT_STR			(u_char *)"db port incorrect"
+#define NXS_MYSQL_ERR_EHOST_STR			(u_char *)"db host incorrect"
+#define NXS_MYSQL_ERR_ENAME_STR			(u_char *)"db name incorrect"
+#define NXS_MYSQL_ERR_EUSER_STR			(u_char *)"db user incorrect"
+#define NXS_MYSQL_ERR_EPASS_STR			(u_char *)"db pass incorrect"
+#define NXS_MYSQL_ERR_ECHARSET_STR		(u_char *)"db charset incorrect"
+#define NXS_MYSQL_ERR_EALLOC_STR		(u_char *)"can't allocate memory"
 #define NXS_MYSQL_ERR_ECHARSET_CONN_STR		(u_char *)"can't set charset"
 #define NXS_MYSQL_ERR_EQUERY_NULL_CONN_STR	(u_char *)"no connection to mysql-server"
 
-nxs_mysql_err_t nxs_mysql_init(nxs_mysql_t *mysql, nxs_string_t *db_host, nxs_string_t *db_name, nxs_string_t *db_user, nxs_string_t *db_pass, uint16_t db_port, nxs_string_t *db_charset)
+/* Module typedefs */
+
+
+
+/* Module declarations */
+
+
+
+/* Module internal (static) functions prototypes */
+
+// clang-format on
+
+// clang-format off
+
+/* Module initializations */
+
+
+
+/* Module global functions */
+
+// clang-format on
+
+nxs_mysql_err_t nxs_mysql_init(nxs_mysql_t * mysql,
+                               nxs_string_t *db_host,
+                               nxs_string_t *db_name,
+                               nxs_string_t *db_user,
+                               nxs_string_t *db_pass,
+                               uint16_t      db_port,
+                               nxs_string_t *db_charset)
 {
 
-	if(mysql == NULL){
+	if(mysql == NULL) {
 
 		return NXS_MYSQL_E_ERR;
 	}
@@ -21,7 +55,7 @@ nxs_mysql_err_t nxs_mysql_init(nxs_mysql_t *mysql, nxs_string_t *db_host, nxs_st
 	mysql->err_str = NULL;
 	mysql->m_errno = NXS_MYSQL_ERRNO_UNDEF;
 
-	if(db_host == NULL){
+	if(db_host == NULL) {
 
 		mysql->m_errno = NXS_MYSQL_ERRNO_EHOST;
 		mysql->err_str = NXS_MYSQL_ERR_EHOST_STR;
@@ -29,7 +63,7 @@ nxs_mysql_err_t nxs_mysql_init(nxs_mysql_t *mysql, nxs_string_t *db_host, nxs_st
 		return NXS_MYSQL_E_ERR;
 	}
 
-	if(db_name == NULL){
+	if(db_name == NULL) {
 
 		mysql->m_errno = NXS_MYSQL_ERRNO_ENAME;
 		mysql->err_str = NXS_MYSQL_ERR_ENAME_STR;
@@ -37,7 +71,7 @@ nxs_mysql_err_t nxs_mysql_init(nxs_mysql_t *mysql, nxs_string_t *db_host, nxs_st
 		return NXS_MYSQL_E_ERR;
 	}
 
-	if(db_user == NULL){
+	if(db_user == NULL) {
 
 		mysql->m_errno = NXS_MYSQL_ERRNO_EUSER;
 		mysql->err_str = NXS_MYSQL_ERR_EUSER_STR;
@@ -45,7 +79,7 @@ nxs_mysql_err_t nxs_mysql_init(nxs_mysql_t *mysql, nxs_string_t *db_host, nxs_st
 		return NXS_MYSQL_E_ERR;
 	}
 
-	if(db_pass == NULL){
+	if(db_pass == NULL) {
 
 		mysql->m_errno = NXS_MYSQL_ERRNO_EPASS;
 		mysql->err_str = NXS_MYSQL_ERR_EPASS_STR;
@@ -53,7 +87,7 @@ nxs_mysql_err_t nxs_mysql_init(nxs_mysql_t *mysql, nxs_string_t *db_host, nxs_st
 		return NXS_MYSQL_E_ERR;
 	}
 
-	if(db_charset == NULL){
+	if(db_charset == NULL) {
 
 		mysql->m_errno = NXS_MYSQL_ERRNO_ECHARSET;
 		mysql->err_str = NXS_MYSQL_ERR_ECHARSET_STR;
@@ -67,9 +101,9 @@ nxs_mysql_err_t nxs_mysql_init(nxs_mysql_t *mysql, nxs_string_t *db_host, nxs_st
 	nxs_string_init2(&mysql->db_pass, 0, nxs_string_str(db_pass));
 	nxs_string_init2(&mysql->db_charset, 0, nxs_string_str(db_charset));
 
-	mysql->db_port		= db_port;
+	mysql->db_port = db_port;
 
-	mysql->conn			= NULL;
+	mysql->conn = NULL;
 
 	return NXS_MYSQL_E_OK;
 }
@@ -77,12 +111,12 @@ nxs_mysql_err_t nxs_mysql_init(nxs_mysql_t *mysql, nxs_string_t *db_host, nxs_st
 void nxs_mysql_free(nxs_mysql_t *mysql)
 {
 
-	if(mysql == NULL){
+	if(mysql == NULL) {
 
 		return;
 	}
 
-	if(mysql->conn != NULL){
+	if(mysql->conn != NULL) {
 
 		nxs_mysql_disconnect(mysql);
 	}
@@ -100,7 +134,7 @@ void nxs_mysql_free(nxs_mysql_t *mysql)
 nxs_mysql_err_t nxs_mysql_connect(nxs_mysql_t *mysql)
 {
 
-	if(mysql == NULL){
+	if(mysql == NULL) {
 
 		return NXS_MYSQL_E_ERR;
 	}
@@ -108,7 +142,7 @@ nxs_mysql_err_t nxs_mysql_connect(nxs_mysql_t *mysql)
 	mysql->err_str = NULL;
 	mysql->m_errno = NXS_MYSQL_ERRNO_OK;
 
-	if((mysql->conn = mysql_init(NULL)) == NULL){
+	if((mysql->conn = mysql_init(NULL)) == NULL) {
 
 		mysql->m_errno = NXS_MYSQL_ERRNO_EALLOC;
 		mysql->err_str = NXS_MYSQL_ERR_EALLOC_STR;
@@ -116,26 +150,26 @@ nxs_mysql_err_t nxs_mysql_connect(nxs_mysql_t *mysql)
 		return NXS_MYSQL_E_ERR;
 	}
 
-	if(!mysql_real_connect(	mysql->conn,
-							(char *)nxs_string_str(&mysql->db_host),
-							(char *)nxs_string_str(&mysql->db_user),
-							(char *)nxs_string_str(&mysql->db_pass),
-							(char *)nxs_string_str(&mysql->db_name),
-							(unsigned int)mysql->db_port,
-							NULL,
-							0)){
+	if(!mysql_real_connect(mysql->conn,
+	                       (char *)nxs_string_str(&mysql->db_host),
+	                       (char *)nxs_string_str(&mysql->db_user),
+	                       (char *)nxs_string_str(&mysql->db_pass),
+	                       (char *)nxs_string_str(&mysql->db_name),
+	                       (unsigned int)mysql->db_port,
+	                       NULL,
+	                       0)) {
 
 		mysql->m_errno = NXS_MYSQL_ERRNO_ECONNECT;
 		mysql->err_str = (u_char *)mysql_error(mysql->conn);
 
-	    mysql_close(mysql->conn);
+		mysql_close(mysql->conn);
 
 		mysql->conn = NULL;
 
-	    return NXS_MYSQL_E_ERR;
+		return NXS_MYSQL_E_ERR;
 	}
 
-	if(mysql_set_character_set(mysql->conn, (char *)nxs_string_str(&mysql->db_charset))){
+	if(mysql_set_character_set(mysql->conn, (char *)nxs_string_str(&mysql->db_charset))) {
 
 		mysql->err_str = NXS_MYSQL_ERR_ECHARSET_CONN_STR;
 		mysql->m_errno = NXS_MYSQL_ERRNO_ECHARSET_CONN;
@@ -147,12 +181,12 @@ nxs_mysql_err_t nxs_mysql_connect(nxs_mysql_t *mysql)
 nxs_mysql_err_t nxs_mysql_disconnect(nxs_mysql_t *mysql)
 {
 
-	if(mysql == NULL){
+	if(mysql == NULL) {
 
 		return NXS_MYSQL_E_ERR;
 	}
 
-	if(mysql->conn != NULL){
+	if(mysql->conn != NULL) {
 
 		mysql_close(mysql->conn);
 	}
@@ -168,17 +202,17 @@ nxs_mysql_err_t nxs_mysql_disconnect(nxs_mysql_t *mysql)
 nxs_mysql_err_t nxs_mysql_check_conn(nxs_mysql_t *mysql)
 {
 
-	if(mysql == NULL){
+	if(mysql == NULL) {
 
 		return NXS_MYSQL_E_ERR;
 	}
 
-	if(mysql->conn == NULL){
+	if(mysql->conn == NULL) {
 
 		return nxs_mysql_connect(mysql);
 	}
 
-	if(mysql_ping(mysql->conn) != 0){
+	if(mysql_ping(mysql->conn) != 0) {
 
 		mysql_close(mysql->conn);
 
@@ -193,21 +227,21 @@ nxs_mysql_err_t nxs_mysql_check_conn(nxs_mysql_t *mysql)
 
 void nxs_mysql_escape_string(nxs_mysql_t *mysql, nxs_string_t *str_to, nxs_string_t *str_from)
 {
-	nxs_string_t	tmp;
-	size_t			len;
+	nxs_string_t tmp;
+	size_t       len;
 
-	if(mysql == NULL || str_to == NULL){
+	if(mysql == NULL || str_to == NULL) {
 
 		return;
 	}
 
 	nxs_string_init(&tmp);
 
-	if(str_from != NULL){
+	if(str_from != NULL) {
 
 		nxs_string_cpy_dyn(&tmp, 0, str_from, 0);
 	}
-	else{
+	else {
 
 		nxs_string_cpy_dyn(&tmp, 0, str_to, 0);
 	}
@@ -225,26 +259,26 @@ void nxs_mysql_escape_string(nxs_mysql_t *mysql, nxs_string_t *str_to, nxs_strin
 
 nxs_mysql_err_t nxs_mysql_query(nxs_mysql_t *mysql, nxs_mysql_query_type_t type, nxs_mysql_res_t *res, const char *query, ...)
 {
-	size_t			n, i;
-	nxs_string_t	q;
-	unsigned long	*lens;
-	va_list			arg;
-	MYSQL_RES		*r_mysql;
-	MYSQL_ROW		row_mysql;
-	nxs_array_t		*r;
-	nxs_string_t	*field;
+	size_t         n, i;
+	nxs_string_t   q;
+	unsigned long *lens;
+	va_list        arg;
+	MYSQL_RES *    r_mysql;
+	MYSQL_ROW      row_mysql;
+	nxs_array_t *  r;
+	nxs_string_t * field;
 
 	mysql->err_str = NULL;
 	mysql->m_errno = NXS_MYSQL_ERRNO_OK;
 
 	nxs_mysql_res_clear(res);
 
-	if(mysql == NULL){
+	if(mysql == NULL) {
 
 		return NXS_MYSQL_E_ERR;
 	}
 
-	if(mysql->conn == NULL){
+	if(mysql->conn == NULL) {
 
 		mysql->err_str = NXS_MYSQL_ERR_EQUERY_NULL_CONN_STR;
 		mysql->m_errno = NXS_MYSQL_ERRNO_EQUERY;
@@ -266,7 +300,7 @@ nxs_mysql_err_t nxs_mysql_query(nxs_mysql_t *mysql, nxs_mysql_query_type_t type,
 	 * Выполнение запроса
 	 */
 
-	if(mysql_real_query(mysql->conn, (char *)nxs_string_str(&q), n) != 0){
+	if(mysql_real_query(mysql->conn, (char *)nxs_string_str(&q), n) != 0) {
 
 		mysql->m_errno = NXS_MYSQL_ERRNO_EQUERY;
 		mysql->err_str = (u_char *)mysql_error(mysql->conn);
@@ -278,39 +312,40 @@ nxs_mysql_err_t nxs_mysql_query(nxs_mysql_t *mysql, nxs_mysql_query_type_t type,
 
 	nxs_string_free(&q);
 
-	switch(type){
+	switch(type) {
 
-		case NXS_MYSQL_QUERY_TYPE_UPDATE: default:
+		case NXS_MYSQL_QUERY_TYPE_UPDATE:
+		default:
 
-			if(res == NULL){
+			if(res == NULL) {
 
 				return NXS_MYSQL_E_OK;
 			}
 
-			res->affected_rows	= (size_t)mysql_affected_rows(mysql->conn);
+			res->affected_rows = (size_t)mysql_affected_rows(mysql->conn);
 
 			return NXS_MYSQL_E_OK;
 
 		case NXS_MYSQL_QUERY_TYPE_INSERT:
 
-			if(res == NULL){
+			if(res == NULL) {
 
 				return NXS_MYSQL_E_OK;
 			}
 
-			res->last_ins		= (size_t)mysql_insert_id(mysql->conn);
-			res->affected_rows	= (size_t)mysql_affected_rows(mysql->conn);
+			res->last_ins      = (size_t)mysql_insert_id(mysql->conn);
+			res->affected_rows = (size_t)mysql_affected_rows(mysql->conn);
 
 			return NXS_MYSQL_E_OK;
 
 		case NXS_MYSQL_QUERY_TYPE_SELECT:
 
-			if(res == NULL){
+			if(res == NULL) {
 
 				return NXS_MYSQL_E_OK;
 			}
 
-			if((r_mysql = mysql_store_result(mysql->conn)) == NULL){
+			if((r_mysql = mysql_store_result(mysql->conn)) == NULL) {
 
 				mysql->m_errno = NXS_MYSQL_ERRNO_ESTORE;
 				mysql->err_str = (u_char *)mysql_error(mysql->conn);
@@ -318,10 +353,10 @@ nxs_mysql_err_t nxs_mysql_query(nxs_mysql_t *mysql, nxs_mysql_query_type_t type,
 				return NXS_MYSQL_E_ERR;
 			}
 
-			res->fields = mysql_num_fields(r_mysql);
+			res->fields  = mysql_num_fields(r_mysql);
 			res->res_tbl = nxs_array_malloc(0, sizeof(nxs_array_t), 1);
 
-			while((row_mysql = mysql_fetch_row(r_mysql)) != NULL){
+			while((row_mysql = mysql_fetch_row(r_mysql)) != NULL) {
 
 				res->rows++;
 
@@ -330,24 +365,24 @@ nxs_mysql_err_t nxs_mysql_query(nxs_mysql_t *mysql, nxs_mysql_query_type_t type,
 
 				lens = mysql_fetch_lengths(r_mysql);
 
-				for(i = 0; i < res->fields; i++){
+				for(i = 0; i < res->fields; i++) {
 
 					field = nxs_array_add(r);
 
 					nxs_string_init(field);
 
-					if(lens[i] == 0){
+					if(lens[i] == 0) {
 
-						if(row_mysql[i] == NULL){
+						if(row_mysql[i] == NULL) {
 
 							nxs_string_create(field, 0, (u_char *)"NULL");
 						}
-						else{
+						else {
 
 							nxs_string_create(field, 0, NXS_STRING_EMPTY_STR);
 						}
 					}
-					else{
+					else {
 
 						nxs_string_create(field, lens[i] + 1, (u_char *)row_mysql[i]);
 					}
@@ -360,7 +395,7 @@ nxs_mysql_err_t nxs_mysql_query(nxs_mysql_t *mysql, nxs_mysql_query_type_t type,
 	}
 }
 
-nxs_mysql_res_t *nxs_mysql_res_malloc()
+nxs_mysql_res_t *nxs_mysql_res_malloc(void)
 {
 	nxs_mysql_res_t *res = NULL;
 
@@ -374,7 +409,7 @@ nxs_mysql_res_t *nxs_mysql_res_malloc()
 nxs_mysql_res_t *nxs_mysql_res_destroy(nxs_mysql_res_t *res)
 {
 
-	if(res == NULL){
+	if(res == NULL) {
 
 		return NULL;
 	}
@@ -387,35 +422,35 @@ nxs_mysql_res_t *nxs_mysql_res_destroy(nxs_mysql_res_t *res)
 void nxs_mysql_res_init(nxs_mysql_res_t *res)
 {
 
-	if(res == NULL){
+	if(res == NULL) {
 
 		return;
 	}
 
-	res->fields			= 0;
-	res->rows			= 0;
-	res->last_ins		= 0;
-	res->affected_rows	= 0;
-	res->res_tbl		= NULL;
+	res->fields        = 0;
+	res->rows          = 0;
+	res->last_ins      = 0;
+	res->affected_rows = 0;
+	res->res_tbl       = NULL;
 }
 
 void nxs_mysql_res_free(nxs_mysql_res_t *res)
 {
-	size_t			i, j, c;
-	nxs_array_t		*r;
-	nxs_string_t	*str;
+	size_t        i, j, c;
+	nxs_array_t * r;
+	nxs_string_t *str;
 
-	if(res == NULL){
+	if(res == NULL) {
 
 		return;
 	}
 
-	for(i = 0; i < res->rows; i++){
+	for(i = 0; i < res->rows; i++) {
 
 		r = nxs_array_get(res->res_tbl, i);
 		c = nxs_array_count(r);
 
-		for(j = 0; j < c; j++){
+		for(j = 0; j < c; j++) {
 
 			str = nxs_array_get(r, j);
 
@@ -427,31 +462,31 @@ void nxs_mysql_res_free(nxs_mysql_res_t *res)
 
 	res->res_tbl = nxs_array_destroy(res->res_tbl);
 
-	res->fields			= 0;
-	res->rows			= 0;
-	res->last_ins		= 0;
-	res->affected_rows	= 0;
+	res->fields        = 0;
+	res->rows          = 0;
+	res->last_ins      = 0;
+	res->affected_rows = 0;
 }
 
 void nxs_mysql_res_clear(nxs_mysql_res_t *res)
 {
-	size_t			i, j, c;
-	nxs_array_t		*r;
-	nxs_string_t	*str;
+	size_t        i, j, c;
+	nxs_array_t * r;
+	nxs_string_t *str;
 
-	if(res == NULL){
+	if(res == NULL) {
 
 		return;
 	}
 
-	if(res->res_tbl != NULL){
+	if(res->res_tbl != NULL) {
 
-		for(i = 0; i < res->rows; i++){
+		for(i = 0; i < res->rows; i++) {
 
 			r = nxs_array_get(res->res_tbl, i);
 			c = nxs_array_count(r);
 
-			for(j = 0; j < c; j++){
+			for(j = 0; j < c; j++) {
 
 				str = nxs_array_get(r, j);
 
@@ -464,19 +499,19 @@ void nxs_mysql_res_clear(nxs_mysql_res_t *res)
 		res->res_tbl = nxs_array_destroy(res->res_tbl);
 	}
 
-	res->fields			= 0;
-	res->rows			= 0;
-	res->last_ins		= 0;
-	res->affected_rows	= 0;
+	res->fields        = 0;
+	res->rows          = 0;
+	res->last_ins      = 0;
+	res->affected_rows = 0;
 }
 
 nxs_string_t *nxs_mysql_res_get(nxs_mysql_res_t *res, size_t row, size_t col)
 {
-	nxs_array_t	*r;
+	nxs_array_t *r;
 
 	r = nxs_array_get(res->res_tbl, row);
 
-	if(r != NULL){
+	if(r != NULL) {
 
 		return nxs_array_get(r, col);
 	}
@@ -486,7 +521,7 @@ nxs_string_t *nxs_mysql_res_get(nxs_mysql_res_t *res, size_t row, size_t col)
 
 size_t nxs_mysql_res_rows(nxs_mysql_res_t *res)
 {
-	if(res == NULL){
+	if(res == NULL) {
 
 		return 0;
 	}
@@ -496,7 +531,7 @@ size_t nxs_mysql_res_rows(nxs_mysql_res_t *res)
 
 size_t nxs_mysql_res_fields(nxs_mysql_res_t *res)
 {
-	if(res == NULL){
+	if(res == NULL) {
 
 		return 0;
 	}
@@ -506,7 +541,7 @@ size_t nxs_mysql_res_fields(nxs_mysql_res_t *res)
 
 size_t nxs_mysql_res_last_ins(nxs_mysql_res_t *res)
 {
-	if(res == NULL){
+	if(res == NULL) {
 
 		return 0;
 	}
@@ -516,10 +551,12 @@ size_t nxs_mysql_res_last_ins(nxs_mysql_res_t *res)
 
 size_t nxs_mysql_res_affected(nxs_mysql_res_t *res)
 {
-	if(res == NULL){
+	if(res == NULL) {
 
 		return 0;
 	}
 
 	return res->affected_rows;
 }
+
+/* Module internal (static) functions */

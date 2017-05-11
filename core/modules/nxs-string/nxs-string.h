@@ -1,6 +1,8 @@
 #ifndef _INCLUDE_NXS_STRING_H
 #define _INCLUDE_NXS_STRING_H
 
+// clang-format off
+
 /** @addtogroup nxs-string
  *
  * @brief Module 'nxs-string' is a basic module providing functions to work with strings.

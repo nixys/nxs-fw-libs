@@ -1,29 +1,56 @@
+// clang-format off
+
+/* Module includes */
+
 #include <nxs-core/nxs-core.h>
 
-#define _NXS_JSON_BUF_READ_SIZE				4096
+/* Module definitions */
 
-#define _NXS_JSON_PRINT_TYPE_OBJECT			(u_char *)"object"
-#define _NXS_JSON_PRINT_TYPE_ARRAY			(u_char *)"array"
-#define _NXS_JSON_PRINT_TYPE_STRING			(u_char *)"string"
+#define _NXS_JSON_BUF_READ_SIZE			4096
+
+#define _NXS_JSON_PRINT_TYPE_OBJECT		(u_char *)"object"
+#define _NXS_JSON_PRINT_TYPE_ARRAY		(u_char *)"array"
+#define _NXS_JSON_PRINT_TYPE_STRING		(u_char *)"string"
 #define _NXS_JSON_PRINT_TYPE_INTEGER		(u_char *)"integer"
-#define _NXS_JSON_PRINT_TYPE_REAL			(u_char *)"real"
-#define _NXS_JSON_PRINT_TYPE_TRUE			(u_char *)"true"
-#define _NXS_JSON_PRINT_TYPE_FALSE			(u_char *)"false"
-#define _NXS_JSON_PRINT_TYPE_NULL			(u_char *)"null"
+#define _NXS_JSON_PRINT_TYPE_REAL		(u_char *)"real"
+#define _NXS_JSON_PRINT_TYPE_TRUE		(u_char *)"true"
+#define _NXS_JSON_PRINT_TYPE_FALSE		(u_char *)"false"
+#define _NXS_JSON_PRINT_TYPE_NULL		(u_char *)"null"
 #define _NXS_JSON_PRINT_TYPE_UNKNOWN		(u_char *)"unknown"
 
-static nxs_json_t				*nxs_json_parse							(u_char *key, json_t *obj);
-static nxs_json_type_t			nxs_json_get_type_jansson				(json_t *obj);
+/* Module typedefs */
 
-static nxs_json_t				*nxs_json_free_recursive				(nxs_json_t *obj);
 
-static void						nxs_json_print_recursive				(nxs_process_t *proc, int log_dst, nxs_json_t *obj, nxs_string_t *shift);
 
+/* Module declarations */
+
+
+
+/* Module internal (static) functions prototypes */
+
+// clang-format on
+
+static nxs_json_t *nxs_json_parse(u_char *key, json_t *obj);
+static nxs_json_type_t nxs_json_get_type_jansson(json_t *obj);
+
+static nxs_json_t *nxs_json_free_recursive(nxs_json_t *obj);
+
+static void nxs_json_print_recursive(nxs_process_t *proc, int log_dst, nxs_json_t *obj, nxs_string_t *shift);
+
+// clang-format off
+
+/* Module initializations */
+
+
+
+/* Module global functions */
+
+// clang-format on
 
 void nxs_json_init(nxs_json_t **json)
 {
 
-	if(json == NULL){
+	if(json == NULL) {
 
 		return;
 	}
@@ -34,7 +61,7 @@ void nxs_json_init(nxs_json_t **json)
 void nxs_json_free(nxs_json_t **json)
 {
 
-	if(json == NULL){
+	if(json == NULL) {
 
 		return;
 	}
@@ -44,20 +71,20 @@ void nxs_json_free(nxs_json_t **json)
 
 int nxs_json_read_file(nxs_process_t *proc, nxs_json_t **json, nxs_string_t *filename, size_t flags)
 {
-	nxs_buf_t		buf;
-	nxs_string_t	json_text;
-	int				fd;
-	ssize_t			rc;
-	size_t			tb;
-	json_t			*j;
-	json_error_t	j_error;
+	nxs_buf_t    buf;
+	nxs_string_t json_text;
+	int          fd;
+	ssize_t      rc;
+	size_t       tb;
+	json_t *     j;
+	json_error_t j_error;
 
-	if(*json != NULL){
+	if(*json != NULL) {
 
 		return NXS_JSON_E_NOT_NULL_PTR;
 	}
 
-	if((fd = nxs_fs_open(filename, O_RDONLY)) == -1){
+	if((fd = nxs_fs_open(filename, O_RDONLY)) == -1) {
 
 		nxs_log_write_error(proc, "error open json file: %s (filename: \"%s\")", strerror(errno), nxs_string_str(filename));
 
@@ -69,7 +96,7 @@ int nxs_json_read_file(nxs_process_t *proc, nxs_json_t **json, nxs_string_t *fil
 
 	tb = 0;
 
-	while((rc = nxs_fs_read_buf(fd, &buf)) > 0){
+	while((rc = nxs_fs_read_buf(fd, &buf)) > 0) {
 
 		nxs_string_char_ncpy_dyn(&json_text, tb, nxs_buf_get_subbuf(&buf, 0), nxs_buf_get_len(&buf));
 
@@ -78,9 +105,10 @@ int nxs_json_read_file(nxs_process_t *proc, nxs_json_t **json, nxs_string_t *fil
 
 	nxs_buf_free(&buf);
 
-	if(rc == -1){
+	if(rc == -1) {
 
-		nxs_log_write_error(proc, "error while reading json data from file: %s (filename: \"%s\")", strerror(errno), nxs_string_str(filename));
+		nxs_log_write_error(
+		        proc, "error while reading json data from file: %s (filename: \"%s\")", strerror(errno), nxs_string_str(filename));
 
 		nxs_string_free(&json_text);
 
@@ -95,11 +123,14 @@ int nxs_json_read_file(nxs_process_t *proc, nxs_json_t **json, nxs_string_t *fil
 
 	nxs_string_free(&json_text);
 
-	if(j == NULL)
-	{
-		nxs_log_write_error(proc, "error while parse json file: %s (file: \"%s\", line: %d)", j_error.text, nxs_string_str(filename), j_error.line);
+	if(j == NULL) {
+		nxs_log_write_error(proc,
+		                    "error while parse json file: %s (file: \"%s\", line: %d)",
+		                    j_error.text,
+		                    nxs_string_str(filename),
+		                    j_error.line);
 
-	    return NXS_JSON_E_PARSE;
+		return NXS_JSON_E_PARSE;
 	}
 
 	*json = nxs_json_parse(NULL, j);
@@ -111,32 +142,31 @@ int nxs_json_read_file(nxs_process_t *proc, nxs_json_t **json, nxs_string_t *fil
 
 int nxs_json_read_mem(nxs_process_t *proc, nxs_json_t **json, nxs_buf_t *buf, size_t flags)
 {
-	json_t			*j;
-	json_error_t	j_error;
-	size_t			buf_len;
+	json_t *     j;
+	json_error_t j_error;
+	size_t       buf_len;
 
-	if(*json != NULL){
+	if(*json != NULL) {
 
 		return NXS_JSON_E_NOT_NULL_PTR;
 	}
 
 	/* Данная проверка требуется, т.к.  json_loadb ожидает не null-терминированную строку */
-	if(nxs_buf_get_char(buf, nxs_buf_get_len(buf) - 1) == (u_char)'\0'){
+	if(nxs_buf_get_char(buf, nxs_buf_get_len(buf) - 1) == (u_char)'\0') {
 
 		buf_len = nxs_buf_get_len(buf) - 1;
 	}
-	else{
+	else {
 
 		buf_len = nxs_buf_get_len(buf);
 	}
 
 	j = json_loadb((char *)nxs_buf_get_subbuf(buf, 0), buf_len, flags, &j_error);
 
-	if(j == NULL)
-	{
+	if(j == NULL) {
 		nxs_log_write_error(proc, "error while parse json buf: %s (line: %d)", j_error.text, j_error.line);
 
-	    return NXS_JSON_E_PARSE;
+		return NXS_JSON_E_PARSE;
 	}
 
 	*json = nxs_json_parse(NULL, j);
@@ -148,18 +178,19 @@ int nxs_json_read_mem(nxs_process_t *proc, nxs_json_t **json, nxs_buf_t *buf, si
 
 nxs_json_t *nxs_json_child_get_by_index(nxs_json_t *obj, size_t index)
 {
-	nxs_json_t	**json;
+	nxs_json_t **json;
 
-	if(obj == NULL){
+	if(obj == NULL) {
 
 		return NULL;
 	}
 
-	switch(obj->type){
+	switch(obj->type) {
 
-		case NXS_JSON_TYPE_OBJECT : case NXS_JSON_TYPE_ARRAY:
+		case NXS_JSON_TYPE_OBJECT:
+		case NXS_JSON_TYPE_ARRAY:
 
-			if((json = nxs_array_get(obj->value, index)) == NULL){
+			if((json = nxs_array_get(obj->value, index)) == NULL) {
 
 				return NULL;
 			}
@@ -174,25 +205,25 @@ nxs_json_t *nxs_json_child_get_by_index(nxs_json_t *obj, size_t index)
 
 nxs_json_t *nxs_json_child_get_by_key(nxs_json_t *obj, u_char *key)
 {
-	size_t			i;
-	nxs_json_t		*json, **j;
+	size_t      i;
+	nxs_json_t *json, **j;
 
-	if(obj == NULL || key == NULL){
+	if(obj == NULL || key == NULL) {
 
 		return NULL;
 	}
 
-	switch(obj->type){
+	switch(obj->type) {
 
 		case NXS_JSON_TYPE_OBJECT:
 
-			for(i = 0; i < nxs_array_count(obj->value); i++){
+			for(i = 0; i < nxs_array_count(obj->value); i++) {
 
-				if((j = nxs_array_get(obj->value, i)) != NULL && *j != NULL){
+				if((j = nxs_array_get(obj->value, i)) != NULL && *j != NULL) {
 
 					json = *j;
 
-					if(nxs_string_char_cmp(&json->key, 0, key) == NXS_STRING_CMP_EQ){
+					if(nxs_string_char_cmp(&json->key, 0, key) == NXS_STRING_CMP_EQ) {
 
 						return json;
 					}
@@ -212,14 +243,15 @@ nxs_json_t *nxs_json_child_get_by_key(nxs_json_t *obj, u_char *key)
 size_t nxs_json_child_get_count(nxs_json_t *obj)
 {
 
-	if(obj == NULL){
+	if(obj == NULL) {
 
 		return 0;
 	}
 
-	switch(obj->type){
+	switch(obj->type) {
 
-		case NXS_JSON_TYPE_OBJECT : case NXS_JSON_TYPE_ARRAY:
+		case NXS_JSON_TYPE_OBJECT:
+		case NXS_JSON_TYPE_ARRAY:
 
 			return nxs_array_count(obj->value);
 
@@ -232,7 +264,7 @@ size_t nxs_json_child_get_count(nxs_json_t *obj)
 nxs_string_t *nxs_json_get_key(nxs_json_t *obj)
 {
 
-	if(obj == NULL){
+	if(obj == NULL) {
 
 		return NULL;
 	}
@@ -243,12 +275,12 @@ nxs_string_t *nxs_json_get_key(nxs_json_t *obj)
 nxs_string_t *nxs_json_string_val(nxs_json_t *obj)
 {
 
-	if(obj == NULL){
+	if(obj == NULL) {
 
 		return NULL;
 	}
 
-	if(obj->type == NXS_JSON_TYPE_STRING){
+	if(obj->type == NXS_JSON_TYPE_STRING) {
 
 		return (nxs_string_t *)(obj->value);
 	}
@@ -260,12 +292,12 @@ nxs_json_int_t nxs_json_integer_val(nxs_json_t *obj)
 {
 	nxs_json_int_t *r;
 
-	if(obj == NULL){
+	if(obj == NULL) {
 
 		return 0;
 	}
 
-	if(obj->type == NXS_JSON_TYPE_INTEGER){
+	if(obj->type == NXS_JSON_TYPE_INTEGER) {
 
 		r = obj->value;
 
@@ -279,12 +311,12 @@ double nxs_json_real_val(nxs_json_t *obj)
 {
 	double *r;
 
-	if(obj == NULL){
+	if(obj == NULL) {
 
 		return 0;
 	}
 
-	if(obj->type == NXS_JSON_TYPE_REAL){
+	if(obj->type == NXS_JSON_TYPE_REAL) {
 
 		r = obj->value;
 
@@ -298,12 +330,12 @@ nxs_bool_t nxs_json_bool_val(nxs_json_t *obj)
 {
 	nxs_bool_t *r;
 
-	if(obj == NULL){
+	if(obj == NULL) {
 
 		return 0;
 	}
 
-	if(obj->type == NXS_JSON_TYPE_TRUE || obj->type == NXS_JSON_TYPE_FALSE){
+	if(obj->type == NXS_JSON_TYPE_TRUE || obj->type == NXS_JSON_TYPE_FALSE) {
 
 		r = obj->value;
 
@@ -316,7 +348,7 @@ nxs_bool_t nxs_json_bool_val(nxs_json_t *obj)
 nxs_json_type_t nxs_json_type_get(nxs_json_t *obj)
 {
 
-	if(obj == NULL){
+	if(obj == NULL) {
 
 		return NXS_JSON_TYPE_NULL;
 	}
@@ -327,7 +359,7 @@ nxs_json_type_t nxs_json_type_get(nxs_json_t *obj)
 u_char *nxs_json_type_string(nxs_json_t *obj)
 {
 
-	switch(obj->type){
+	switch(obj->type) {
 
 		case NXS_JSON_TYPE_OBJECT:
 
@@ -372,15 +404,15 @@ u_char *nxs_json_type_string(nxs_json_t *obj)
  */
 nxs_json_t *nxs_json_clone(nxs_json_t *obj)
 {
-	nxs_array_t		*array;
-	nxs_json_t		*json = NULL, *json_ret, **j, **j_obj;
-	nxs_string_t	*str;
-	size_t			i;
-	double			*val_real;
-	nxs_bool_t		*val_bool;
-	nxs_json_int_t	*val_int;
+	nxs_array_t *   array;
+	nxs_json_t *    json = NULL, *json_ret, **j, **j_obj;
+	nxs_string_t *  str;
+	size_t          i;
+	double *        val_real;
+	nxs_bool_t *    val_bool;
+	nxs_json_int_t *val_int;
 
-	if(obj == NULL){
+	if(obj == NULL) {
 
 		return NULL;
 	}
@@ -389,7 +421,7 @@ nxs_json_t *nxs_json_clone(nxs_json_t *obj)
 
 	nxs_string_init2(&json->key, 0, nxs_string_str(&obj->key));
 
-	switch((json->type = obj->type)){
+	switch((json->type = obj->type)) {
 
 		case NXS_JSON_TYPE_OBJECT:
 		case NXS_JSON_TYPE_ARRAY:
@@ -398,13 +430,13 @@ nxs_json_t *nxs_json_clone(nxs_json_t *obj)
 
 			json->value = array;
 
-			for(i = 0; i < nxs_array_count(obj->value); i++){
+			for(i = 0; i < nxs_array_count(obj->value); i++) {
 
 				j_obj = nxs_array_get(obj->value, i);
 
 				json_ret = nxs_json_clone(*j_obj);
 
-				j = nxs_array_add(array);
+				j  = nxs_array_add(array);
 				*j = json_ret;
 			}
 
@@ -420,7 +452,7 @@ nxs_json_t *nxs_json_clone(nxs_json_t *obj)
 
 		case NXS_JSON_TYPE_INTEGER:
 
-			val_int = (nxs_json_int_t *)nxs_malloc(NULL, sizeof(nxs_json_int_t));
+			val_int  = (nxs_json_int_t *)nxs_malloc(NULL, sizeof(nxs_json_int_t));
 			*val_int = nxs_json_integer_val(obj);
 
 			json->value = val_int;
@@ -429,7 +461,7 @@ nxs_json_t *nxs_json_clone(nxs_json_t *obj)
 
 		case NXS_JSON_TYPE_REAL:
 
-			val_real = (double *)nxs_malloc(NULL, sizeof(double));
+			val_real  = (double *)nxs_malloc(NULL, sizeof(double));
 			*val_real = nxs_json_real_val(obj);
 
 			json->value = val_real;
@@ -438,7 +470,7 @@ nxs_json_t *nxs_json_clone(nxs_json_t *obj)
 
 		case NXS_JSON_TYPE_TRUE:
 
-			val_bool = (nxs_bool_t *)nxs_malloc(NULL, sizeof(nxs_bool_t));
+			val_bool  = (nxs_bool_t *)nxs_malloc(NULL, sizeof(nxs_bool_t));
 			*val_bool = NXS_TRUE;
 
 			json->value = val_bool;
@@ -447,7 +479,7 @@ nxs_json_t *nxs_json_clone(nxs_json_t *obj)
 
 		case NXS_JSON_TYPE_FALSE:
 
-			val_bool = (nxs_bool_t *)nxs_malloc(NULL, sizeof(nxs_bool_t));
+			val_bool  = (nxs_bool_t *)nxs_malloc(NULL, sizeof(nxs_bool_t));
 			*val_bool = NXS_FALSE;
 
 			json->value = val_bool;
@@ -466,9 +498,9 @@ nxs_json_t *nxs_json_clone(nxs_json_t *obj)
 
 void nxs_json_print(nxs_process_t *proc, int log_dst, nxs_json_t *obj)
 {
-	nxs_string_t	shift;
+	nxs_string_t shift;
 
-	if(obj == NULL){
+	if(obj == NULL) {
 
 		return;
 	}
@@ -480,30 +512,32 @@ void nxs_json_print(nxs_process_t *proc, int log_dst, nxs_json_t *obj)
 	nxs_string_free(&shift);
 }
 
+/* Module internal (static) functions */
+
 static nxs_json_t *nxs_json_parse(u_char *key, json_t *obj)
 {
-	nxs_array_t		*array;
-	nxs_json_t		*json = NULL, *json_ret, **j;
-	nxs_string_t	*str;
-	const char		*_key;
-	json_t			*_val;
-	size_t			i;
-	double			*val_real;
-	nxs_bool_t		*val_bool;
-	nxs_json_int_t	*val_int;
+	nxs_array_t *   array;
+	nxs_json_t *    json = NULL, *json_ret, **j;
+	nxs_string_t *  str;
+	const char *    _key;
+	json_t *        _val;
+	size_t          i;
+	double *        val_real;
+	nxs_bool_t *    val_bool;
+	nxs_json_int_t *val_int;
 
 	json = (nxs_json_t *)nxs_malloc(NULL, sizeof(nxs_json_t));
 
-	if(key == NULL){
+	if(key == NULL) {
 
 		nxs_string_init2(&json->key, 0, NXS_STRING_EMPTY_STR);
 	}
-	else{
+	else {
 
 		nxs_string_init2(&json->key, 0, key);
 	}
 
-	switch((json->type = nxs_json_get_type_jansson(obj))){
+	switch((json->type = nxs_json_get_type_jansson(obj))) {
 
 		case NXS_JSON_TYPE_OBJECT:
 
@@ -511,11 +545,12 @@ static nxs_json_t *nxs_json_parse(u_char *key, json_t *obj)
 
 			json->value = array;
 
-			json_object_foreach(obj, _key, _val){
+			json_object_foreach(obj, _key, _val)
+			{
 
 				json_ret = nxs_json_parse((u_char *)_key, _val);
 
-				j = nxs_array_add(array);
+				j  = nxs_array_add(array);
 				*j = json_ret;
 			}
 
@@ -527,13 +562,13 @@ static nxs_json_t *nxs_json_parse(u_char *key, json_t *obj)
 
 			json->value = array;
 
-			for(i = 0; i < json_array_size(obj); i++){
+			for(i = 0; i < json_array_size(obj); i++) {
 
 				_val = json_array_get(obj, i);
 
 				json_ret = nxs_json_parse(NULL, _val);
 
-				j = nxs_array_add(array);
+				j  = nxs_array_add(array);
 				*j = json_ret;
 			}
 
@@ -549,7 +584,7 @@ static nxs_json_t *nxs_json_parse(u_char *key, json_t *obj)
 
 		case NXS_JSON_TYPE_INTEGER:
 
-			val_int = (nxs_json_int_t *)nxs_malloc(NULL, sizeof(nxs_json_int_t));
+			val_int  = (nxs_json_int_t *)nxs_malloc(NULL, sizeof(nxs_json_int_t));
 			*val_int = json_integer_value(obj);
 
 			json->value = val_int;
@@ -558,7 +593,7 @@ static nxs_json_t *nxs_json_parse(u_char *key, json_t *obj)
 
 		case NXS_JSON_TYPE_REAL:
 
-			val_real = (double *)nxs_malloc(NULL, sizeof(double));
+			val_real  = (double *)nxs_malloc(NULL, sizeof(double));
 			*val_real = json_real_value(obj);
 
 			json->value = val_real;
@@ -567,7 +602,7 @@ static nxs_json_t *nxs_json_parse(u_char *key, json_t *obj)
 
 		case NXS_JSON_TYPE_TRUE:
 
-			val_bool = (nxs_bool_t *)nxs_malloc(NULL, sizeof(nxs_bool_t));
+			val_bool  = (nxs_bool_t *)nxs_malloc(NULL, sizeof(nxs_bool_t));
 			*val_bool = NXS_TRUE;
 
 			json->value = val_bool;
@@ -576,7 +611,7 @@ static nxs_json_t *nxs_json_parse(u_char *key, json_t *obj)
 
 		case NXS_JSON_TYPE_FALSE:
 
-			val_bool = (nxs_bool_t *)nxs_malloc(NULL, sizeof(nxs_bool_t));
+			val_bool  = (nxs_bool_t *)nxs_malloc(NULL, sizeof(nxs_bool_t));
 			*val_bool = NXS_FALSE;
 
 			json->value = val_bool;
@@ -596,7 +631,7 @@ static nxs_json_t *nxs_json_parse(u_char *key, json_t *obj)
 static nxs_json_type_t nxs_json_get_type_jansson(json_t *obj)
 {
 
-	switch(json_typeof(obj)){
+	switch(json_typeof(obj)) {
 
 		case JSON_OBJECT:
 
@@ -628,7 +663,7 @@ static nxs_json_type_t nxs_json_get_type_jansson(json_t *obj)
 
 		case JSON_NULL:
 
-		return NXS_JSON_TYPE_NULL;
+			return NXS_JSON_TYPE_NULL;
 	}
 
 	return NXS_JSON_TYPE_NULL;
@@ -636,24 +671,24 @@ static nxs_json_type_t nxs_json_get_type_jansson(json_t *obj)
 
 static nxs_json_t *nxs_json_free_recursive(nxs_json_t *obj)
 {
-	size_t				i;
-	nxs_json_t			**json;
+	size_t       i;
+	nxs_json_t **json;
 
-	if(obj == NULL){
+	if(obj == NULL) {
 
 		return NULL;
 	}
 
 	nxs_string_free(&obj->key);
 
-	switch(obj->type){
+	switch(obj->type) {
 
 		case NXS_JSON_TYPE_OBJECT:
 		case NXS_JSON_TYPE_ARRAY:
 
-			for(i = 0; i < nxs_array_count(obj->value); i++){
+			for(i = 0; i < nxs_array_count(obj->value); i++) {
 
-				if((json = nxs_array_get(obj->value, i)) != NULL){
+				if((json = nxs_array_get(obj->value, i)) != NULL) {
 
 					*json = nxs_json_free_recursive(*json);
 				}
@@ -685,38 +720,38 @@ static nxs_json_t *nxs_json_free_recursive(nxs_json_t *obj)
 
 static void nxs_json_print_recursive(nxs_process_t *proc, int log_dst, nxs_json_t *obj, nxs_string_t *shift)
 {
-	size_t				count, i, len;
-	u_char				*key, *val, *type;
-	nxs_json_t			*json;
-	nxs_string_t		val_str;
-	double				*val_real;
-	nxs_bool_t			*val_bool;
-	nxs_json_int_t		*val_int;
+	size_t          count, i, len;
+	u_char *        key, *val, *type;
+	nxs_json_t *    json;
+	nxs_string_t    val_str;
+	double *        val_real;
+	nxs_bool_t *    val_bool;
+	nxs_json_int_t *val_int;
 
 	key = nxs_string_str(&obj->key);
 
 	nxs_string_init(&val_str);
 
-	switch(obj->type){
+	switch(obj->type) {
 
 		case NXS_JSON_TYPE_OBJECT:
 
 			type = _NXS_JSON_PRINT_TYPE_OBJECT;
-			val = NXS_STRING_EMPTY_STR;
+			val  = NXS_STRING_EMPTY_STR;
 
 			break;
 
 		case NXS_JSON_TYPE_ARRAY:
 
 			type = _NXS_JSON_PRINT_TYPE_ARRAY;
-			val = NXS_STRING_EMPTY_STR;
+			val  = NXS_STRING_EMPTY_STR;
 
 			break;
 
 		case NXS_JSON_TYPE_STRING:
 
 			type = _NXS_JSON_PRINT_TYPE_STRING;
-			val = nxs_string_str(obj->value);
+			val  = nxs_string_str(obj->value);
 
 			break;
 
@@ -726,7 +761,7 @@ static void nxs_json_print_recursive(nxs_process_t *proc, int log_dst, nxs_json_
 
 			val_int = obj->value;
 
-			nxs_string_printf_dyn(&val_str, "%"NXS_JSON_INT_FORMAT, *val_int);
+			nxs_string_printf_dyn(&val_str, "%" NXS_JSON_INT_FORMAT, *val_int);
 			val = nxs_string_str(&val_str);
 
 			break;
@@ -781,22 +816,22 @@ static void nxs_json_print_recursive(nxs_process_t *proc, int log_dst, nxs_json_
 			break;
 	}
 
-	if(log_dst == NXS_JSON_PRINT_CONSOLE){
+	if(log_dst == NXS_JSON_PRINT_CONSOLE) {
 
 		nxs_log_write_console(proc, "%stype: %s, key: \"%s\", value: \"%s\"", nxs_string_str(shift), type, key, val);
 	}
-	else{
+	else {
 
 		nxs_log_write_debug(proc, "%stype: %s, key: \"%s\", value: \"%s\"", nxs_string_str(shift), type, key, val);
 	}
 
-	if((count = nxs_json_child_get_count(obj)) > 0){
+	if((count = nxs_json_child_get_count(obj)) > 0) {
 
 		len = nxs_string_len(shift);
 
 		nxs_string_char_add_char_dyn(shift, (u_char)'\t');
 
-		for(i = 0; i < count; i++){
+		for(i = 0; i < count; i++) {
 
 			json = nxs_json_child_get_by_index(obj, i);
 
