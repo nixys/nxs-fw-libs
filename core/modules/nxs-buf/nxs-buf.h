@@ -197,10 +197,10 @@ int					nxs_buf_clone				(nxs_buf_t *buf_dst, nxs_buf_t *buf_src);
  * @param size Amount of bytes to append.
  *
  * @return
- * * \b NXS_BUF_E_OK - On success.
- * * \b NXS_BUF_E_NULL - If \b buf is a null pointer.
- * * \b NXS_BUF_E_SIZE_EXCEEDED - If the result size of \b buf exceeds its possible size.
- * * \b NXS_BUF_E_NULL_SRC_DATA - If \b data is a null pointer.
+ * * \b NXS_BUF_E_OK 		- On success.
+ * * \b NXS_BUF_E_NULL 		- If \b buf is a null pointer.
+ * * \b NXS_BUF_E_SIZE_EXCEEDED 		- If the result size of \b buf exceeds its possible size.
+ * * \b NXS_BUF_E_NULL_SRC_DATA 		- If \b data is a null pointer.
  */
 int					nxs_buf_cat					(nxs_buf_t *buf, void *data, size_t size);
 
@@ -246,12 +246,32 @@ int					nxs_buf_add_char			(nxs_buf_t *buf, u_char c);
  * @param offset2 Offset from the beginning of \b buf2
  *
  * @return
- * * \b NXS_STRING_CMP_EQ		- If the compared strings are equal.
- * * \b NXS_STRING_CMP_NE 		- If the compared strings are not equal.
- * * \b NXS_STRING_ERROR_OFFSET		- If \b offset1 or \b offset2 is greater than the length of the correspondig string.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str1 or \b str2 is a null pointer.
+ * * \b NXS_BUF_E_NULL		- If either \b buf1 or \b buf2 is a null pointer.
+ * * \b NXS_BUF_CMP_EQ		- If the compared strings are equal.
+ * * \b NXS_BUF_CMP_NE 		- If the compared buffers are not equal.
+ * * \b NXS_BUF_E_OFFSET		- If \b offset1 or \b offset2 is greater than the length of the data string in the corresponding buffer.
  */
 int					nxs_buf_cmp					(nxs_buf_t *buf1, size_t offset1, nxs_buf_t *buf2, size_t offset2);
+
+/**
+ * @brief Compares \b n (at most) characters of two buffers with specified offsets.
+ *
+ * Compares \b n characters of \b buf1 with \b offset1 to \b n characters of \b buf2 with \b offset2.
+ *
+ * The comparision is case-sensitive.
+ *
+ * @param buf1 Pointer to the first buffer.
+ * @param offset1 Offset from the beginning of \b buf1
+ * @param buf2 Pointer to the second buffer.
+ * @param offset2 Offset from the beginning of \b buf2
+ * @param n Number of bytes to compare
+ *
+ * @return
+ * * \b NXS_BUF_E_NULL		- If either \b buf1 or \b buf2 is a null pointer.
+ * * \b NXS_BUF_CMP_EQ		- If the compared strings are equal.
+ * * \b NXS_BUF_CMP_NE 		- If the compared buffers are not equal.
+ * * \b NXS_BUF_E_OFFSET		- If \b offset1 or \b offset2 is greater than the length of the data string in the corresponding buffer.
+ */
 int					nxs_buf_ncmp				(nxs_buf_t *buf1, size_t offset1, nxs_buf_t *buf2, size_t offset2, size_t n);
 
 /**
@@ -263,14 +283,61 @@ int					nxs_buf_ncmp				(nxs_buf_t *buf1, size_t offset1, nxs_buf_t *buf2, size_
  * @param c Character to be added.
  *
  * @return
- * * \b NXS_BUF_E_OK - On success.
- * * \b NXS_BUF_E_SIZE_EXCEEDED - If the result length of \b buf exceeds its possible size.
- * * \b NXS_BUF_E_NULL - If \b buf is a null pointer.
+ * * \b NXS_BUF_E_OK 		- On success.
+ * * \b NXS_BUF_E_SIZE_EXCEEDED 		- If the result length of \b buf exceeds its possible size.
+ * * \b NXS_BUF_E_NULL 		- If \b buf is a null pointer.
  */
 int					nxs_buf_add_char_dyn		(nxs_buf_t *buf, u_char c);
+
+/**
+ * @brief Replaces a character at the specified index of a buffer with a new character.
+ *
+ * If a character is being placed beyond the nxs_string_s#len of \b buf, it's length will be increased to (\b pos + 1).
+ *
+ * @param buf Pointer to the buffer.
+ * @param pos Position to set the character at.
+ * @param c Character to be set.
+ *
+ * @return
+ * * \b NXS_BUF_E_OK		- On success
+ * * \b NXS_BUF_E_NULL 		- If \b buf is a null pointer.
+ * * \b NXS_BUF_E_SIZE_EXCEEDED		- If \b pos is beyond possible size of \b buf.
+ */
 int					nxs_buf_set_char			(nxs_buf_t *buf, size_t pos, u_char c);
+
+/**
+ * @brief Sets new length for a buffer.
+ *
+ * @param buf Pointer to the buffer.
+ * @param new_len New length of the buffer.
+ *
+ * @return
+ * * \b NXS_BUF_E_OK		- On success.
+ * * \b NXS_BUF_E_NULL		- If \b buf is a null pointer.
+ * * \b NXS_BUF_E_SIZE_EXCEEDED		- If \new_len is greater than the possible size of \b buf.
+ */
 int					nxs_buf_set_len				(nxs_buf_t *buf, size_t new_len);
+
+/**
+ * @brief Returns a subbuffer as an u_char array from buffer \b buf with \b offset.
+ *
+ * @param buf Pointer to the buffer.
+ * @param offset Beginning index for subbuffer.
+ *
+ * @return
+ * * On success, a pointer to the subbuffer.
+ * * NULL - If \b buf is a NULL pointer of \b offset is greater than its size.
+ */
 u_char				*nxs_buf_get_subbuf			(nxs_buf_t *buf, size_t offset);
+
+/*
+ * @param buf Pointer to the buffer
+ * @param offset Offset from the beginning of \b buf
+ *
+ * @return
+ * * \b NXS_BUF_E_NULL		- If \b buf is a null pointer.
+ * * \b
+ */
 int					nxs_buf_get_mem				(nxs_buf_t *buf, size_t offset, void *mem, size_t size);
 u_char				nxs_buf_get_char			(nxs_buf_t *buf, size_t pos);
 /**
