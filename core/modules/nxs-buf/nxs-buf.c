@@ -237,6 +237,11 @@ int nxs_buf_cmp(nxs_buf_t *buf1, size_t offset1, nxs_buf_t *buf2, size_t offset2
 {
 	size_t i;
 
+	if(buf1 == NULL || buf2 == NULL) {
+
+		return NXS_BUF_E_NULL;
+	}
+
 	if(offset1 > buf1->len){
 
 		return NXS_BUF_E_OFFSET;
@@ -266,6 +271,11 @@ int nxs_buf_cmp(nxs_buf_t *buf1, size_t offset1, nxs_buf_t *buf2, size_t offset2
 int nxs_buf_ncmp(nxs_buf_t *buf1, size_t offset1, nxs_buf_t *buf2, size_t offset2, size_t n)
 {
 	size_t i;
+
+	if(buf1 == NULL || buf2 == NULL) {
+
+			return NXS_BUF_E_NULL;
+	}
 
 	if(offset1 > buf1->len){
 
