@@ -63,13 +63,6 @@ static void nxs_string_vprintf_int(nxs_string_t *str, int64_t i64, u_char zero, 
 
 // clang-format on
 
-/*
- * Выделение памяти под строку str, её инициализация и создание(если требуется).
- * Если new_str == NULL и size > 0 - память под строку будет выделена, строка будет создана нулевой длины (размер строки при этом будет
- * равен size)
- * Если new_str == NULL и size == 0 - память под строку будет выделена и строка будет инициализирована, но не создана (size будет равен 0,
- * str->str будет равно NULL)
- */
 nxs_string_t *nxs_string_malloc(size_t size, u_char *new_str)
 {
 	nxs_string_t *str = NULL;
@@ -116,10 +109,6 @@ nxs_string_t *nxs_string_destroy(nxs_string_t *str)
 	return nxs_free(str);
 }
 
-/*
- * Инициализация (обнуление) строки.
- * Рекомендуется использовать эту функцию только при объявлении строки
- */
 void nxs_string_init(nxs_string_t *str)
 {
 
@@ -133,14 +122,6 @@ void nxs_string_init(nxs_string_t *str)
 	str->len  = 0;
 }
 
-/*
- * Инициализация (обнуление) строки и одновременное заполнение данным.
- * Рекомендуется использовать эту функцию только при объявлении строки
- *
- * Возвращаемое значение:
- * * Длина новой строки
- * * Коды функции nxs_string_create(). В этом случае строка будет в инициализированном состоянии (т.е. память под строку выделена не будет)
- */
 ssize_t nxs_string_init2(nxs_string_t *str, size_t size, u_char *new_str)
 {
 	ssize_t rc;
@@ -162,13 +143,6 @@ ssize_t nxs_string_init2(nxs_string_t *str, size_t size, u_char *new_str)
 	return rc;
 }
 
-/*
- * Инициализация (обнуление) строки и одновременное заполнение данным из строки src.
- *
- * Возвращаемое значение:
- * * Длина новой строки
- * * NXS_STRING_ERROR_NULL_PTR
- */
 ssize_t nxs_string_init3(nxs_string_t *str, nxs_string_t *src)
 {
 
@@ -197,20 +171,6 @@ ssize_t nxs_string_init3(nxs_string_t *str, nxs_string_t *src)
 	return str->len;
 }
 
-/*
- * Создание строки.
- * Выделение памяти под строку (необходимо инициализировать строку до использования этой функции).
- * Если new_str != NULL и при этом size == 0, то размер новой строки будет вычислен автоматически как длина строки new_str + 1 ('\0')
- * Если new_str == NULL, а size > 0 - будет создана строка размером size и нулевой длиной.
- * Если и new_str == NULL, и size == 0 - строка создана не будет, функция вернёт ошибку "NXS_STRING_ERROR_NOT_CREATED".
- *
- * Возвращаемое значение:
- * * Длина новой строки
- * * NXS_STRING_ERROR_NOT_INIT		- если строка не инициализирована (для предотвращения утечек памяти)
- * * NXS_STRING_ERROR_DST_SIZE		- строка new_str имеет длину, превышающую размер size, заявленный для строки str
- * * NXS_STRING_ERROR_NOT_CREATED	- строка не создана, если new_str == NULL и size == 0 (не выделяется память нулевой длины)
- * * NXS_STRING_ERROR_NULL_PTR		- указатель на строку "str" равен NULL
- */
 ssize_t nxs_string_create(nxs_string_t *str, size_t size, u_char *new_str)
 {
 	size_t  s;
@@ -229,10 +189,6 @@ ssize_t nxs_string_create(nxs_string_t *str, size_t size, u_char *new_str)
 	if(new_str != NULL) {
 
 		if(size == 0) {
-
-			/*
-			 * Необходимо вычислить размер под новую строку
-			 */
 
 			s = strlen((const char *)new_str) + 1;
 		}
@@ -257,10 +213,6 @@ ssize_t nxs_string_create(nxs_string_t *str, size_t size, u_char *new_str)
 
 		if(size == 0) {
 
-			/*
-			 * Если требуемый размер строки 0
-			 */
-
 			return NXS_STRING_ERROR_NOT_CREATED;
 		}
 
@@ -272,14 +224,6 @@ ssize_t nxs_string_create(nxs_string_t *str, size_t size, u_char *new_str)
 	return str->len;
 }
 
-/*
- * Освобождение памяти, выделенной под строку и инициализация строки для повторного использования)
- *
- * Возвращаемое значение:
- * * NXS_STRING_OK					- если ошибок не возникло
- * * NXS_STRING_ERROR_NOT_CREATED	- если строка не созадана
- * * NXS_STRING_ERROR_NULL_PTR		- указатель на строку "str" равен NULL
- */
 int nxs_string_free(nxs_string_t *str)
 {
 
@@ -301,16 +245,6 @@ int nxs_string_free(nxs_string_t *str)
 	return NXS_STRING_OK;
 }
 
-/*
- * Изменение размера строки str до нового размера new_size.
- * Если новый рамер строки меньше текущей длины строки - строка будет обрезана (с учётом завершающего символа)
- * Если new_size == 0 - память, выделенная под строку, будет освобождена, а строка инициализирована.
- * Если строка ещё не создана - она будет создана с размером new_size и нулевой длиной
- *
- * Возвращаемое значение:
- * * Новый рамер строки str
- * * NXS_STRING_ERROR_NULL_PTR		- указатель на строку "str" равен NULL
- */
 ssize_t nxs_string_resize(nxs_string_t *str, size_t new_size)
 {
 
@@ -320,7 +254,7 @@ ssize_t nxs_string_resize(nxs_string_t *str, size_t new_size)
 	}
 
 	/*
-	 * Если new_size == 0 - память, выделенная под строку, будет освобождена, а строка инициализирована.
+	 * If new_size == 0 - free and initialize the string
 	 */
 	if(new_size == 0) {
 
@@ -332,7 +266,7 @@ ssize_t nxs_string_resize(nxs_string_t *str, size_t new_size)
 	if(str->size == 0 || str->str == NULL) {
 
 		/*
-		 * Если строка ещё не создана - создаём её
+		 * Create string if not created yet
 		 */
 
 		nxs_string_create(str, new_size, NULL);
@@ -340,7 +274,7 @@ ssize_t nxs_string_resize(nxs_string_t *str, size_t new_size)
 	else {
 
 		/*
-		 * Если строка уже создана - изменяем её размер
+		 * Change string size if it's already created
 		 */
 
 		str->str = nxs_realloc(str->str, new_size);
@@ -358,14 +292,6 @@ ssize_t nxs_string_resize(nxs_string_t *str, size_t new_size)
 	return str->size;
 }
 
-/*
- * Очистка строки (выделенная память не освобождается)
- *
- * Возвращаемое значение:
- * * NXS_STRING_OK					- если ошибок не возникло
- * * NXS_STRING_ERROR_NOT_CREATED	- если строка не созадана
- * * NXS_STRING_ERROR_NULL_PTR		- указатель на строку "str" равен NULL
- */
 int nxs_string_clear(nxs_string_t *str)
 {
 
@@ -402,27 +328,6 @@ ssize_t nxs_string_printf_dyn(nxs_string_t *str, const char *msg, ...)
 	return k;
 }
 
-/*
- * nxs_string_printf* format:
- *
- * %[0][width]zu				- size_t
- * %[0][width]zd				- ssize_t
- * %[0][width]d					- int
- * %[0][width]u					- unsigned int
- * %[0][width]lu				- unsigned long int
- * %[0][width]ld				- long int
- * %[0][width]llu				- unsigned long long int
- * %[0][width]lld				- long long int
- * %[0][width]o					- oct
- * %[0][width]x					- hex
- * %[0][width][.precision]f		- double
- * %c							- char
- * %s							- char * (null-terminated string)
- * %r							- nxs_string_t *
- * %R							- nxs_buf_t *
- * %%							- %
- */
-
 ssize_t nxs_string_printf2_dyn(nxs_string_t *str, size_t offset, const char *msg, ...)
 {
 	size_t  k;
@@ -451,100 +356,6 @@ ssize_t nxs_string_vprintf_dyn(nxs_string_t *str, const char *fmt, va_list ap)
 	return nxs_string_vprintf_core_dyn(str, 0, fmt, ap);
 }
 
-/*
- * На текущий момент данные фукнции не используются
- *
- *
- *ssize_t nxs_string_printf(nxs_string_t *str, const char *msg, ...)
-{
-        size_t		k;
-        va_list		msg_args;
-
-        if(str == NULL){
-
-                return NXS_STRING_ERROR_NULL_PTR;
-        }
-
-        va_start(msg_args, msg);
-        k = vsnprintf((char *)str->str, str->size, msg, msg_args);
-        va_end(msg_args);
-
-        if(k >= str->size){
-
-                str->len = str->size - 1;
-
-                return NXS_STRING_ERROR_DST_SIZE;
-        }
-
-        str->len = k;
-
-        return k;
-}
-
-ssize_t nxs_string_printf2(nxs_string_t *str, size_t offset, const char *msg, ...)
-{
-        size_t		k;
-        va_list		msg_args;
-
-        if(str == NULL){
-
-                return NXS_STRING_ERROR_NULL_PTR;
-        }
-
-        if(offset + 1 >= str->size){
-
-                return NXS_STRING_ERROR_DST_SIZE;
-        }
-
-        va_start(msg_args, msg);
-        k = vsnprintf((char *)str->str + offset, str->size - offset, msg, msg_args);
-        va_end(msg_args);
-
-        if(k >= str->size - offset){
-
-                str->len = str->size - 1;
-
-                return NXS_STRING_ERROR_DST_SIZE;
-        }
-
-        str->len = k + offset;
-
-        return k;
-}
-
-ssize_t nxs_string_vprintf(nxs_string_t *str, const char *format, va_list ap)
-{
-        size_t		k;
-
-        if(str == NULL){
-
-                return NXS_STRING_ERROR_NULL_PTR;
-        }
-
-        k = vsnprintf((char *)str->str, str->size, format, ap);
-
-        if(k >= str->size){
-
-                str->len = str->size - 1;
-
-                return NXS_STRING_ERROR_DST_SIZE;
-        }
-
-        str->len = k;
-
-        return k;
-}
-*/
-
-/*
- * Копирование подстроки src со смещением offset_src в строку dst со смещением offset_dst от её начала
- *
- * Возвращаемые значения:
- * * Новая длина строки dst
- * * NXS_STRING_ERROR_OFFSET	- смещение offset_dst или offset_src больше длин соответствующих строк
- * * NXS_STRING_ERROR_DST_SIZE	- результирующая длина строки dst больше, чем допустимый размер строки dst
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "dst" или "src" равен NULL
- */
 ssize_t nxs_string_cpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src)
 {
 
@@ -576,9 +387,6 @@ ssize_t nxs_string_cpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, 
 	return dst->len;
 }
 
-/*
- * Функция появилась с версии v0.2-0 r13
- */
 ssize_t nxs_string_cpy_dyn(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src)
 {
 	ssize_t rc;
@@ -593,15 +401,6 @@ ssize_t nxs_string_cpy_dyn(nxs_string_t *dst, size_t offset_dst, nxs_string_t *s
 	return rc;
 }
 
-/*
- * Копирование n символов подстроки src со смещением offset_src в строку dst со смещением offset_dst от её начала
- *
- * Возвращаемые значения:
- * * Новая длина строки dst
- * * NXS_STRING_ERROR_OFFSET	- смещение offset_dst или offset_src больше длин соответствующих строк
- * * NXS_STRING_ERROR_DST_SIZE	- результирующая длина строки dst больше, чем допустимый размер строки dst
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "dst" или "src" равен NULL
- */
 ssize_t nxs_string_ncpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n)
 {
 
@@ -638,9 +437,6 @@ ssize_t nxs_string_ncpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src,
 	return dst->len;
 }
 
-/*
- * Функция появилась с версии v0.2-0 r13
- */
 ssize_t nxs_string_ncpy_dyn(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n)
 {
 	ssize_t rc;
@@ -655,14 +451,6 @@ ssize_t nxs_string_ncpy_dyn(nxs_string_t *dst, size_t offset_dst, nxs_string_t *
 	return rc;
 }
 
-/*
- * Добавление строки src в конец строки dst
- *
- * Возвращаемое значение:
- * * Новая длина строки dst
- * * NXS_STRING_ERROR_DST_SIZE - если результирующий размер строки превышает допустимый для использования размер строки dst
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "dst" или "src" равен NULL
- */
 ssize_t nxs_string_cat(nxs_string_t *dst, nxs_string_t *src)
 {
 
@@ -684,9 +472,6 @@ ssize_t nxs_string_cat(nxs_string_t *dst, nxs_string_t *src)
 	return dst->len;
 }
 
-/*
- * Функция появилась с версии v0.2-0 r13
- */
 ssize_t nxs_string_cat_dyn(nxs_string_t *dst, nxs_string_t *src)
 {
 	ssize_t rc;
@@ -701,14 +486,6 @@ ssize_t nxs_string_cat_dyn(nxs_string_t *dst, nxs_string_t *src)
 	return rc;
 }
 
-/*
- * Добавление n байт строки src в конец строки dst
- *
- * Возвращаемое значение:
- * * Новая длина строки dst
- * * NXS_STRING_ERROR_DST_SIZE	- если результирующий размер строки превышает допустимый для использования размер строки dst
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "dst" или "src" равен NULL
- */
 ssize_t nxs_string_ncat(nxs_string_t *dst, nxs_string_t *src, size_t n)
 {
 
@@ -735,9 +512,6 @@ ssize_t nxs_string_ncat(nxs_string_t *dst, nxs_string_t *src, size_t n)
 	return dst->len;
 }
 
-/*
- * Функция появилась с версии v0.2-0 r13
- */
 ssize_t nxs_string_ncat_dyn(nxs_string_t *dst, nxs_string_t *src, size_t n)
 {
 	ssize_t rc;
@@ -752,15 +526,6 @@ ssize_t nxs_string_ncat_dyn(nxs_string_t *dst, nxs_string_t *src, size_t n)
 	return rc;
 }
 
-/*
- * Стравнение строки str1 со смещением  offset1 байт от начала со строкой str2 со смещением offset2 байт
- *
- * Возвращаемое значение:
- * * NXS_STRING_CMP_EQ			- сравниваемые подстроки одинаковы
- * * NXS_STRING_CMP_NE			- сравниваемые подстроки различны (хотя бы в одном символе)
- * * NXS_STRING_ERROR_OFFSET	- заданное смещение offset1 или offset2 больше длин соответствующих строк
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "str1" или "str2" равен NULL
- */
 int nxs_string_cmp(nxs_string_t *str1, size_t offset1, nxs_string_t *str2, size_t offset2)
 {
 	size_t i;
@@ -796,15 +561,6 @@ int nxs_string_cmp(nxs_string_t *str1, size_t offset1, nxs_string_t *str2, size_
 	return NXS_STRING_CMP_EQ;
 }
 
-/*
- * Стравнение строки str1 со смещением  offset1 байт от начала со строкой str2 со смещением offset2 байт, сравниваются n первых байт
- *
- * Возвращаемое значение:
- * * NXS_STRING_CMP_EQ			- сравниваемые подстроки одинаковы
- * * NXS_STRING_CMP_NE			- сравниваемые подстроки различны (хотя бы в одном символе)
- * * NXS_STRING_ERROR_OFFSET	- заданное смещение offset1 или offset2 больше длин соответствующих строк
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "str1" или "str2" равен NULL
- */
 int nxs_string_ncmp(nxs_string_t *str1, size_t offset1, nxs_string_t *str2, size_t offset2, size_t n)
 {
 	size_t i;
@@ -840,15 +596,6 @@ int nxs_string_ncmp(nxs_string_t *str1, size_t offset1, nxs_string_t *str2, size
 	return NXS_STRING_CMP_EQ;
 }
 
-/*
- * Скопировать строку ch_str в строку str со смещением offset в строке str относительно её начала
- *
- * Возвращаемое значение:
- * * Новое значение длины строки str
- * * NXS_STRING_ERROR_OFFSET	- если смещение offset больше длины строки str
- * * NXS_STRING_ERROR_DST_SIZE	- если результирующая длина строки больше допустимого размера строки str
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "str" или "ch_str" равен NULL
- */
 ssize_t nxs_string_char_cpy(nxs_string_t *str, size_t offset, u_char *ch_str)
 {
 	size_t len;
@@ -878,9 +625,6 @@ ssize_t nxs_string_char_cpy(nxs_string_t *str, size_t offset, u_char *ch_str)
 	return str->len;
 }
 
-/*
- * Функция появилась с версии v0.2-0 r13
- */
 ssize_t nxs_string_char_cpy_dyn(nxs_string_t *str, size_t offset, u_char *ch_str)
 {
 	size_t  len;
@@ -903,17 +647,6 @@ ssize_t nxs_string_char_cpy_dyn(nxs_string_t *str, size_t offset, u_char *ch_str
 	return rc;
 }
 
-/*
- * Скопировать n-байт строки ch_str в строку str со смещением offset в строке str относительно её начала
- *
- * Возвращаемое значение:
- * * Новое значение длины строки str
- * * NXS_STRING_ERROR_OFFSET	- если смещение offset больше длины строки str
- * * NXS_STRING_ERROR_DST_SIZE	- если результирующая длина строки больше допустимого размера строки str
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "str" или "ch_str" равен NULL
- *
- * Функция изменилась в версии v0.2-0 r13
- */
 ssize_t nxs_string_char_ncpy(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n)
 {
 
@@ -940,9 +673,6 @@ ssize_t nxs_string_char_ncpy(nxs_string_t *str, size_t offset, u_char *ch_str, s
 	return str->len;
 }
 
-/*
- * Функция появилась с версии v0.2-0 r13
- */
 ssize_t nxs_string_char_ncpy_dyn(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n)
 {
 	ssize_t rc;
@@ -957,14 +687,6 @@ ssize_t nxs_string_char_ncpy_dyn(nxs_string_t *str, size_t offset, u_char *ch_st
 	return rc;
 }
 
-/*
- * Добавить строку ch_str к строке str
- *
- * Возвращаемое значение:
- * * Новое значение длины строки str
- * * NXS_STRING_ERROR_DST_SIZE	- если результирующая длина строки больше допустимого размера строки str
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "str" или "ch_str" равен NULL
- */
 ssize_t nxs_string_char_cat(nxs_string_t *str, u_char *ch_str)
 {
 	size_t len;
@@ -989,9 +711,6 @@ ssize_t nxs_string_char_cat(nxs_string_t *str, u_char *ch_str)
 	return str->len;
 }
 
-/*
- * Функция появилась с версии v0.2-0 r13
- */
 ssize_t nxs_string_char_cat_dyn(nxs_string_t *str, u_char *ch_str)
 {
 	size_t  len;
@@ -1014,16 +733,6 @@ ssize_t nxs_string_char_cat_dyn(nxs_string_t *str, u_char *ch_str)
 	return rc;
 }
 
-/*
- * Добавить n первых байт строки ch_str к строке str
- *
- * Возвращаемое значение:
- * * Новое значение длины строки str
- * * NXS_STRING_ERROR_DST_SIZE	- если результирующая длина строки больше допустимого размера строки str
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "str" или "ch_str" равен NULL
- *
- * Функция изменилась в версии v0.2-0 r13
- */
 ssize_t nxs_string_char_ncat(nxs_string_t *str, u_char *ch_str, size_t n)
 {
 
@@ -1045,9 +754,6 @@ ssize_t nxs_string_char_ncat(nxs_string_t *str, u_char *ch_str, size_t n)
 	return str->len;
 }
 
-/*
- * Функция появилась с версии v0.2-0 r13
- */
 ssize_t nxs_string_char_ncat_dyn(nxs_string_t *str, u_char *ch_str, size_t n)
 {
 	ssize_t rc;
@@ -1062,15 +768,6 @@ ssize_t nxs_string_char_ncat_dyn(nxs_string_t *str, u_char *ch_str, size_t n)
 	return rc;
 }
 
-/*
- * Стравнение строки str со смещением  offset байт от начала со строкой ch_str (u_char)
- *
- * Возвращаемое значение:
- * * NXS_STRING_CMP_EQ			- сравниваемые подстроки одинаковы
- * * NXS_STRING_CMP_NE			- сравниваемые подстроки различны (хотя бы в одном символе)
- * * NXS_STRING_ERROR_OFFSET	- заданное смещение offset больше длины строки str
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "str" или "ch_str" равен NULL
- */
 int nxs_string_char_cmp(nxs_string_t *str, size_t offset, u_char *ch_str)
 {
 	size_t i, len;
@@ -1103,17 +800,6 @@ int nxs_string_char_cmp(nxs_string_t *str, size_t offset, u_char *ch_str)
 	return NXS_STRING_CMP_EQ;
 }
 
-/*
- * Стравнение строки str со смещением  offset байт от начала со строкой ch_str, сравниваются n первых байт
- *
- * Возвращаемое значение:
- * * NXS_STRING_CMP_EQ			- сравниваемые подстроки одинаковы
- * * NXS_STRING_CMP_NE			- сравниваемые подстроки различны (хотя бы в одном символе)
- * * NXS_STRING_ERROR_OFFSET	- заданное смещение offset больше длины строки str
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "str" или "ch_str" равен NULL
- *
- * Функция изменилась в версии v0.2-0 r13
- */
 int nxs_string_char_ncmp(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n)
 {
 	size_t i;
@@ -1144,14 +830,6 @@ int nxs_string_char_ncmp(nxs_string_t *str, size_t offset, u_char *ch_str, size_
 	return NXS_STRING_CMP_EQ;
 }
 
-/*
- * Добавить символ "c" к строке str
- *
- * Возвращаемое значение:
- * * Новое значение длины строки str
- * * NXS_STRING_ERROR_DST_SIZE	- если результирующая длина строки больше допустимого размера строки str
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "str" или "ch_str" равен NULL
- */
 ssize_t nxs_string_char_add_char(nxs_string_t *str, u_char c)
 {
 
@@ -1185,9 +863,6 @@ ssize_t nxs_string_char_add_char(nxs_string_t *str, u_char c)
 	return str->len;
 }
 
-/*
- * Функция появилась с версии v0.2-0 r13
- */
 ssize_t nxs_string_char_add_char_dyn(nxs_string_t *str, u_char c)
 {
 	ssize_t rc;
@@ -1296,17 +971,6 @@ void nxs_string_dirname(nxs_string_t *dst, nxs_string_t *path)
 	}
 }
 
-/*
- * Поместить символ 'c' в строку str в позицию pos (символ, находящийся в позиции pos будет заменён новым).
- * Если символ добавляется в конец строки - длина строки будет увеличина в рамках размеров строки
- *
- * Возвращаемое значение:
- * * Длина результирующей строки
- * * NXS_STRING_ERROR_NOT_CREATED	- строка не создана
- * * NXS_STRING_ERROR_DST_LEN		- требуемая позиция символа находится за границами строки (больше её длины)
- * * NXS_STRING_ERROR_DST_SIZE		- в строке нет доступного места для добавления символа
- * * NXS_STRING_ERROR_NULL_PTR		- указатель на строку "str" равен NULL
- */
 ssize_t nxs_string_set_char(nxs_string_t *str, size_t pos, u_char c)
 {
 
@@ -1332,9 +996,6 @@ ssize_t nxs_string_set_char(nxs_string_t *str, size_t pos, u_char c)
 	return str->len;
 }
 
-/*
- * Вставить симпол 'c' в строку str в позицию pos (символы, находящиеся справа от позиции pos будут смещены вправо на один символ).
- */
 ssize_t nxs_string_ins_char(nxs_string_t *str, size_t pos, u_char c)
 {
 	size_t i;
@@ -1382,18 +1043,6 @@ ssize_t nxs_string_ins_char_dyn(nxs_string_t *str, size_t pos, u_char c)
 	return rc;
 }
 
-/*
- * Функция появилась с версии v0.2-0 r13
- *
- * Задать новую длину строки. Будет установлен символ конца строки в позицию len (соответствующим образом будет изменено значение длины
- * строки).
- * Проверка наличия других символов '\0' в строке не проверяется.
- *
- * Возвращаемое значение:
- * * Длина результирующей строки
- * * NXS_STRING_ERROR_DST_SIZE	- новая длина строки больше допустимого размера строки str
- * * NXS_STRING_ERROR_NULL_PTR	- указатель на строку "str" равен NULL
- */
 ssize_t nxs_string_set_len(nxs_string_t *str, size_t len)
 {
 
@@ -1414,13 +1063,6 @@ ssize_t nxs_string_set_len(nxs_string_t *str, size_t len)
 	return str->len;
 }
 
-/*
- * Установить терминальный символ '\0' в позицию, соответствующую значению длины строки.
- *
- * Данная функция создаётся для того, чтобы было возможно корректно использовать строки при для сетевом обмене, т.к. при передаче
- * по сети данные передаются как буфер, т.е. игнорируется завершающий символ '\0'. При этом значение длины строки (str->len) верное,
- * а её размер достаточный для добавления терминачального симовола (последнее гарантируетя функцией приёма буфера).
- */
 ssize_t nxs_string_len_fix(nxs_string_t *str)
 {
 
@@ -1439,13 +1081,6 @@ ssize_t nxs_string_len_fix(nxs_string_t *str)
 	return str->len;
 }
 
-/*
- * Получить символ строки str, расположенный в позиции pos
- *
- * Возвращаемое значение:
- * * Требуемый символ
- * * 0 - если pos больше длины строки, либо указатель на строку "str" равен NULL
- */
 u_char nxs_string_get_char(nxs_string_t *str, size_t pos)
 {
 
@@ -1462,15 +1097,6 @@ u_char nxs_string_get_char(nxs_string_t *str, size_t pos)
 	return str->str[pos];
 }
 
-/*
- * Получить подстроку str со смещением offset
- *
- * Возвращаемое значение:
- * * Указатель на подстроку с требуемым смещением
- * * NULL - если запрошенное смещение больше размера строки или str равно NULL
- *
- * Функция изменилась в версии v0.2-0 r13
- */
 u_char *nxs_string_get_substr(nxs_string_t *str, size_t offset)
 {
 
@@ -1487,15 +1113,6 @@ u_char *nxs_string_get_substr(nxs_string_t *str, size_t offset)
 	return str->str + offset;
 }
 
-/*
- * Поиск первого вхождения подстроки f_str длиной f_str_len в строку str со смещением offset
- *
- * Возвращаемое значение:
- * * Указатель на найденную подстроку в строке str
- * * NULL - если подстрока не найдена, длина искомой строки больше длины строки str или смещение offset в строке str больше длины строки
- * str, либо
- * 				хотя бы один из указателей "str" или "f_str" равен NULL
- */
 u_char *nxs_string_find_substr_first(nxs_string_t *str, size_t offset, u_char *f_str, size_t f_str_len)
 {
 	size_t i, j;
@@ -1533,9 +1150,6 @@ u_char *nxs_string_find_substr_first(nxs_string_t *str, size_t offset, u_char *f
 			j = 0;
 		}
 
-		/*
-		 * Если в строке str осталось для проверки символов меньше, чем необхо проверить в строке f_str
-		 */
 		if(str->len - (i + 1) < f_str_len - j) {
 
 			return NULL;
@@ -1545,15 +1159,6 @@ u_char *nxs_string_find_substr_first(nxs_string_t *str, size_t offset, u_char *f
 	return NULL;
 }
 
-/*
- * Поиск последнего вхождения подстроки f_str длиной f_str_len в строку str со смещением offset
- *
- * Возвращаемое значение:
- * * Указатель на найденную подстроку в строке str
- * * NULL - если подстрока не найдена, длина искомой строки больше длины строки str или смещение offset в строке str больше длины строки
- * str, либо
- * 				хотя бы один из указателей "str" или "f_str" равен NULL
- */
 u_char *nxs_string_find_substr_last(nxs_string_t *str, size_t offset, u_char *f_str, size_t f_str_len)
 {
 	size_t i, j;
@@ -1591,9 +1196,6 @@ u_char *nxs_string_find_substr_last(nxs_string_t *str, size_t offset, u_char *f_
 			j = f_str_len - 1;
 		}
 
-		/*
-		 * Если в строке str осталось для проверки символов меньше, чем необхо проверить в строке f_str
-		 */
 		if(i - offset < j + 1) {
 
 			return NULL;
@@ -1603,13 +1205,6 @@ u_char *nxs_string_find_substr_last(nxs_string_t *str, size_t offset, u_char *f_
 	return NULL;
 }
 
-/*
- * Поиск первого вхождения символа 'c' в строку str со смещением  offset
- *
- * Возвращаемое значение:
- * * Указатель на найденную подстроку в строке str, которая начинается с симвмола 'c'
- * * NULL - если символ не найден или смещение offset в строке str больше длины строки str либо указатель "str" на строку равен NULL
- */
 u_char *nxs_string_find_char_first(nxs_string_t *str, size_t offset, u_char c)
 {
 	size_t i;
@@ -1635,13 +1230,6 @@ u_char *nxs_string_find_char_first(nxs_string_t *str, size_t offset, u_char c)
 	return NULL;
 }
 
-/*
- * Поиск последнего вхождения символа 'c' в строку str со смещением  offset
- *
- * Возвращаемое значение:
- * * Указатель на найденную подстроку в строке str, которая начинается с симвмола 'c'
- * * NULL - если символ не найден или смещение offset в строке str больше длины строки str либо указатель "str" на строку равен NULL
- */
 u_char *nxs_string_find_char_last(nxs_string_t *str, size_t offset, u_char c)
 {
 	size_t i;
@@ -1667,15 +1255,6 @@ u_char *nxs_string_find_char_last(nxs_string_t *str, size_t offset, u_char c)
 	return NULL;
 }
 
-/*
- * Заменить в строке 'str' все вхождения подстроки 'f_str' на 'd_str' и записать результат в строку 'dst'.
- * Если указатель на 'dst' == NULL - результат будет записан в 'src' (содержимое строки 'src' при этому будет заменено).
- *
- * max_count означает максимальное число замен, которое будет произведено. max_count == 0 снимает ограничение на число замен.
- *
- * Возвращаемые значения:
- * Количество произведённых замен
- */
 size_t nxs_string_subs(nxs_string_t *src, nxs_string_t *dst, nxs_string_t *f_str, nxs_string_t *d_str, size_t max_count)
 {
 	size_t       count, o;
@@ -1722,11 +1301,6 @@ size_t nxs_string_subs(nxs_string_t *src, nxs_string_t *dst, nxs_string_t *f_str
 	return count;
 }
 
-/*
- * Функция появилась с версии v0.2-0 r13
- *
- * Буфер будет расширен динамически
- */
 u_char *nxs_string_to_buf(nxs_string_t *str, size_t offset, nxs_buf_t *buf)
 {
 
@@ -1750,9 +1324,6 @@ u_char *nxs_string_to_buf(nxs_string_t *str, size_t offset, nxs_buf_t *buf)
 	return nxs_buf_get_subbuf(buf, 0);
 }
 
-/*
- * Получения текста ошибки по её номеру при работе со строками
- */
 u_char *nxs_string_strerror(int nxs_str_errno)
 {
 
@@ -1798,9 +1369,6 @@ u_char *nxs_string_strerror(int nxs_str_errno)
 	return (u_char *)_NXS_STRING_ERROR_UNKNOWN;
 }
 
-/*
- * Получение длины строки str
- */
 size_t nxs_string_len(nxs_string_t *str)
 {
 
@@ -1812,10 +1380,6 @@ size_t nxs_string_len(nxs_string_t *str)
 	return str->len;
 }
 
-/*
- * Получение размера строки.
- * Выводимое значение на единицу больше допустимого для использования, т.к. в строке присутствует символ '\n'
- */
 size_t nxs_string_size(nxs_string_t *str)
 {
 
@@ -1827,13 +1391,6 @@ size_t nxs_string_size(nxs_string_t *str)
 	return str->size;
 }
 
-/*
- * Получение информации о заполненности строки.
- *
- * Возвращаемое значение:
- * NXS_STRING_NOT_FULL	- в строке есть доступное для использования место
- * NXS_STRING_FULL		- строка полная, доступного для использования места нет
- */
 int nxs_string_check_space(nxs_string_t *str)
 {
 
