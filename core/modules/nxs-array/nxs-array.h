@@ -27,6 +27,17 @@ struct nxs_array_s
 	void		*el; /**< pointer to the data*/
 };
 
+
+/**
+* @brief Allocates memory for a new array and initializes it by allocating \b size * \b nalloc bytes of memory set to zero for its elements.
+*
+* @param nalloc Maximum number of elements in a new array.
+* @param size Amount of memory allocated for a single element of the array.
+* @param step A value by which the size of the array is extended when it's necessary.
+*
+* @return
+* * Pointer to the new array.
+*/
 nxs_array_t		*nxs_array_malloc		(u_int nalloc, size_t size, u_int step);
 
 /**
@@ -42,7 +53,7 @@ nxs_array_t		*nxs_array_malloc		(u_int nalloc, size_t size, u_int step);
 void			*nxs_array_destroy		(nxs_array_t *array);
 
 /**
- * @brief Initializes an array by allocating \b size * \b nalloc bytes of memory set to zero.
+ * @brief Initializes an array by allocating \b size * \b nalloc bytes of memory set to zero for its elements.
  *
  * @param array Pointer to the array.
  * @param nalloc Maximum number of elements for the array.
