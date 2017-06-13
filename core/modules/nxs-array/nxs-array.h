@@ -8,7 +8,7 @@
  * In Nixys Framework an array is a pointer to a block of memory. Elements are distinguished by
  * setting nxs_array_s#size which defines amount of memory allocated for a single element.
  *
- * The size of the array itself can be counted as nxs_array_s#nalloc * nxs_array_s size.
+ * The size of the array itself can be counted as nxs_array_s#nalloc * nxs_array_s#size.
  *
  * The length of an array is defined by nxs_array_s#count. 
  *  @{

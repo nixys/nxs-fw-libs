@@ -33,8 +33,8 @@
 struct nxs_buf_s
 {
 		u_char *data; /**< u_char array pointer */
-		size_t len;   /** < the length of the buffer (max buffer length = size) */
-		size_t size;  /** < the amount of allocated memory for #data */
+		size_t len;   /**< the length of the buffer (max buffer length = size) */
+		size_t size;  /**< the amount of allocated memory for #data */
 };
 
 /**
@@ -319,27 +319,44 @@ int					nxs_buf_set_char			(nxs_buf_t *buf, size_t pos, u_char c);
 int					nxs_buf_set_len				(nxs_buf_t *buf, size_t new_len);
 
 /**
- * @brief Returns a subbuffer as an u_char array from buffer \b buf with \b offset.
+ * @brief Returns a subbuffer as a pointer to an u_char array from buffer \b buf with \b offset.
  *
  * @param buf Pointer to the buffer.
  * @param offset Beginning index for subbuffer.
  *
  * @return
  * * On success, a pointer to the subbuffer.
- * * NULL - If \b buf is a NULL pointer of \b offset is greater than its size.
+ * * NULL		- If \b buf is a NULL pointer of \b offset is greater than its size.
  */
 u_char				*nxs_buf_get_subbuf			(nxs_buf_t *buf, size_t offset);
 
-/*
- * @param buf Pointer to the buffer
- * @param offset Offset from the beginning of \b buf
+/**
+ * @brief Copies \b size bytes of data from \b buf with a specified \b offset to a block of memory pointed to by \b mem.
+ *
+ * @param buf Pointer to the buffer.
+ * @param offset Offset from the beginning of \b buf.
+ * @param mem Pointer to a memory block where the data will be copied to.
+ * @param size Number of bytes to copy.
  *
  * @return
  * * \b NXS_BUF_E_NULL		- If \b buf is a null pointer.
- * * \b
+ * * \b NXS_BUF_E_OFFSET		- If \b offset is greater than the length of the data string in the buffer.
+ * * \b NXS_BUF_E_LEN_EXCEEDED	- If \b offset + \b size is greater than nxs_buf_s#lem.
  */
 int					nxs_buf_get_mem				(nxs_buf_t *buf, size_t offset, void *mem, size_t size);
+
+/**
+ * @brief Returns the character at the specified position \b pos of a buffer \b buf.
+ *
+ * @param str Pointer to the buffer.
+ * @param pos Position of the character to get.
+ *
+ * @return
+ * * On success, the character at \b pos.
+ * * 0		- If \b buf is a NULL pointer or \b pos is greater that its size.
+ */
 u_char				nxs_buf_get_char			(nxs_buf_t *buf, size_t pos);
+
 /**
  * @brief Returns the size of a buffer.
  *
@@ -347,9 +364,9 @@ u_char				nxs_buf_get_char			(nxs_buf_t *buf, size_t pos);
  *
  * @return
  * * On success, the size of \b buf.
- * * 0 - If \b buf is a null pointer.
+ * * 0		- If \b buf is a null pointer.
  */
-size_t nxs_buf_get_size(nxs_buf_t *buf);
+size_t 				nxs_buf_get_size			(nxs_buf_t *buf);
 
 /**
  * @brief Returns the length of a buffer.
@@ -358,10 +375,22 @@ size_t nxs_buf_get_size(nxs_buf_t *buf);
  *
  * @return
  * * On success, the length of \b buf
- * * 0 - If \b buf is a null pointer.
+ * * 0		- If \b buf is a null pointer.
  */
-size_t nxs_buf_get_len(nxs_buf_t *buf);
-u_char *nxs_buf_to_string(nxs_buf_t *buf, size_t offset, nxs_string_t *str);
+size_t				nxs_buf_get_len				(nxs_buf_t *buf);
+
+/**
+ * @brief Copies data from a buffer to a string, beginning from \b offset.
+ *
+ * @param buf Pointer to the buffer.
+ * @param str Pointer to the string.
+ * @param offset Offset from the beginning of \b buf.
+ *
+ * @return
+ * * On success, pointer to the data copied into \b str represented by an u_char array.
+ * * NULL		- If either \b str or \b buf is a null pointer or if \b offset exceeds the size of \b buf.
+ */
+u_char				*nxs_buf_to_string			(nxs_buf_t *buf, size_t offset, nxs_string_t *str);
 
 /** Puts a string represented by an u_char array into a buffer.
  *
@@ -376,6 +405,7 @@ u_char *nxs_buf_to_string(nxs_buf_t *buf, size_t offset, nxs_string_t *str);
  * * \b NXS_BUF_E_SIZE_EXCEEDED - If the result length of \b buf exceeds its possible size.
  * * \b NXS_BUF_E_NULL - If \b buf is a null pointer.
  */
-int nxs_buf_fill_str(nxs_buf_t *buf, u_char *str);
+int					nxs_buf_fill_str			(nxs_buf_t *buf, u_char *str);
 
+/** @} */ //end of nxs-buf
 #endif /* _INCLUDE_NXS_BUF_H */
