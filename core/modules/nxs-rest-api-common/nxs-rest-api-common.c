@@ -151,5 +151,5 @@ u_char *nxs_rest_api_common_type_to_text(nxs_rest_api_common_cmd_type_t type)
 		}
 	}
 
-	return (u_char *)nxs_rest_api_common_type_text[0].text;
+	return (u_char *)nxs_rest_api_common_type_text[i].text;
 }
