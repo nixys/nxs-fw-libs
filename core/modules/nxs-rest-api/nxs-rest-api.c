@@ -365,6 +365,28 @@ nxs_rest_api_common_cmd_type_t nxs_rest_api_get_req_type(nxs_rest_api_request_t 
 	return req->cmd_type;
 }
 
+nxs_string_t *nxs_rest_api_get_req_peer_ip(nxs_rest_api_request_t *req)
+{
+
+	if(req == NULL) {
+
+		return NULL;
+	}
+
+	return &req->peer_ip;
+}
+
+uint16_t nxs_rest_api_get_req_peer_port(nxs_rest_api_request_t *req)
+{
+
+	if(req == NULL) {
+
+		return 0;
+	}
+
+	return req->peer_port;
+}
+
 nxs_string_t *nxs_rest_api_get_req_part(nxs_rest_api_request_t *req, size_t _index)
 {
 
@@ -593,7 +615,10 @@ void nxs_rest_api_page_std_error(nxs_rest_api_request_t *req, nxs_rest_api_forma
 static void nxs_rest_api_request_init(nxs_rest_api_request_t *req)
 {
 
-	req->cmd_type = NXS_REST_API_COMMON_CMD_UNKNOWN;
+	req->cmd_type  = NXS_REST_API_COMMON_CMD_UNKNOWN;
+	req->peer_port = 0;
+
+	nxs_string_init(&req->peer_ip);
 
 	nxs_buf_init(&req->body, 1);
 	nxs_buf_init_string(&req->out_buf, NXS_STRING_EMPTY_STR);
@@ -610,7 +635,10 @@ static void nxs_rest_api_request_free(nxs_rest_api_request_t *req)
 	nxs_string_t *         s;
 	nxs_rest_api_keyval_t *kv;
 
-	req->cmd_type = NXS_REST_API_COMMON_CMD_UNKNOWN;
+	req->cmd_type  = NXS_REST_API_COMMON_CMD_UNKNOWN;
+	req->peer_port = 0;
+
+	nxs_string_free(&req->peer_ip);
 
 	nxs_buf_free(&req->body);
 	nxs_buf_free(&req->out_buf);
@@ -663,7 +691,8 @@ static void nxs_rest_api_generic_handler(struct evhttp_request *_req, void *arg)
 
 	struct evhttp_uri *decoded = NULL;
 	const char *       uri, *path, *args;
-	char *             decoded_path = NULL, *decoded_args = NULL;
+	char *             decoded_path = NULL, *decoded_args = NULL, *peer_ip;
+	uint16_t           peer_port;
 
 	int http_status;
 
@@ -718,6 +747,16 @@ static void nxs_rest_api_generic_handler(struct evhttp_request *_req, void *arg)
 
 			break;
 	}
+
+	/*
+	 * Peer details
+	 */
+
+	evhttp_connection_get_peer(evhttp_request_get_connection(_req), &peer_ip, &peer_port);
+
+	req.peer_port = peer_port;
+
+	nxs_string_char_cpy_dyn(&req.peer_ip, 0, (u_char *)peer_ip);
 
 	/*
 	 * Body

@@ -43,6 +43,9 @@ struct nxs_rest_api_request_s
 {
 	nxs_rest_api_common_cmd_type_t	cmd_type;		/* Тип запроса */
 
+	nxs_string_t			peer_ip;		/* IP адрес клиента */
+	uint16_t			peer_port;		/* Порт клиента */
+
 	nxs_array_t			uri_in_parts;		/* type: nxs_string_t. Части uri (не включая аргументы) входящего запроса */
 	nxs_array_t			uri_in_args;		/* type: nxs_rest_api_keyval_t. Пары ключ-значения аргументов uri входящего запроса */
 	nxs_array_t			uri_in_headers;		/* type: nxs_rest_api_keyval_t. Пары ключ-значения заголовков входящего запроса */
@@ -87,6 +90,8 @@ nxs_rest_api_err_t			nxs_rest_api_set_max_header_size	(nxs_rest_api_ctx_t *ctx, 
 nxs_rest_api_err_t			nxs_rest_api_set_max_body_size		(nxs_rest_api_ctx_t *ctx, size_t size);
 
 nxs_rest_api_common_cmd_type_t		nxs_rest_api_get_req_type		(nxs_rest_api_request_t *req);
+nxs_string_t				*nxs_rest_api_get_req_peer_ip		(nxs_rest_api_request_t *req);
+uint16_t				nxs_rest_api_get_req_peer_port		(nxs_rest_api_request_t *req);
 nxs_string_t				*nxs_rest_api_get_req_part		(nxs_rest_api_request_t *req, size_t index);
 nxs_string_t				*nxs_rest_api_get_req_args_key		(nxs_rest_api_request_t *req, size_t _index);
 nxs_string_t				*nxs_rest_api_get_req_args_val		(nxs_rest_api_request_t *req, size_t _index);
