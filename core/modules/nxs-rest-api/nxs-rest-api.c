@@ -29,7 +29,7 @@ struct nxs_rest_api_handler_s
 
 	void					*user_ctx;
 
-	int					(*handl_func)(nxs_rest_api_ctx_t *rest_api_ctx, nxs_rest_api_request_t *req, void *user_ctx);
+	void					(*handl_func)(nxs_rest_api_ctx_t *rest_api_ctx, nxs_rest_api_request_t *req, void *user_ctx);
 };
 
 /* Module internal (static) functions prototypes */
@@ -45,7 +45,7 @@ static void nxs_rest_api_parse_uri(nxs_array_t *uri_pats, char *decoded_path);
 static nxs_rest_api_err_t nxs_rest_api_parse_args(nxs_array_t *uri_args, char *args_str);
 static void nxs_rest_api_parse_headers(nxs_array_t *uri_args, struct evhttp_request *req);
 
-static nxs_rest_api_err_t nxs_rest_api_handler_exec(nxs_rest_api_ctx_t *ctx, nxs_rest_api_request_t *req, int *http_status);
+static nxs_rest_api_err_t nxs_rest_api_handler_exec(nxs_rest_api_ctx_t *ctx, nxs_rest_api_request_t *req);
 static void nxs_rest_api_handler_free(nxs_rest_api_ctx_t *ctx);
 
 static nxs_rest_api_err_t nxs_rest_api_setup_certs(nxs_rest_api_ctx_t *ctx, nxs_string_t *crt_chain, nxs_string_t *crt_pkey);
@@ -63,7 +63,6 @@ static struct bufferevent *nxs_rest_api_bevcb(struct event_base *base, void *arg
 
 nxs_rest_api_err_t nxs_rest_api_init(nxs_process_t *           proc,
                                      nxs_rest_api_ctx_t *      ctx,
-                                     void *                    user_ctx,
                                      nxs_string_t *            iface,
                                      uint16_t                  port,
                                      nxs_rest_api_format_err_t format_type,
@@ -85,14 +84,18 @@ nxs_rest_api_err_t nxs_rest_api_init(nxs_process_t *           proc,
 
 	ctx->listen_port = port;
 
-	ctx->user_ctx = user_ctx;
-
 	ctx->format_type = format_type;
 
 	ecdh = NULL;
 
+	ctx->handl_log_user_ctx    = NULL;
+	ctx->handl_log_before_func = NULL;
+	ctx->handl_log_after_func  = NULL;
+
+	ctx->handl_def_user_ctx = NULL;
+	ctx->handl_def_func     = NULL;
+
 	nxs_string_init2(&ctx->listen_ip, 0, nxs_string_str(iface));
-	nxs_string_init2(&ctx->error_text, 0, NXS_STRING_EMPTY_STR);
 
 	nxs_list_init(&ctx->handlers, sizeof(nxs_rest_api_handler_t));
 
@@ -215,9 +218,13 @@ void nxs_rest_api_free(nxs_rest_api_ctx_t *ctx)
 	}
 
 	nxs_string_free(&ctx->listen_ip);
-	nxs_string_free(&ctx->error_text);
 
-	ctx->user_ctx = NULL;
+	ctx->handl_log_user_ctx    = NULL;
+	ctx->handl_log_before_func = NULL;
+	ctx->handl_log_after_func  = NULL;
+
+	ctx->handl_def_user_ctx = NULL;
+	ctx->handl_def_func     = NULL;
 
 	nxs_rest_api_handler_free(ctx);
 
@@ -240,8 +247,6 @@ nxs_rest_api_err_t nxs_rest_api_process(nxs_rest_api_ctx_t *ctx, __time_t timeou
 	tv.tv_sec  = timeout_sec;
 	tv.tv_usec = timeout_microsec;
 
-	nxs_string_clear(&ctx->error_text);
-
 	event_base_loopexit(ctx->ev_base, &tv);
 
 	if(event_base_loop(ctx->ev_base, 0) == -1) {
@@ -252,12 +257,53 @@ nxs_rest_api_err_t nxs_rest_api_process(nxs_rest_api_ctx_t *ctx, __time_t timeou
 	return NXS_REST_API_E_OK;
 }
 
+void nxs_rest_api_handler_add_log(nxs_rest_api_ctx_t *ctx,
+                                  void *              user_ctx,
+                                  nxs_rest_api_err_t (*handl_log_before_func)(nxs_rest_api_ctx_t *     rest_api_ctx,
+                                                                              nxs_rest_api_request_t * req,
+                                                                              nxs_rest_api_log_stage_t stage,
+                                                                              void *                   user_ctx),
+                                  nxs_rest_api_err_t (*handl_log_after_func)(nxs_rest_api_ctx_t *     rest_api_ctx,
+                                                                             nxs_rest_api_request_t * req,
+                                                                             nxs_rest_api_log_stage_t stage,
+                                                                             void *                   user_ctx))
+{
+
+	ctx->handl_log_user_ctx    = user_ctx;
+	ctx->handl_log_before_func = handl_log_before_func;
+	ctx->handl_log_after_func  = handl_log_after_func;
+}
+
+void nxs_rest_api_handler_del_log(nxs_rest_api_ctx_t *ctx)
+{
+
+	ctx->handl_log_user_ctx    = NULL;
+	ctx->handl_log_before_func = NULL;
+	ctx->handl_log_after_func  = NULL;
+}
+
+void nxs_rest_api_handler_add_default(nxs_rest_api_ctx_t *ctx,
+                                      void *              user_ctx,
+                                      void (*handl_def_func)(nxs_rest_api_ctx_t *rest_api_ctx, nxs_rest_api_request_t *req, void *user_ctx))
+{
+
+	ctx->handl_def_user_ctx = user_ctx;
+	ctx->handl_def_func     = handl_def_func;
+}
+
+void nxs_rest_api_handler_del_default(nxs_rest_api_ctx_t *ctx)
+{
+
+	ctx->handl_def_user_ctx = NULL;
+	ctx->handl_def_func     = NULL;
+}
+
 void nxs_rest_api_handler_add(nxs_rest_api_ctx_t *           ctx,
                               nxs_string_t *                 handler_name,
                               nxs_rest_api_common_cmd_type_t type,
                               nxs_bool_t                     fixed_name,
                               void *                         user_ctx,
-                              int (*handl_func)(nxs_rest_api_ctx_t *rest_api_ctx, nxs_rest_api_request_t *req, void *user_ctx))
+                              void (*handl_func)(nxs_rest_api_ctx_t *rest_api_ctx, nxs_rest_api_request_t *req, void *user_ctx))
 {
 	nxs_rest_api_handler_t *h;
 
@@ -354,6 +400,28 @@ nxs_rest_api_err_t nxs_rest_api_set_max_body_size(nxs_rest_api_ctx_t *ctx, size_
 	return NXS_REST_API_E_OK;
 }
 
+void nxs_rest_api_set_req_http_status(nxs_rest_api_request_t *req, nxs_http_code_t http_code)
+{
+
+	if(req == NULL) {
+
+		return;
+	}
+
+	req->http_status = http_code;
+}
+
+nxs_http_code_t nxs_rest_api_get_req_http_status(nxs_rest_api_request_t *req)
+{
+
+	if(req == NULL) {
+
+		return NXS_HTTP_CODE_UNKNOWN;
+	}
+
+	return req->http_status;
+}
+
 nxs_rest_api_common_cmd_type_t nxs_rest_api_get_req_type(nxs_rest_api_request_t *req)
 {
 
@@ -438,7 +506,7 @@ nxs_string_t *nxs_rest_api_get_req_args_val(nxs_rest_api_request_t *req, size_t 
 
 	kv = nxs_array_get(&req->uri_in_args, _index);
 
-	return &kv->key;
+	return &kv->value;
 }
 
 nxs_string_t *nxs_rest_api_get_req_args_find(nxs_rest_api_request_t *req, nxs_string_t *key)
@@ -499,7 +567,7 @@ nxs_string_t *nxs_rest_api_get_req_headers_val(nxs_rest_api_request_t *req, size
 
 	kv = nxs_array_get(&req->uri_in_headers, _index);
 
-	return &kv->key;
+	return &kv->value;
 }
 
 nxs_string_t *nxs_rest_api_get_req_headers_find(nxs_rest_api_request_t *req, nxs_string_t *key)
@@ -547,22 +615,18 @@ nxs_buf_t *nxs_rest_api_get_out_buf(nxs_rest_api_request_t *req)
 	return &req->out_buf;
 }
 
-nxs_string_t *nxs_rest_api_get_err_string(nxs_rest_api_ctx_t *ctx)
-{
-
-	if(ctx == NULL) {
-
-		return NULL;
-	}
-
-	return &ctx->error_text;
-}
-
-void nxs_rest_api_page_std_error(nxs_rest_api_request_t *req, nxs_rest_api_format_err_t format, int http_status, u_char *middle_text)
+void nxs_rest_api_page_std(nxs_rest_api_request_t *req, nxs_rest_api_format_err_t format, nxs_http_code_t http_status, u_char *middle_text)
 {
 	u_char *     err_text;
 	nxs_string_t _s_header_ct_key = nxs_string("Content-Type"), _s_header_ct_val_json = nxs_string("application/json; charset=utf-8"),
 	             _s_header_ct_val_html = nxs_string("text/html; charset=utf-8");
+
+	if(req == NULL) {
+
+		return;
+	}
+
+	nxs_rest_api_set_req_http_status(req, http_status);
 
 	err_text = nxs_rest_api_common_http_code_to_text(http_status);
 
@@ -584,7 +648,7 @@ void nxs_rest_api_page_std_error(nxs_rest_api_request_t *req, nxs_rest_api_forma
 			                      err_text,
 			                      http_status,
 			                      err_text,
-			                      middle_text);
+			                      middle_text != NULL ? middle_text : (u_char *)"");
 
 			break;
 
@@ -600,7 +664,7 @@ void nxs_rest_api_page_std_error(nxs_rest_api_request_t *req, nxs_rest_api_forma
 			                      "}",
 			                      http_status,
 			                      err_text,
-			                      middle_text);
+			                      middle_text != NULL ? middle_text : (u_char *)"");
 
 			break;
 
@@ -617,6 +681,8 @@ static void nxs_rest_api_request_init(nxs_rest_api_request_t *req)
 
 	req->cmd_type  = NXS_REST_API_COMMON_CMD_UNKNOWN;
 	req->peer_port = 0;
+
+	nxs_rest_api_set_req_http_status(req, NXS_HTTP_CODE_102_PROCESSING);
 
 	nxs_string_init(&req->peer_ip);
 
@@ -694,17 +760,11 @@ static void nxs_rest_api_generic_handler(struct evhttp_request *_req, void *arg)
 	char *             decoded_path = NULL, *decoded_args = NULL, *peer_ip;
 	uint16_t           peer_port;
 
-	int http_status;
-
 	nxs_rest_api_request_init(&req);
-
-	nxs_string_clear(&ctx->error_text);
 
 	/*
 	 * Query type
 	 */
-
-	http_status = NXS_HTTP_400_BAD_REQUEST;
 
 	switch(evhttp_request_get_command(_req)) {
 
@@ -738,14 +798,9 @@ static void nxs_rest_api_generic_handler(struct evhttp_request *_req, void *arg)
 
 		default:
 
-			nxs_string_printf_dyn(&ctx->error_text, "wrong request type");
+			nxs_rest_api_page_std(&req, ctx->format_type, NXS_HTTP_CODE_405_METHOD_NOT_ALLOWED, (u_char *)"wrong request type");
 
-			nxs_rest_api_page_std_error(
-			        &req, ctx->format_type, NXS_HTTP_405_METHOD_NOT_ALLOWED, nxs_string_str(&ctx->error_text));
-
-			http_status = NXS_HTTP_405_METHOD_NOT_ALLOWED;
-
-			break;
+			goto error;
 	}
 
 	/*
@@ -782,10 +837,10 @@ static void nxs_rest_api_generic_handler(struct evhttp_request *_req, void *arg)
 
 	if(decoded == NULL) {
 
-		nxs_string_printf_dyn(&ctx->error_text, "can't parse uri, internal server error");
-
-		nxs_rest_api_page_std_error(&req, ctx->format_type, NXS_HTTP_500_INTERNAL_SERVER_ERROR, nxs_string_str(&ctx->error_text));
-		http_status = NXS_HTTP_500_INTERNAL_SERVER_ERROR;
+		nxs_rest_api_page_std(&req,
+		                      ctx->format_type,
+		                      NXS_HTTP_CODE_500_INTERNAL_SERVER_ERROR,
+		                      (u_char *)"can't parse uri, internal server error");
 		goto error;
 	}
 
@@ -796,19 +851,19 @@ static void nxs_rest_api_generic_handler(struct evhttp_request *_req, void *arg)
 
 	if((decoded_path = evhttp_uridecode(path, 0, NULL)) == NULL) {
 
-		nxs_string_printf_dyn(&ctx->error_text, "can't decode uri, internal server error");
-
-		nxs_rest_api_page_std_error(&req, ctx->format_type, NXS_HTTP_500_INTERNAL_SERVER_ERROR, nxs_string_str(&ctx->error_text));
-		http_status = NXS_HTTP_500_INTERNAL_SERVER_ERROR;
+		nxs_rest_api_page_std(&req,
+		                      ctx->format_type,
+		                      NXS_HTTP_CODE_500_INTERNAL_SERVER_ERROR,
+		                      (u_char *)"can't decode uri, internal server error");
 		goto error;
 	}
 
 	if(strstr(decoded_path, "..") != NULL) {
 
-		nxs_string_printf_dyn(&ctx->error_text, "not allowed use '..' characters sequence in uri, bad request");
-
-		nxs_rest_api_page_std_error(&req, ctx->format_type, NXS_HTTP_400_BAD_REQUEST, nxs_string_str(&ctx->error_text));
-		http_status = NXS_HTTP_400_BAD_REQUEST;
+		nxs_rest_api_page_std(&req,
+		                      ctx->format_type,
+		                      NXS_HTTP_CODE_400_BAD_REQUEST,
+		                      (u_char *)"not allowed use '..' characters sequence in uri, bad request");
 		goto error;
 	}
 
@@ -824,10 +879,8 @@ static void nxs_rest_api_generic_handler(struct evhttp_request *_req, void *arg)
 
 		if(nxs_rest_api_parse_args(&req.uri_in_args, decoded_args) != NXS_REST_API_E_OK) {
 
-			nxs_string_printf_dyn(&ctx->error_text, "can't parse args, bad request");
-
-			nxs_rest_api_page_std_error(&req, ctx->format_type, NXS_HTTP_400_BAD_REQUEST, nxs_string_str(&ctx->error_text));
-			http_status = NXS_HTTP_400_BAD_REQUEST;
+			nxs_rest_api_page_std(
+			        &req, ctx->format_type, NXS_HTTP_CODE_400_BAD_REQUEST, (u_char *)"can't parse args, bad request");
 			goto error;
 		}
 	}
@@ -842,31 +895,56 @@ static void nxs_rest_api_generic_handler(struct evhttp_request *_req, void *arg)
 	 * Handler exec
 	 */
 
-	switch(nxs_rest_api_handler_exec(ctx, &req, &http_status)) {
+	/* If logging 'before' handler set */
+	if(ctx->handl_log_before_func != NULL) {
+
+		if(ctx->handl_log_before_func(ctx, &req, NXS_REST_API_LOG_STAGE_BEFORE, ctx->handl_log_user_ctx) != NXS_REST_API_E_OK) {
+
+			nxs_rest_api_page_std(&req, ctx->format_type, NXS_HTTP_CODE_500_INTERNAL_SERVER_ERROR, NULL);
+			goto error;
+		}
+	}
+
+	switch(nxs_rest_api_handler_exec(ctx, &req)) {
 
 		case NXS_REST_API_E_INIT:
 
-			nxs_string_printf_dyn(&ctx->error_text, "no handlers was specified, internal server error");
+			if(ctx->handl_def_func == NULL) {
 
-			nxs_rest_api_page_std_error(
-			        &req, ctx->format_type, NXS_HTTP_500_INTERNAL_SERVER_ERROR, nxs_string_str(&ctx->error_text));
-			http_status = NXS_HTTP_500_INTERNAL_SERVER_ERROR;
+				nxs_rest_api_page_std(&req,
+				                      ctx->format_type,
+				                      NXS_HTTP_CODE_500_INTERNAL_SERVER_ERROR,
+				                      (u_char *)"no handlers was specified, internal server error");
+				goto error;
+			}
+
+			ctx->handl_def_func(ctx, &req, ctx->handl_def_user_ctx);
 			goto error;
 
 		case NXS_REST_API_E_EMPTY:
 
-			nxs_string_printf_dyn(&ctx->error_text, "request string is too short, bad request");
+			if(ctx->handl_def_func == NULL) {
 
-			nxs_rest_api_page_std_error(&req, ctx->format_type, NXS_HTTP_400_BAD_REQUEST, nxs_string_str(&ctx->error_text));
-			http_status = NXS_HTTP_400_BAD_REQUEST;
+				nxs_rest_api_page_std(&req,
+				                      ctx->format_type,
+				                      NXS_HTTP_CODE_400_BAD_REQUEST,
+				                      (u_char *)"request string is too short, bad request");
+				goto error;
+			}
+
+			ctx->handl_def_func(ctx, &req, ctx->handl_def_user_ctx);
 			goto error;
 
 		case NXS_REST_API_E_ERR:
 
-			nxs_string_printf_dyn(&ctx->error_text, "handler not found for query");
+			if(ctx->handl_def_func == NULL) {
 
-			nxs_rest_api_page_std_error(&req, ctx->format_type, NXS_HTTP_404_NOT_FOUND, nxs_string_str(&ctx->error_text));
-			http_status = NXS_HTTP_404_NOT_FOUND;
+				nxs_rest_api_page_std(
+				        &req, ctx->format_type, NXS_HTTP_CODE_404_NOT_FOUND, (u_char *)"handler not found for query");
+				goto error;
+			}
+
+			ctx->handl_def_func(ctx, &req, ctx->handl_def_user_ctx);
 			goto error;
 
 		default:
@@ -890,8 +968,14 @@ error:
 
 	out_evbuf = evbuffer_new();
 	evbuffer_add_printf(out_evbuf, "%s", (char *)nxs_buf_get_subbuf(&req.out_buf, 0));
-	evhttp_send_reply(_req, http_status, NULL, out_evbuf);
+	evhttp_send_reply(_req, (int)nxs_rest_api_get_req_http_status(&req), NULL, out_evbuf);
 	evbuffer_free(out_evbuf);
+
+	/* If logging 'after' handler set */
+	if(ctx->handl_log_after_func != NULL) {
+
+		ctx->handl_log_after_func(ctx, &req, NXS_REST_API_LOG_STAGE_AFTER, ctx->handl_log_user_ctx);
+	}
 
 	/* Освобождаем память */
 
@@ -1017,7 +1101,7 @@ static void nxs_rest_api_parse_headers(nxs_array_t *uri_headers, struct evhttp_r
 	}
 }
 
-static nxs_rest_api_err_t nxs_rest_api_handler_exec(nxs_rest_api_ctx_t *ctx, nxs_rest_api_request_t *req, int *http_status)
+static nxs_rest_api_err_t nxs_rest_api_handler_exec(nxs_rest_api_ctx_t *ctx, nxs_rest_api_request_t *req)
 {
 	nxs_rest_api_handler_t *       h;
 	nxs_string_t *                 r_h, uri;
@@ -1056,7 +1140,7 @@ static nxs_rest_api_err_t nxs_rest_api_handler_exec(nxs_rest_api_ctx_t *ctx, nxs
 					continue;
 				}
 
-				*http_status = h->handl_func(ctx, req, h->user_ctx);
+				h->handl_func(ctx, req, h->user_ctx);
 
 				rc = NXS_REST_API_E_OK;
 				goto error;

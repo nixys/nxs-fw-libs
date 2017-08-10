@@ -48,7 +48,7 @@ void nxs_curl_init(nxs_curl_t *curl)
 	nxs_buf_init(&curl->post_data, 1);
 
 	curl->ssl_verifyhost = NXS_YES;
-	curl->ret_code       = 0;
+	curl->ret_code       = NXS_HTTP_CODE_UNKNOWN;
 	curl->log_type       = NXS_CURL_LOG_ERROR;
 }
 
@@ -75,7 +75,7 @@ void nxs_curl_free(nxs_curl_t *curl)
 	nxs_buf_free(&curl->post_data);
 
 	curl->ssl_verifyhost = NXS_YES;
-	curl->ret_code       = 0;
+	curl->ret_code       = NXS_HTTP_CODE_UNKNOWN;
 	curl->log_type       = NXS_CURL_LOG_ERROR;
 }
 
@@ -151,12 +151,12 @@ void nxs_curl_set_debug(nxs_curl_t *curl, nxs_curl_log_t log_type)
 	curl->log_type = log_type;
 }
 
-size_t nxs_curl_get_ret_code(nxs_curl_t *curl)
+nxs_http_code_t nxs_curl_get_ret_code(nxs_curl_t *curl)
 {
 
 	if(curl == NULL) {
 
-		return 0;
+		return NXS_HTTP_CODE_UNKNOWN;
 	}
 
 	return curl->ret_code;
@@ -246,12 +246,12 @@ int nxs_curl_query(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_api_common_cm
 
 	curl_easy_getinfo(c, CURLINFO_RESPONSE_CODE, &http_code);
 
-	curl->ret_code = (size_t)http_code;
+	curl->ret_code = (nxs_http_code_t)http_code;
 
 	if(curl->log_type & NXS_CURL_LOG_DEBUG) {
 
 		nxs_log_write_debug(proc,
-		                    "got data from server (response code: %zu, request url: \"%s\", response body: \"%s\")",
+		                    "got data from server (response code: %d, request url: \"%s\", response body: \"%s\")",
 		                    curl->ret_code,
 		                    nxs_string_str(&query),
 		                    nxs_buf_get_subbuf(&curl->out_buf, 0));

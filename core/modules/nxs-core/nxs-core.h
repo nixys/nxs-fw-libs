@@ -10,7 +10,7 @@
  *  @{
  */
 
-#define NXS_VERSION		"1.8.9"
+#define NXS_VERSION		"1.9.0"
 
 #define	_NXS_ERRNO_UNKNOWN	(u_char *)"unknown error"
 
@@ -238,6 +238,7 @@ typedef struct			nxs_cfg_json_s				nxs_cfg_json_t;
 
 
 /* nxs-rest-api-common.h */
+typedef enum			nxs_http_code_e				nxs_http_code_t;
 typedef enum			nxs_rest_api_common_cmd_type_e		nxs_rest_api_common_cmd_type_t;
 
 
@@ -245,6 +246,7 @@ typedef enum			nxs_rest_api_common_cmd_type_e		nxs_rest_api_common_cmd_type_t;
 #ifdef USE_NXS_REST_API
 typedef enum			nxs_rest_api_err_e			nxs_rest_api_err_t;
 typedef enum			nxs_rest_api_format_err_e		nxs_rest_api_format_err_t;
+typedef enum			nxs_rest_api_log_stage_e		nxs_rest_api_log_stage_t;
 
 typedef struct			nxs_rest_api_ctx_s			nxs_rest_api_ctx_t;
 typedef struct			nxs_rest_api_request_s			nxs_rest_api_request_t;
