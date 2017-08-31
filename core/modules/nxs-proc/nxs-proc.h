@@ -27,6 +27,7 @@ typedef void (*__nxs_sighandler_t) (int, void *);
 #define NXS_PROCESS_E_SIG		10
 #define NXS_PROCESS_E_KILL		11
 #define NXS_PROCESS_E_EXEC		12
+#define NXS_PROCESS_E_WAITPID		13
 
 #define NXS_PROCESS_FORK_ERR		-1
 #define NXS_PROCESS_FORK_CHILD		0
@@ -86,6 +87,9 @@ int				nxs_proc_signal_del			(nxs_process_t *proc, int sig);
 int				nxs_proc_signal_clear			(nxs_process_t *proc);
 int				nxs_proc_signal_block			(nxs_process_t *proc, int sig, ...);
 int				nxs_proc_signal_unblock			(nxs_process_t *proc, int sig, ...);
+
+int				nxs_proc_kill				(pid_t pid, int signum);
+int				nxs_proc_term_pid			(pid_t pid, size_t iters, int *chld_status);
 
 /** @} */ // end of nxs-proc
 #endif /* _INCLUDE_NXS_PROC_H */

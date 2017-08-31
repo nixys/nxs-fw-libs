@@ -28,6 +28,7 @@ struct nxs_process_sig_ctx_s
 
 static int  nxs_proc_signal_init(void);
 static void nxs_proc_sig_handler(int sig);
+static int nxs_proc_term_pid_check(pid_t pid, size_t iters, int *chld_status);
 
 // clang-format off
 
@@ -710,6 +711,66 @@ int nxs_proc_signal_unblock(nxs_process_t *proc, int sig, ...)
 	return NXS_PROCESS_E_OK;
 }
 
+int nxs_proc_kill(pid_t pid, int signum)
+{
+
+	if(kill(pid, signum) == -1) {
+
+		return NXS_PROCESS_E_KILL;
+	}
+
+	return NXS_PROCESS_E_OK;
+}
+
+int nxs_proc_term_pid(pid_t pid, size_t iters, int *chld_status)
+{
+
+	kill(pid, SIGTERM);
+
+	switch(nxs_proc_term_pid_check(pid, iters, chld_status)) {
+
+		case 0:
+
+			return NXS_PROCESS_E_OK;
+
+		case -1:
+
+			return NXS_PROCESS_E_WAITPID;
+
+		case -2:
+
+			/* timeout, child ignored signal SIGTERM, trying SIGKILL */
+
+			kill(pid, SIGKILL);
+
+			sleep(1);
+
+			switch(waitpid(pid, chld_status, WNOHANG)) {
+
+				case 0:
+
+					if(nxs_proc_check_pid(pid) == NXS_YES) {
+
+						/* child ignored signal SIGKILL */
+
+						return NXS_PROCESS_E_KILL;
+					}
+
+					break;
+
+				case -1:
+
+					/* waitpid error */
+
+					return NXS_PROCESS_E_WAITPID;
+			}
+	}
+
+	/* process killed by SIGKILL */
+
+	return NXS_PROCESS_E_OK;
+}
+
 /* Module internal (static) functions */
 
 static int nxs_proc_signal_init(void)
@@ -745,4 +806,43 @@ static void nxs_proc_sig_handler(int sig)
 	}
 
 	el->handler(sig, el->data);
+}
+
+/*
+ * Return values:
+ * * 0  - child successfully executed
+ * * -1 - waitpid error
+ * * -2 - wait pid timeout
+ */
+static int nxs_proc_term_pid_check(pid_t pid, size_t iters, int *chld_status)
+{
+
+	while(iters > 0) {
+
+		switch(waitpid(pid, chld_status, WNOHANG)) {
+
+			case 0:
+
+				break;
+
+			case -1:
+
+				/* waitpid error */
+
+				return -1;
+
+			default:
+
+				/* child executed */
+
+				return 0;
+		}
+
+		if(--iters > 0) {
+
+			usleep(1000);
+		}
+	}
+
+	return -2;
 }
