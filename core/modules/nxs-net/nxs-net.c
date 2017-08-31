@@ -2076,7 +2076,7 @@ ssize_t nxs_net_send(nxs_process_t *proc, nxs_net_connect_t *con, time_t timeout
 	nxs_list_t *    lst;
 	ssize_t         rc;
 	nxs_net_hdr_f_t flag;
-	int             i;
+	size_t          i;
 
 	if(con == NULL) {
 
@@ -2120,7 +2120,7 @@ ssize_t nxs_net_send(nxs_process_t *proc, nxs_net_connect_t *con, time_t timeout
 
 			for(i = 0, flag = NXS_NET_FLAG_BUF; (buf = nxs_array_get(arr, i)) != NULL; i++) {
 
-				if(i == (int)nxs_array_count(arr) - 1) {
+				if(i == nxs_array_count(arr) - 1) {
 
 					flag |= NXS_NET_FLAG_LAST;
 				}

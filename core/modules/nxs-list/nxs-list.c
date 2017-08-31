@@ -30,7 +30,7 @@
 
 // clang-format on
 
-nxs_list_t *nxs_list_malloc(u_int size)
+nxs_list_t *nxs_list_malloc(size_t size)
 {
 	nxs_list_t *list = NULL;
 
@@ -58,7 +58,7 @@ nxs_list_t *nxs_list_destroy(nxs_list_t *list)
  * Инициализация списка.
  * Обнуляются все указатели, размер списка и задаётся размер данных
  */
-void nxs_list_init(nxs_list_t *list, u_int size)
+void nxs_list_init(nxs_list_t *list, size_t size)
 {
 
 	list->ptr = list->head = list->tail = NULL;
@@ -344,7 +344,7 @@ void *nxs_list_del_tail(nxs_list_t *list)
  * * NULL - если следующий, либо предшествующий удаляемому элементу отсутствует (т.е. достигнут конец списка в какую-то из сторон)
  * 		(в этом случае указатель списка необходимо инициировать заново)
  */
-void *nxs_list_del(nxs_list_t *list, u_int ptr_move)
+void *nxs_list_del(nxs_list_t *list, nxs_list_move_t ptr_move)
 {
 	nxs_list_el_t *p = NULL;
 
@@ -403,7 +403,7 @@ void *nxs_list_del(nxs_list_t *list, u_int ptr_move)
  * * Указатель на данные первого или последнего элемента (в зависимости от значения "type")
  * * NULL - если список пустой
  */
-void *nxs_list_ptr_init(u_int type, nxs_list_t *list)
+void *nxs_list_ptr_init(nxs_list_init_t type, nxs_list_t *list)
 {
 
 	if(type == NXS_LIST_PTR_INIT_HEAD) {
@@ -520,7 +520,7 @@ void *nxs_list_data_get(nxs_list_t *list)
 /*
  * Получение количества элементов списка
  */
-int nxs_list_count(nxs_list_t *list)
+size_t nxs_list_count(nxs_list_t *list)
 {
 
 	return list->count;
@@ -529,7 +529,7 @@ int nxs_list_count(nxs_list_t *list)
 /*
  * Получение значения размера элемента данных
  */
-int nxs_list_size(nxs_list_t *list)
+size_t nxs_list_size(nxs_list_t *list)
 {
 
 	return list->size;

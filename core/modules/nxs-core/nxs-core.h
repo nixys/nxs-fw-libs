@@ -10,7 +10,7 @@
  *  @{
  */
 
-#define NXS_VERSION		"1.9.0"
+#define NXS_VERSION		"1.10.0"
 
 #define	_NXS_ERRNO_UNKNOWN	(u_char *)"unknown error"
 
@@ -100,6 +100,8 @@ typedef struct			nxs_errors_s				nxs_errors_t;
 
 
 /* nxs-list.h */
+typedef enum			nxs_list_init_e				nxs_list_init_t;
+typedef enum			nxs_list_move_e				nxs_list_move_t;
 typedef struct			nxs_list_el_s				nxs_list_el_t;
 typedef struct			nxs_list_s 				nxs_list_t;
 
