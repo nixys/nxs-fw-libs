@@ -244,6 +244,24 @@ ssize_t				nxs_string_init2			(nxs_string_t *str, size_t size, u_char *new_str);
 ssize_t				nxs_string_init3			(nxs_string_t *str, nxs_string_t *src);
 
 /**
+ * @brief Zero-initializes a string and fills it with empty string.
+ *
+ * By calling this function, nxs_string_s#str is allocated memory only for '\0', nxs_string_s#size is set to 1
+ * and nxs_string_s#len are set to 0.
+ *
+ * If the string is declared as "nxs_string_t *", make sure to allocate memory for it before calling this function.
+ *
+ * @warning This function must be called only before the first use of a \b str.
+ *
+ * @param str Pointer to the string to be initialized.
+ *
+ * @return
+ * * On succes, the new length of the \b str.
+ * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b str is a null pointer.
+ */
+ssize_t				nxs_string_init_empty			(nxs_string_t *str);
+
+/**
  * @brief Creates a string from an u_char array.
  *
  * To prevent memory leaks \b str must be zero-initialized before calling this function.
@@ -421,6 +439,21 @@ ssize_t				nxs_string_printf2_dyn			(nxs_string_t *str, size_t offset, const cha
  * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
  */
 ssize_t				nxs_string_vprintf_dyn			(nxs_string_t *str, const char *fmt, va_list ap);
+
+/**
+ * @brief Clone the source string \b src to destination string \b dst,
+ * dynamically increasing the size of the destination string \b dst if it's necessary.
+ *
+ * If the result size of \b dst is greater than its possible size, \b dst will be resized by calling nxs_string_resize().
+ *
+ * @param dst Pointer to the destination string.
+ * @param src Pointer to the source string.
+ *
+ * @return
+ * * On success, the new length value of \b dst.
+ * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b dst or \b src is a null pointer.
+ */
+ssize_t				nxs_string_clone			(nxs_string_t *dst, nxs_string_t *src);
 
 /**
  * @brief Copies the data from a source string \b src with offset \b offset_src to destination string \b dst with offset \b offset_dst.

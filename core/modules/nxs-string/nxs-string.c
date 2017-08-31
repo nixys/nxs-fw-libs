@@ -171,6 +171,23 @@ ssize_t nxs_string_init3(nxs_string_t *str, nxs_string_t *src)
 	return str->len;
 }
 
+ssize_t nxs_string_init_empty(nxs_string_t *str)
+{
+
+	if(str == NULL) {
+
+		return NXS_STRING_ERROR_NULL_PTR;
+	}
+
+	str->size = 1;
+	str->len  = 0;
+	str->str  = nxs_malloc(NULL, str->size);
+
+	str->str[str->len] = '\0';
+
+	return str->len;
+}
+
 ssize_t nxs_string_create(nxs_string_t *str, size_t size, u_char *new_str)
 {
 	size_t  s;
@@ -354,6 +371,12 @@ ssize_t nxs_string_vprintf_dyn(nxs_string_t *str, const char *fmt, va_list ap)
 	}
 
 	return nxs_string_vprintf_core_dyn(str, 0, fmt, ap);
+}
+
+ssize_t nxs_string_clone(nxs_string_t *dst, nxs_string_t *src)
+{
+
+	return nxs_string_cpy_dyn(dst, 0, src, 0);
 }
 
 ssize_t nxs_string_cpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src)
