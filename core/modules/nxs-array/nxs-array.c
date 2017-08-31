@@ -30,7 +30,7 @@
 
 // clang-format on
 
-nxs_array_t *nxs_array_malloc(u_int nalloc, size_t size, u_int step)
+nxs_array_t *nxs_array_malloc(size_t nalloc, size_t size, size_t step)
 {
 	nxs_array_t *array = NULL;
 
@@ -54,7 +54,7 @@ void *nxs_array_destroy(nxs_array_t *array)
 	return nxs_free(array);
 }
 
-void nxs_array_init(nxs_array_t *array, u_int nalloc, size_t size, u_int step)
+void nxs_array_init(nxs_array_t *array, size_t nalloc, size_t size, size_t step)
 {
 
 	if(array == NULL) {
@@ -130,7 +130,7 @@ void *nxs_array_add(nxs_array_t *array)
  * Если размер массива меньше номера добавляемого элемента - он будет расширен до требуемых значений. Память, выделенная под новые элементы
  * будет обнулена
  */
-void *nxs_array_add_i(nxs_array_t *array, u_int i)
+void *nxs_array_add_i(nxs_array_t *array, size_t i)
 {
 
 	if(i >= array->count) {
@@ -153,7 +153,7 @@ void *nxs_array_add_i(nxs_array_t *array, u_int i)
 /*
  * Получение элемента массива
  */
-void *nxs_array_get(nxs_array_t *array, u_int i)
+void *nxs_array_get(nxs_array_t *array, size_t i)
 {
 
 	if(array == NULL) {
@@ -169,7 +169,7 @@ void *nxs_array_get(nxs_array_t *array, u_int i)
 	return (u_char *)array->el + array->size * i;
 }
 
-u_int nxs_array_nalloc(nxs_array_t *array)
+size_t nxs_array_nalloc(nxs_array_t *array)
 {
 
 	if(array == NULL) {
@@ -180,7 +180,7 @@ u_int nxs_array_nalloc(nxs_array_t *array)
 	return array->nalloc;
 }
 
-u_int nxs_array_count(nxs_array_t *array)
+size_t nxs_array_count(nxs_array_t *array)
 {
 
 	if(array == NULL) {
@@ -191,7 +191,7 @@ u_int nxs_array_count(nxs_array_t *array)
 	return array->count;
 }
 
-u_int nxs_array_size(nxs_array_t *array)
+size_t nxs_array_size(nxs_array_t *array)
 {
 
 	if(array == NULL) {
@@ -202,7 +202,7 @@ u_int nxs_array_size(nxs_array_t *array)
 	return array->size;
 }
 
-u_int nxs_array_step(nxs_array_t *array)
+size_t nxs_array_step(nxs_array_t *array)
 {
 
 	if(array == NULL) {

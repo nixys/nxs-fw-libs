@@ -19,7 +19,7 @@ struct nxs_array_s
 	/*
 	 * Количество допустимых элементов в массиве (размер массива)
 	 */
-	u_int			nalloc;
+	size_t			nalloc;
 
 	/*
 	 * Рзмер данных
@@ -29,12 +29,12 @@ struct nxs_array_s
 	/*
 	 * Количество использованных элементов массива
 	 */
-	u_int			count;
+	size_t			count;
 
 	/*
 	 * Количество элементов, выделяемых при расширении массива
 	 */
-	u_int			step;
+	size_t			step;
 
 	/*
 	 * Указатель на массив данных
@@ -45,18 +45,18 @@ struct nxs_array_s
 #define nxs_array_init2(array, type) \
 		nxs_array_init(array, 0, sizeof(type), 1)
 
-nxs_array_t			*nxs_array_malloc			(u_int nalloc, size_t size, u_int step);
+nxs_array_t			*nxs_array_malloc			(size_t nalloc, size_t size, size_t step);
 void				*nxs_array_destroy			(nxs_array_t *array);
-void				nxs_array_init				(nxs_array_t *array, u_int nalloc, size_t size, u_int step);
+void				nxs_array_init				(nxs_array_t *array, size_t nalloc, size_t size, size_t step);
 void				nxs_array_free				(nxs_array_t *array);
 void				nxs_array_clear				(nxs_array_t *array);
 void				*nxs_array_add				(nxs_array_t *array);
-void				*nxs_array_add_i			(nxs_array_t *array, u_int i);
-void				*nxs_array_get				(nxs_array_t *array, u_int i);
-u_int				nxs_array_nalloc			(nxs_array_t *array);
-u_int				nxs_array_count				(nxs_array_t *array);
-u_int				nxs_array_size				(nxs_array_t *array);
-u_int				nxs_array_step				(nxs_array_t *array);
+void				*nxs_array_add_i			(nxs_array_t *array, size_t i);
+void				*nxs_array_get				(nxs_array_t *array, size_t i);
+size_t				nxs_array_nalloc			(nxs_array_t *array);
+size_t				nxs_array_count				(nxs_array_t *array);
+size_t				nxs_array_size				(nxs_array_t *array);
+size_t				nxs_array_step				(nxs_array_t *array);
 
 /** @} */ // end of nxs-array
 #endif /* _INCLUDE_NXS_ARRAY_H */
