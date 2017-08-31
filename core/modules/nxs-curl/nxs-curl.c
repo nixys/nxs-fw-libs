@@ -200,7 +200,7 @@ int nxs_curl_query(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_api_common_cm
 	nxs_string_init(&query);
 
 	va_start(va_query_str, query_str);
-	nxs_string_vprintf_dyn(&query, (char *)query_str, va_query_str);
+	nxs_string_vprintf(&query, (char *)query_str, va_query_str);
 	va_end(va_query_str);
 
 	if(nxs_array_count(&curl->headers) > 0) {

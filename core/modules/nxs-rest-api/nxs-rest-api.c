@@ -323,7 +323,7 @@ void nxs_rest_api_handler_del(nxs_rest_api_ctx_t *ctx, nxs_string_t *handler_nam
 
 	for(h = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, &ctx->handlers); h != NULL; h = nxs_list_ptr_next(&ctx->handlers)) {
 
-		if(nxs_string_cmp(&h->handler_name, 0, handler_name, 0) == NXS_STRING_CMP_EQ) {
+		if(nxs_string_cmp(&h->handler_name, 0, handler_name, 0) == NXS_YES) {
 
 			nxs_string_free(&h->handler_name);
 
@@ -350,9 +350,9 @@ void nxs_rest_api_header_add(nxs_rest_api_request_t *req, nxs_string_t *key, nxs
 
 		kv = nxs_array_get(&req->uri_out_headers, i);
 
-		if(nxs_string_cmp(key, 0, &kv->key, 0) == NXS_STRING_CMP_EQ) {
+		if(nxs_string_cmp(key, 0, &kv->key, 0) == NXS_YES) {
 
-			nxs_string_cpy_dyn(&kv->value, 0, val, 0);
+			nxs_string_cpy(&kv->value, 0, val, 0);
 
 			return;
 		}
@@ -523,7 +523,7 @@ nxs_string_t *nxs_rest_api_get_req_args_find(nxs_rest_api_request_t *req, nxs_st
 
 		kv = nxs_array_get(&req->uri_in_args, i);
 
-		if(nxs_string_cmp(key, 0, &kv->key, 0) == NXS_STRING_CMP_EQ) {
+		if(nxs_string_cmp(key, 0, &kv->key, 0) == NXS_YES) {
 
 			return &kv->value;
 		}
@@ -584,7 +584,7 @@ nxs_string_t *nxs_rest_api_get_req_headers_find(nxs_rest_api_request_t *req, nxs
 
 		kv = nxs_array_get(&req->uri_in_headers, i);
 
-		if(nxs_string_cmp(key, 0, &kv->key, 0) == NXS_STRING_CMP_EQ) {
+		if(nxs_string_cmp(key, 0, &kv->key, 0) == NXS_YES) {
 
 			return &kv->value;
 		}
@@ -636,19 +636,19 @@ void nxs_rest_api_page_std(nxs_rest_api_request_t *req, nxs_rest_api_format_err_
 
 			nxs_rest_api_header_add(req, &_s_header_ct_key, &_s_header_ct_val_html);
 
-			nxs_string_printf_dyn((nxs_string_t *)&req->out_buf,
-			                      "<html>"
-			                      "<head><title>%d %s</title></head>"
-			                      "<body bgcolor=\"white\">"
-			                      "<center><h2>%d %s</h2></center>"
-			                      "<center><h3>%s</h3></center>"
-			                      "<center><sub>nxs-fw</sub></center></body>"
-			                      "</html>",
-			                      http_status,
-			                      err_text,
-			                      http_status,
-			                      err_text,
-			                      middle_text != NULL ? middle_text : (u_char *)"");
+			nxs_string_printf((nxs_string_t *)&req->out_buf,
+			                  "<html>"
+			                  "<head><title>%d %s</title></head>"
+			                  "<body bgcolor=\"white\">"
+			                  "<center><h2>%d %s</h2></center>"
+			                  "<center><h3>%s</h3></center>"
+			                  "<center><sub>nxs-fw</sub></center></body>"
+			                  "</html>",
+			                  http_status,
+			                  err_text,
+			                  http_status,
+			                  err_text,
+			                  middle_text != NULL ? middle_text : (u_char *)"");
 
 			break;
 
@@ -656,15 +656,15 @@ void nxs_rest_api_page_std(nxs_rest_api_request_t *req, nxs_rest_api_format_err_
 
 			nxs_rest_api_header_add(req, &_s_header_ct_key, &_s_header_ct_val_json);
 
-			nxs_string_printf_dyn((nxs_string_t *)&req->out_buf,
-			                      "{"
-			                      "\"code\": %d,"
-			                      "\"error_text\": \"%s\","
-			                      "\"advanced_text\": \"%s\""
-			                      "}",
-			                      http_status,
-			                      err_text,
-			                      middle_text != NULL ? middle_text : (u_char *)"");
+			nxs_string_printf((nxs_string_t *)&req->out_buf,
+			                  "{"
+			                  "\"code\": %d,"
+			                  "\"error_text\": \"%s\","
+			                  "\"advanced_text\": \"%s\""
+			                  "}",
+			                  http_status,
+			                  err_text,
+			                  middle_text != NULL ? middle_text : (u_char *)"");
 
 			break;
 
@@ -811,7 +811,7 @@ static void nxs_rest_api_generic_handler(struct evhttp_request *_req, void *arg)
 
 	req.peer_port = peer_port;
 
-	nxs_string_char_cpy_dyn(&req.peer_ip, 0, (u_char *)peer_ip);
+	nxs_string_char_cpy(&req.peer_ip, 0, (u_char *)peer_ip);
 
 	/*
 	 * Body
@@ -1010,7 +1010,7 @@ static void nxs_rest_api_parse_uri(nxs_array_t *uri_pats, char *decoded_path)
 
 			nxs_string_init(p);
 
-			nxs_string_char_ncpy_dyn(p, 0, (u_char *)decoded_path + offset, i - offset);
+			nxs_string_char_ncpy(p, 0, (u_char *)decoded_path + offset, i - offset);
 
 			offset = i;
 		}
@@ -1022,7 +1022,7 @@ static void nxs_rest_api_parse_uri(nxs_array_t *uri_pats, char *decoded_path)
 
 		nxs_string_init(p);
 
-		nxs_string_char_ncpy_dyn(p, 0, (u_char *)decoded_path + offset, i - offset);
+		nxs_string_char_ncpy(p, 0, (u_char *)decoded_path + offset, i - offset);
 	}
 }
 
@@ -1129,11 +1129,11 @@ static nxs_rest_api_err_t nxs_rest_api_handler_exec(nxs_rest_api_ctx_t *ctx, nxs
 
 		r_h = nxs_array_get(&req->uri_in_parts, i);
 
-		nxs_string_cat_dyn(&uri, r_h);
+		nxs_string_cat(&uri, r_h);
 
 		for(h = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, &ctx->handlers); h != NULL; h = nxs_list_ptr_next(&ctx->handlers)) {
 
-			if(nxs_string_cmp(&h->handler_name, 0, &uri, 0) == NXS_STRING_CMP_EQ && r_type == h->cmd_type) {
+			if(nxs_string_cmp(&h->handler_name, 0, &uri, 0) == NXS_YES && r_type == h->cmd_type) {
 
 				if(h->fixed_name == NXS_YES && (part_count - i) > 1) {
 

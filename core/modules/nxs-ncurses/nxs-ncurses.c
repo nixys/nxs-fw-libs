@@ -750,7 +750,7 @@ static int nxs_ncurses_text_keypad(nxs_ncurses_ctx_t *ctx, u_int index, int key)
 				// nxs_string_init(l);
 			}
 
-			nxs_string_char_add_char_dyn(l, (u_char)key);
+			nxs_string_char_add_char(l, (u_char)key);
 
 			mvwprintw(w->win, d->curs_y, 0, (const char *)nxs_string_str(l));
 

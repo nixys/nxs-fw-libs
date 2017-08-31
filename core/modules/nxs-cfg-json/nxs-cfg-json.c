@@ -357,7 +357,7 @@ void nxs_cfg_json_conf_array_add(
 
 	cfg = nxs_array_get(cfg_arr, nxs_array_count(cfg_arr) - 1);
 
-	nxs_string_cpy_dyn(&cfg->name, 0, par_name, 0);
+	nxs_string_cpy(&cfg->name, 0, par_name, 0);
 
 	if(cfg->proc_function == NULL) {
 
@@ -446,7 +446,7 @@ static nxs_cfg_json_par_t *nxs_cfg_json_find_par(nxs_process_t *proc, nxs_json_t
 
 	for(i = 0; nxs_cfg_json_eop(cfg_json_par[i]) == NXS_NO; i++) {
 
-		if(nxs_string_cmp(nxs_json_get_key(json), 0, &cfg_json_par[i].name, 0) == NXS_STRING_CMP_EQ) {
+		if(nxs_string_cmp(nxs_json_get_key(json), 0, &cfg_json_par[i].name, 0) == NXS_YES) {
 
 			return &(cfg_json_par[i]);
 		}
@@ -1434,7 +1434,7 @@ static nxs_cfg_json_state_t nxs_cfg_json_type_handler_string(nxs_process_t *proc
 		return NXS_CFG_JSON_CONF_ERROR;
 	}
 
-	nxs_string_cpy_dyn(var, 0, nxs_json_string_val(json), 0);
+	nxs_string_cpy(var, 0, nxs_json_string_val(json), 0);
 
 	return NXS_CFG_JSON_CONF_OK;
 }

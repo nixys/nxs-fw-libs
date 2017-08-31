@@ -52,10 +52,9 @@ static int nxs_cfg_process_option(nxs_process_t *      proc,
                                   nxs_list_t *         definition_list,
                                   nxs_string_t *       opt,
                                   nxs_string_t *       value);
-static int nxs_cfg_eop(nxs_cfg_par_t cfg);
-static int nxs_cfg_check_delimiter(unsigned char c);
-static int nxs_cfg_check_charset(unsigned char c, unsigned char *charset_srt);
-static void nxs_cfg_optval_add_char(nxs_string_t *str, unsigned char c);
+static nxs_bool_t nxs_cfg_eop(nxs_cfg_par_t cfg);
+static nxs_bool_t nxs_cfg_check_delimiter(unsigned char c);
+static nxs_bool_t nxs_cfg_check_charset(unsigned char c, unsigned char *charset_srt);
 static int nxs_cfg_read_char(int fd, nxs_cfg_parse_info_t *parse_info, unsigned char *c);
 static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_string_t *opt, nxs_string_t *value);
 
@@ -321,9 +320,9 @@ static int nxs_cfg_process_option(nxs_process_t *      proc,
 {
 	int flag_found_opt, i;
 
-	for(flag_found_opt = 0, i = 0; !nxs_cfg_eop(cfg.cfg_par[i]); i++) {
+	for(flag_found_opt = 0, i = 0; nxs_cfg_eop(cfg.cfg_par[i]) == NXS_FALSE; i++) {
 
-		if(nxs_string_cmp(&cfg.cfg_par[i].name, NXS_STRING_NO_OFFSET, opt, NXS_STRING_NO_OFFSET) == NXS_STRING_CMP_EQ) {
+		if(nxs_string_cmp(&cfg.cfg_par[i].name, 0, opt, 0) == NXS_YES) {
 
 			flag_found_opt = 1;
 
@@ -492,15 +491,15 @@ static int nxs_cfg_process_option(nxs_process_t *      proc,
  * 0 - конец списка параметров ещё не достигнут
  * 1 - конец списка параметров достигнут
  */
-static int nxs_cfg_eop(nxs_cfg_par_t cfg)
+static nxs_bool_t nxs_cfg_eop(nxs_cfg_par_t cfg)
 {
 
 	if(nxs_string_str(&cfg.name) == NULL) {
 
-		return 1;
+		return NXS_TRUE;
 	}
 
-	return 0;
+	return NXS_FALSE;
 }
 
 /*
@@ -510,7 +509,7 @@ static int nxs_cfg_eop(nxs_cfg_par_t cfg)
  * 0 - символ не соответствует никакому из символов-разделителей
  * 1 - символ соответствует одному из символов-разделителей
  */
-static int nxs_cfg_check_delimiter(unsigned char c)
+static nxs_bool_t nxs_cfg_check_delimiter(unsigned char c)
 {
 	int i;
 
@@ -518,11 +517,11 @@ static int nxs_cfg_check_delimiter(unsigned char c)
 
 		if(c == nxs_cfg_char_delimiter[i]) {
 
-			return 1;
+			return NXS_TRUE;
 		}
 	}
 
-	return 0;
+	return NXS_FALSE;
 }
 
 /*
@@ -532,7 +531,7 @@ static int nxs_cfg_check_delimiter(unsigned char c)
  * 0 - символ не соответствует никакому из множества символов charset_srt
  * 1 - символ соответствует одному из множества символов charset_srt
  */
-static int nxs_cfg_check_charset(unsigned char c, unsigned char *charset_srt)
+static nxs_bool_t nxs_cfg_check_charset(unsigned char c, unsigned char *charset_srt)
 {
 	int i;
 
@@ -540,25 +539,11 @@ static int nxs_cfg_check_charset(unsigned char c, unsigned char *charset_srt)
 
 		if(c == charset_srt[i]) {
 
-			return 1;
+			return NXS_TRUE;
 		}
 	}
 
-	return 0;
-}
-
-/*
- * Добавить символ "c" к строке str.
- * Если строка str не достаточного размера, чтобы вместить новый символ - её размер будет увеличен (шаг увеличения:
- * NXS_CFG_OPT_VAL_CHANK_SIZE)
- */
-static void nxs_cfg_optval_add_char(nxs_string_t *str, unsigned char c)
-{
-
-	while(nxs_string_char_add_char(str, (u_char)c) == NXS_STRING_ERROR_DST_SIZE) {
-
-		nxs_string_resize(str, nxs_string_size(str) + NXS_CFG_OPT_VAL_CHANK_SIZE);
-	}
+	return NXS_FALSE;
 }
 
 /*
@@ -654,7 +639,7 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 				 * Все символы-разделители, включая символ '\n' пропускаются
 				 */
 
-				if(nxs_cfg_check_delimiter(c) == 1) {
+				if(nxs_cfg_check_delimiter(c) == NXS_TRUE) {
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
@@ -676,7 +661,7 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 						}
 						else {
 
-							if(nxs_cfg_check_charset(c, nxs_cfg_char_opt_set) == 1) {
+							if(nxs_cfg_check_charset(c, nxs_cfg_char_opt_set) == NXS_TRUE) {
 
 								status = NXS_CFG_READ_STATUS_READ_OPT;
 							}
@@ -716,15 +701,15 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 				 * опций
 				 */
 
-				if(nxs_cfg_check_charset(c, nxs_cfg_char_opt_set) == 1) {
+				if(nxs_cfg_check_charset(c, nxs_cfg_char_opt_set) == NXS_TRUE) {
 
-					nxs_cfg_optval_add_char(opt, c);
+					nxs_string_char_add_char(opt, c);
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
 				else {
 
-					if(nxs_cfg_check_delimiter(c) == 1) {
+					if(nxs_cfg_check_delimiter(c) == NXS_TRUE) {
 
 						status = NXS_CFG_READ_STATUS_WAIT_SEP;
 					}
@@ -749,7 +734,7 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_WAIT_SEP:
 
-				if(nxs_cfg_check_delimiter(c) == 1) {
+				if(nxs_cfg_check_delimiter(c) == NXS_TRUE) {
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
@@ -792,13 +777,13 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_WAIT_VAL:
 
-				if(nxs_cfg_check_delimiter(c) == 1) {
+				if(nxs_cfg_check_delimiter(c) == NXS_TRUE) {
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
 				else {
 
-					if(nxs_cfg_check_charset(c, nxs_cfg_char_val_set) == 1) {
+					if(nxs_cfg_check_charset(c, nxs_cfg_char_val_set) == NXS_TRUE) {
 
 						status = NXS_CFG_READ_STATUS_READ_VAL;
 					}
@@ -827,15 +812,15 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_READ_VAL:
 
-				if(nxs_cfg_check_charset(c, nxs_cfg_char_val_set) == 1) {
+				if(nxs_cfg_check_charset(c, nxs_cfg_char_val_set) == NXS_TRUE) {
 
-					nxs_cfg_optval_add_char(value, c);
+					nxs_string_char_add_char(value, c);
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
 				else {
 
-					if(nxs_cfg_check_delimiter(c) == 1) {
+					if(nxs_cfg_check_delimiter(c) == NXS_TRUE) {
 
 						status = NXS_CFG_READ_STATUS_WAIT_EOL;
 					}
@@ -867,10 +852,10 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_READ_QUETED_VAL:
 
-				if(nxs_cfg_check_charset(c, nxs_cfg_char_val_set) == 1 || nxs_cfg_check_delimiter(c) == 1 ||
+				if(nxs_cfg_check_charset(c, nxs_cfg_char_val_set) == NXS_TRUE || nxs_cfg_check_delimiter(c) == NXS_TRUE ||
 				   c == nxs_cfg_char_comment || c == nxs_cfg_char_eol) {
 
-					nxs_cfg_optval_add_char(value, c);
+					nxs_string_char_add_char(value, c);
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
@@ -896,7 +881,7 @@ static int nxs_cfg_read_next(int fd, nxs_cfg_parse_info_t *parse_info, nxs_strin
 
 			case NXS_CFG_READ_STATUS_WAIT_EOL:
 
-				if(nxs_cfg_check_delimiter(c) == 1) {
+				if(nxs_cfg_check_delimiter(c) == NXS_TRUE) {
 
 					rb = nxs_cfg_read_char(fd, parse_info, &c);
 				}
@@ -1027,7 +1012,7 @@ static int nxs_cfg_type_handler_string(nxs_process_t *proc, nxs_string_t *opt, n
 {
 	nxs_string_t *var = nxs_cfg_get_val(cfg_par);
 
-	nxs_string_cpy_dyn(var, 0, val, 0);
+	nxs_string_cpy(var, 0, val, 0);
 
 	return NXS_CFG_CONF_OK;
 }
@@ -1050,7 +1035,7 @@ static int nxs_cfg_type_handler_num(nxs_process_t *proc, nxs_string_t *opt, nxs_
 		}
 	}
 
-	nxs_string_cpy_dyn(var, 0, val, 0);
+	nxs_string_cpy(var, 0, val, 0);
 
 	return NXS_CFG_CONF_OK;
 }
@@ -1064,7 +1049,7 @@ static int nxs_cfg_type_handler_list(nxs_process_t *proc, nxs_string_t *opt, nxs
 
 		for(p = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, var); p != NULL; p = nxs_list_ptr_next(var)) {
 
-			if(nxs_string_cmp(p, NXS_STRING_NO_OFFSET, val, NXS_STRING_NO_OFFSET) == NXS_STRING_CMP_EQ) {
+			if(nxs_string_cmp(p, 0, val, 0) == NXS_YES) {
 
 				return NXS_CFG_CONF_OK;
 			}
@@ -1092,7 +1077,7 @@ static int nxs_cfg_type_handler_list_num(nxs_process_t *proc,
 
 		for(p = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, var); p != NULL; p = nxs_list_ptr_next(var)) {
 
-			if(nxs_string_cmp(p, NXS_STRING_NO_OFFSET, val, NXS_STRING_NO_OFFSET) == NXS_STRING_CMP_EQ) {
+			if(nxs_string_cmp(p, 0, val, 0) == NXS_YES) {
 
 				return NXS_CFG_CONF_OK;
 			}

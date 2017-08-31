@@ -368,7 +368,7 @@ nxs_xml_attr_t *nxs_xml_element_res_get_attr(nxs_xml_el_t *xml_el, nxs_string_t 
 
 		a = nxs_array_get(&xml_el->attrs, i);
 
-		if(nxs_string_cmp(&a->attr_name, 0, &attr, 0) == NXS_STRING_CMP_EQ) {
+		if(nxs_string_cmp(&a->attr_name, 0, &attr, 0) == NXS_YES) {
 
 			return a;
 		}
@@ -547,7 +547,7 @@ static void nxs_xml_element_get_recursive(nxs_array_t *res, nxs_xml_el_t *xml_el
 
 	a_name = nxs_array_get(a_names, a_name_ind);
 
-	if(nxs_string_cmp(&xml_el->name, 0, a_name, 0) == NXS_STRING_CMP_EQ) {
+	if(nxs_string_cmp(&xml_el->name, 0, a_name, 0) == NXS_YES) {
 
 		if(nxs_array_count(a_names) == a_name_ind + 1) {
 
@@ -580,7 +580,7 @@ static nxs_xml_el_t *nxs_xml_element_get_recursive_first(nxs_xml_el_t *xml_el, n
 
 	a_name = nxs_array_get(a_names, a_name_ind);
 
-	if(nxs_string_cmp(&xml_el->name, 0, a_name, 0) == NXS_STRING_CMP_EQ) {
+	if(nxs_string_cmp(&xml_el->name, 0, a_name, 0) == NXS_YES) {
 
 		if(nxs_array_count(a_names) == a_name_ind + 1) {
 
@@ -614,7 +614,7 @@ static void nxs_xml_print_recursion(nxs_process_t *proc, nxs_xml_el_t *xml_el, s
 
 	for(i = 0; i < level; i++) {
 
-		nxs_string_char_add_char_dyn(&spaces, (u_char)' ');
+		nxs_string_char_add_char(&spaces, (u_char)' ');
 	}
 
 	nxs_log_write_debug(proc,

@@ -126,6 +126,7 @@ typedef struct			nxs_array_s				nxs_array_t;
 
 
 /* nxs-string.h */
+typedef enum			nxs_string_err_e			nxs_string_err_t;
 typedef enum			nxs_string_escape_types_e		nxs_string_escape_types_t;
 typedef struct			nxs_string_s				nxs_string_t;
 

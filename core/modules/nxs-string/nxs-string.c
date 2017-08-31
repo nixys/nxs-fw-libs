@@ -15,41 +15,33 @@
 #define NXS_STRING_OCT_STR_TPL			"%%%s%zuo"
 #define NXS_STRING_HEX_STR_TPL			"%%%s%zux"
 
-#define _NXS_STRING_OK				"nxs string ok"
-#define _NXS_STRING_ERROR_NOT_INIT		"nxs string error: string not initialized"
-#define _NXS_STRING_ERROR			"nxs string error"
-#define _NXS_STRING_ERROR_DST_SIZE		"nxs string error: dst string size exceeded"
-#define _NXS_STRING_ERROR_SRC_SIZE		"nxs string error: src string size exceeded"
-#define _NXS_STRING_ERROR_DST_LEN		"nxs string error: dst string len exceeded"
-#define _NXS_STRING_ERROR_SRC_LEN		"nxs string error: src string size exceeded"
-#define _NXS_STRING_ERROR_OFFSET		"nxs string error: offset size more then string len"
-#define	_NXS_STRING_ERROR_NOT_CREATED		"nxs string error: string not created"
-#define	_NXS_STRING_ERROR_NULL_PTR		"nxs string error: string's or char's ptr is null"
-#define	_NXS_STRING_ERROR_SPEC_UNKNOWN		"nxs string error: unknown specifier"
-#define	_NXS_STRING_ERROR_SPEC_OVERFLOW		"nxs string error: too many specifiers"
-#define	_NXS_STRING_ERROR_UNKNOWN		"nxs string error: unknown"
-
 #define nxs_string_check_not_created(str)	if(str->size == 0 || str->str == NULL){ \
-							return NXS_STRING_ERROR_NOT_CREATED; \
+							return NXS_STRING_E_NOT_CREATED; \
 						}
 
 /* Module typedefs */
 
-typedef struct			strftime_s				strftime_t;
+
 
 /* Module declarations */
 
-struct strftime_s
+typedef struct
 {
-	char		_f;
-	int		o;
-};
+	char			_f;
+	int			o;
+} strftime_t;
+
+typedef struct
+{
+	nxs_string_err_t	error_code;
+	u_char			*text;
+} strerror_t;
 
 /* Module internal (static) functions prototypes */
 
 // clang-format on
 
-static ssize_t nxs_string_vprintf_core_dyn(nxs_string_t *str, size_t offset, const char *fmt, va_list ap);
+static size_t nxs_string_vprintf_core(nxs_string_t *str, size_t offset, const char *fmt, va_list ap);
 static void nxs_string_vprintf_uint(nxs_string_t *str, nxs_bool_t sign, uint64_t ui64, u_char zero, size_t width, size_t precision);
 static void nxs_string_vprintf_int(nxs_string_t *str, int64_t i64, u_char zero, size_t width, size_t precision);
 
@@ -57,7 +49,23 @@ static void nxs_string_vprintf_int(nxs_string_t *str, int64_t i64, u_char zero, 
 
 /* Module initializations */
 
+static strerror_t strerrors[] =
+{
+	{NXS_STRING_E_OK,			(u_char *)"ok"},
+	{NXS_STRING_E_ERR,			(u_char *)"general error"},
+	{NXS_STRING_E_NOT_INIT,			(u_char *)"string not initialized"},
+	{NXS_STRING_E_DST_SIZE,			(u_char *)"dst string size exceeded"},
+	{NXS_STRING_E_SRC_SIZE,			(u_char *)"src string size exceeded"},
+	{NXS_STRING_E_DST_LEN,			(u_char *)"dst string len exceeded"},
+	{NXS_STRING_E_SRC_LEN,			(u_char *)"src string size exceeded"},
+	{NXS_STRING_E_OFFSET,			(u_char *)"offset size more then string len"},
+	{NXS_STRING_E_NOT_CREATED,		(u_char *)"string not created"},
+	{NXS_STRING_E_NULL_PTR,			(u_char *)"string's or char's ptr is null"},
+	{NXS_STRING_E_SPEC_UNKNOWN,		(u_char *)"unknown specifier"},
+	{NXS_STRING_E_SPEC_OVERFLOW,		(u_char *)"too many specifiers"},
 
+	{NXS_STRING_E_UNKNOWN,			(u_char *)"unknown"},
+};
 
 /* Module global functions */
 
@@ -122,20 +130,20 @@ void nxs_string_init(nxs_string_t *str)
 	str->len  = 0;
 }
 
-ssize_t nxs_string_init2(nxs_string_t *str, size_t size, u_char *new_str)
+nxs_string_err_t nxs_string_init2(nxs_string_t *str, size_t size, u_char *new_str)
 {
-	ssize_t rc;
+	nxs_string_err_t rc;
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	str->str  = NULL;
 	str->size = 0;
 	str->len  = 0;
 
-	if((rc = nxs_string_create(str, size, new_str)) < 0) {
+	if((rc = nxs_string_create(str, size, new_str)) != NXS_STRING_E_OK) {
 
 		nxs_string_free(str);
 	}
@@ -143,12 +151,12 @@ ssize_t nxs_string_init2(nxs_string_t *str, size_t size, u_char *new_str)
 	return rc;
 }
 
-ssize_t nxs_string_init3(nxs_string_t *str, nxs_string_t *src)
+nxs_string_err_t nxs_string_init3(nxs_string_t *str, nxs_string_t *src)
 {
 
 	if(str == NULL || src == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(src->str == NULL || src->size == 0) {
@@ -157,7 +165,7 @@ ssize_t nxs_string_init3(nxs_string_t *str, nxs_string_t *src)
 		str->len  = 0;
 		str->str  = NULL;
 
-		return 0;
+		return NXS_STRING_E_OK;
 	}
 
 	str->size = src->len + 1;
@@ -168,15 +176,15 @@ ssize_t nxs_string_init3(nxs_string_t *str, nxs_string_t *src)
 
 	str->str[str->len] = '\0';
 
-	return str->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_init_empty(nxs_string_t *str)
+nxs_string_err_t nxs_string_init_empty(nxs_string_t *str)
 {
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	str->size = 1;
@@ -185,23 +193,25 @@ ssize_t nxs_string_init_empty(nxs_string_t *str)
 
 	str->str[str->len] = '\0';
 
-	return str->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_create(nxs_string_t *str, size_t size, u_char *new_str)
+nxs_string_err_t nxs_string_create(nxs_string_t *str, size_t size, u_char *new_str)
 {
-	size_t  s;
-	ssize_t len;
+	size_t           s;
+	nxs_string_err_t rc;
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(str->str != NULL) {
 
-		return NXS_STRING_ERROR_NOT_INIT;
+		return NXS_STRING_E_NOT_INIT;
 	}
+
+	rc = NXS_STRING_E_OK;
 
 	if(new_str != NULL) {
 
@@ -217,20 +227,13 @@ ssize_t nxs_string_create(nxs_string_t *str, size_t size, u_char *new_str)
 		str->str  = nxs_calloc(NULL, s);
 		str->size = s;
 
-		if((len = nxs_string_char_ncpy(str, NXS_STRING_NO_OFFSET, new_str, strlen((const char *)new_str))) < 0) {
-
-			return len;
-		}
-
-		str->str[len] = '\0';
-
-		str->len = len;
+		rc = nxs_string_char_ncpy_static(str, 0, new_str, strlen((const char *)new_str));
 	}
 	else {
 
 		if(size == 0) {
 
-			return NXS_STRING_ERROR_NOT_CREATED;
+			return NXS_STRING_E_NOT_CREATED;
 		}
 
 		str->str  = nxs_calloc(NULL, size);
@@ -238,20 +241,20 @@ ssize_t nxs_string_create(nxs_string_t *str, size_t size, u_char *new_str)
 		nxs_string_clear(str);
 	}
 
-	return str->len;
+	return rc;
 }
 
-int nxs_string_free(nxs_string_t *str)
+nxs_string_err_t nxs_string_free(nxs_string_t *str)
 {
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(str->size == 0 || str->str == NULL) {
 
-		return NXS_STRING_ERROR_NOT_CREATED;
+		return NXS_STRING_E_NOT_CREATED;
 	}
 
 	str->str = nxs_free(str->str);
@@ -259,15 +262,15 @@ int nxs_string_free(nxs_string_t *str)
 	str->len  = 0;
 	str->size = 0;
 
-	return NXS_STRING_OK;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_resize(nxs_string_t *str, size_t new_size)
+nxs_string_err_t nxs_string_resize(nxs_string_t *str, size_t new_size)
 {
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	/*
@@ -277,7 +280,7 @@ ssize_t nxs_string_resize(nxs_string_t *str, size_t new_size)
 
 		nxs_string_free(str);
 
-		return str->size;
+		return NXS_STRING_E_OK;
 	}
 
 	if(str->size == 0 || str->str == NULL) {
@@ -306,100 +309,100 @@ ssize_t nxs_string_resize(nxs_string_t *str, size_t new_size)
 		str->size = new_size;
 	}
 
-	return str->size;
+	return NXS_STRING_E_OK;
 }
 
-int nxs_string_clear(nxs_string_t *str)
+nxs_string_err_t nxs_string_clear(nxs_string_t *str)
 {
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(str->size == 0 || str->str == NULL) {
 
-		return NXS_STRING_ERROR_NOT_CREATED;
+		return NXS_STRING_E_NOT_CREATED;
 	}
 
 	str->str[0] = '\0';
 	str->len    = 0;
 
-	return NXS_STRING_OK;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_printf_dyn(nxs_string_t *str, const char *msg, ...)
+size_t nxs_string_printf(nxs_string_t *str, const char *msg, ...)
 {
-	size_t  k;
+	size_t  l;
 	va_list msg_args;
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return 0;
 	}
 
 	va_start(msg_args, msg);
-	k = nxs_string_vprintf_core_dyn(str, 0, msg, msg_args);
+	l = nxs_string_vprintf_core(str, 0, msg, msg_args);
 	va_end(msg_args);
 
-	return k;
+	return l;
 }
 
-ssize_t nxs_string_printf2_dyn(nxs_string_t *str, size_t offset, const char *msg, ...)
+size_t nxs_string_printf2(nxs_string_t *str, size_t offset, const char *msg, ...)
 {
-	size_t  k;
+	size_t  l;
 	va_list msg_args;
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return 0;
 	}
 
 	va_start(msg_args, msg);
-	k = nxs_string_vprintf_core_dyn(str, offset, msg, msg_args);
+	l = nxs_string_vprintf_core(str, offset, msg, msg_args);
 	va_end(msg_args);
 
-	return k;
+	return l;
 }
 
-ssize_t nxs_string_vprintf_dyn(nxs_string_t *str, const char *fmt, va_list ap)
+size_t nxs_string_vprintf(nxs_string_t *str, const char *fmt, va_list ap)
 {
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return 0;
 	}
 
-	return nxs_string_vprintf_core_dyn(str, 0, fmt, ap);
+	return nxs_string_vprintf_core(str, 0, fmt, ap);
 }
 
-ssize_t nxs_string_clone(nxs_string_t *dst, nxs_string_t *src)
+nxs_string_err_t nxs_string_clone(nxs_string_t *dst, nxs_string_t *src)
 {
 
-	return nxs_string_cpy_dyn(dst, 0, src, 0);
+	return nxs_string_cpy(dst, 0, src, 0);
 }
 
-ssize_t nxs_string_cpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src)
+nxs_string_err_t nxs_string_cpy_static(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src)
 {
 
 	if(dst == NULL || src == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(offset_src > src->len) {
 
-		return NXS_STRING_ERROR_OFFSET;
+		return NXS_STRING_E_OFFSET;
 	}
 
 	if(offset_dst > dst->len) {
 
-		return NXS_STRING_ERROR_OFFSET;
+		return NXS_STRING_E_OFFSET;
 	}
 
 	if(src->len - offset_src + 1 > dst->size - offset_dst) {
 
-		return NXS_STRING_ERROR_DST_SIZE;
+		return NXS_STRING_E_DST_SIZE;
 	}
 
 	nxs_memcpy(dst->str + offset_dst, src->str + offset_src, src->len - offset_src);
@@ -407,39 +410,39 @@ ssize_t nxs_string_cpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, 
 	dst->len           = offset_dst + src->len - offset_src;
 	dst->str[dst->len] = '\0';
 
-	return dst->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_cpy_dyn(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src)
+nxs_string_err_t nxs_string_cpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src)
 {
-	ssize_t rc;
+	nxs_string_err_t rc;
 
-	if((rc = nxs_string_cpy(dst, offset_dst, src, offset_src)) == NXS_STRING_ERROR_DST_SIZE) {
+	if((rc = nxs_string_cpy_static(dst, offset_dst, src, offset_src)) == NXS_STRING_E_DST_SIZE) {
 
 		nxs_string_resize(dst, src->len - offset_src + offset_dst + 1);
 
-		rc = nxs_string_cpy(dst, offset_dst, src, offset_src);
+		rc = nxs_string_cpy_static(dst, offset_dst, src, offset_src);
 	}
 
 	return rc;
 }
 
-ssize_t nxs_string_ncpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n)
+nxs_string_err_t nxs_string_ncpy_static(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n)
 {
 
 	if(dst == NULL || src == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(offset_src > src->len) {
 
-		return NXS_STRING_ERROR_OFFSET;
+		return NXS_STRING_E_OFFSET;
 	}
 
 	if(offset_dst > dst->len) {
 
-		return NXS_STRING_ERROR_OFFSET;
+		return NXS_STRING_E_OFFSET;
 	}
 
 	if(offset_src + n > src->len) {
@@ -449,7 +452,7 @@ ssize_t nxs_string_ncpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src,
 
 	if(n + 1 > dst->size - offset_dst) {
 
-		return NXS_STRING_ERROR_DST_SIZE;
+		return NXS_STRING_E_DST_SIZE;
 	}
 
 	nxs_memcpy(dst->str + offset_dst, src->str + offset_src, n);
@@ -457,34 +460,34 @@ ssize_t nxs_string_ncpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src,
 	dst->len           = offset_dst + n;
 	dst->str[dst->len] = '\0';
 
-	return dst->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_ncpy_dyn(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n)
+nxs_string_err_t nxs_string_ncpy(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n)
 {
-	ssize_t rc;
+	nxs_string_err_t rc;
 
-	if((rc = nxs_string_ncpy(dst, offset_dst, src, offset_src, n)) == NXS_STRING_ERROR_DST_SIZE) {
+	if((rc = nxs_string_ncpy_static(dst, offset_dst, src, offset_src, n)) == NXS_STRING_E_DST_SIZE) {
 
 		nxs_string_resize(dst, offset_dst + n + 1);
 
-		rc = nxs_string_ncpy(dst, offset_dst, src, offset_src, n);
+		rc = nxs_string_ncpy_static(dst, offset_dst, src, offset_src, n);
 	}
 
 	return rc;
 }
 
-ssize_t nxs_string_cat(nxs_string_t *dst, nxs_string_t *src)
+nxs_string_err_t nxs_string_cat_static(nxs_string_t *dst, nxs_string_t *src)
 {
 
 	if(dst == NULL || src == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(dst->len + src->len + 1 > dst->size) {
 
-		return NXS_STRING_ERROR_DST_SIZE;
+		return NXS_STRING_E_DST_SIZE;
 	}
 
 	nxs_memcpy(dst->str + dst->len, src->str, src->len);
@@ -492,29 +495,29 @@ ssize_t nxs_string_cat(nxs_string_t *dst, nxs_string_t *src)
 	dst->len += src->len;
 	dst->str[dst->len] = '\0';
 
-	return dst->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_cat_dyn(nxs_string_t *dst, nxs_string_t *src)
+nxs_string_err_t nxs_string_cat(nxs_string_t *dst, nxs_string_t *src)
 {
-	ssize_t rc;
+	nxs_string_err_t rc;
 
-	if((rc = nxs_string_cat(dst, src)) == NXS_STRING_ERROR_DST_SIZE) {
+	if((rc = nxs_string_cat_static(dst, src)) == NXS_STRING_E_DST_SIZE) {
 
 		nxs_string_resize(dst, dst->len + src->len + 1);
 
-		rc = nxs_string_cat(dst, src);
+		rc = nxs_string_cat_static(dst, src);
 	}
 
 	return rc;
 }
 
-ssize_t nxs_string_ncat(nxs_string_t *dst, nxs_string_t *src, size_t n)
+nxs_string_err_t nxs_string_ncat_static(nxs_string_t *dst, nxs_string_t *src, size_t n)
 {
 
 	if(dst == NULL || src == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(n > src->len) {
@@ -524,7 +527,7 @@ ssize_t nxs_string_ncat(nxs_string_t *dst, nxs_string_t *src, size_t n)
 
 	if(dst->len + n + 1 > dst->size) {
 
-		return NXS_STRING_ERROR_DST_SIZE;
+		return NXS_STRING_E_DST_SIZE;
 	}
 
 	nxs_memcpy(dst->str + dst->len, src->str, n);
@@ -532,112 +535,112 @@ ssize_t nxs_string_ncat(nxs_string_t *dst, nxs_string_t *src, size_t n)
 	dst->len += n;
 	dst->str[dst->len] = '\0';
 
-	return dst->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_ncat_dyn(nxs_string_t *dst, nxs_string_t *src, size_t n)
+nxs_string_err_t nxs_string_ncat(nxs_string_t *dst, nxs_string_t *src, size_t n)
 {
-	ssize_t rc;
+	nxs_string_err_t rc;
 
-	if((rc = nxs_string_ncat(dst, src, n)) == NXS_STRING_ERROR_DST_SIZE) {
+	if((rc = nxs_string_ncat_static(dst, src, n)) == NXS_STRING_E_DST_SIZE) {
 
 		nxs_string_resize(dst, dst->len + n + 1);
 
-		rc = nxs_string_ncat(dst, src, n);
+		rc = nxs_string_ncat_static(dst, src, n);
 	}
 
 	return rc;
 }
 
-int nxs_string_cmp(nxs_string_t *str1, size_t offset1, nxs_string_t *str2, size_t offset2)
+nxs_bool_t nxs_string_cmp(nxs_string_t *str1, size_t offset1, nxs_string_t *str2, size_t offset2)
 {
 	size_t i;
 
 	if(str1 == NULL || str2 == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_NO;
 	}
 
 	if(offset1 > str1->len) {
 
-		return NXS_STRING_ERROR_OFFSET;
+		return NXS_NO;
 	}
 
 	if(offset2 > str2->len) {
 
-		return NXS_STRING_ERROR_OFFSET;
+		return NXS_NO;
 	}
 
 	if(str1->len - offset1 != str2->len - offset2) {
 
-		return NXS_STRING_CMP_NE;
+		return NXS_NO;
 	}
 
 	for(i = 0; i < str1->len - offset1; i++) {
 
 		if(str1->str[offset1 + i] != str2->str[offset2 + i]) {
 
-			return NXS_STRING_CMP_NE;
+			return NXS_NO;
 		}
 	}
 
-	return NXS_STRING_CMP_EQ;
+	return NXS_YES;
 }
 
-int nxs_string_ncmp(nxs_string_t *str1, size_t offset1, nxs_string_t *str2, size_t offset2, size_t n)
+nxs_bool_t nxs_string_ncmp(nxs_string_t *str1, size_t offset1, nxs_string_t *str2, size_t offset2, size_t n)
 {
 	size_t i;
 
 	if(str1 == NULL || str2 == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_NO;
 	}
 
 	if(offset1 > str1->len) {
 
-		return NXS_STRING_ERROR_OFFSET;
+		return NXS_NO;
 	}
 
 	if(offset2 > str2->len) {
 
-		return NXS_STRING_ERROR_OFFSET;
+		return NXS_NO;
 	}
 
 	if(n > str1->len - offset1 || n > str2->len - offset2) {
 
-		return NXS_STRING_CMP_NE;
+		return NXS_NO;
 	}
 
 	for(i = 0; i < n; i++) {
 
 		if(str1->str[offset1 + i] != str2->str[offset2 + i]) {
 
-			return NXS_STRING_CMP_NE;
+			return NXS_NO;
 		}
 	}
 
-	return NXS_STRING_CMP_EQ;
+	return NXS_YES;
 }
 
-ssize_t nxs_string_char_cpy(nxs_string_t *str, size_t offset, u_char *ch_str)
+nxs_string_err_t nxs_string_char_cpy_static(nxs_string_t *str, size_t offset, u_char *ch_str)
 {
 	size_t len;
 
 	if(str == NULL || ch_str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(offset > str->len) {
 
-		return NXS_STRING_ERROR_OFFSET;
+		return NXS_STRING_E_OFFSET;
 	}
 
 	len = strlen((const char *)ch_str);
 
 	if(offset + len + 1 > str->size) {
 
-		return NXS_STRING_ERROR_DST_SIZE;
+		return NXS_STRING_E_DST_SIZE;
 	}
 
 	nxs_memcpy(str->str + offset, ch_str, len);
@@ -645,47 +648,47 @@ ssize_t nxs_string_char_cpy(nxs_string_t *str, size_t offset, u_char *ch_str)
 	str->len           = offset + len;
 	str->str[str->len] = '\0';
 
-	return str->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_char_cpy_dyn(nxs_string_t *str, size_t offset, u_char *ch_str)
+nxs_string_err_t nxs_string_char_cpy(nxs_string_t *str, size_t offset, u_char *ch_str)
 {
-	size_t  len;
-	ssize_t rc;
+	size_t           len;
+	nxs_string_err_t rc;
 
 	if(ch_str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	len = strlen((const char *)ch_str);
 
-	if((rc = nxs_string_char_cpy(str, offset, ch_str)) == NXS_STRING_ERROR_DST_SIZE) {
+	if((rc = nxs_string_char_cpy_static(str, offset, ch_str)) == NXS_STRING_E_DST_SIZE) {
 
 		nxs_string_resize(str, offset + len + 1);
 
-		rc = nxs_string_char_cpy(str, offset, ch_str);
+		rc = nxs_string_char_cpy_static(str, offset, ch_str);
 	}
 
 	return rc;
 }
 
-ssize_t nxs_string_char_ncpy(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n)
+nxs_string_err_t nxs_string_char_ncpy_static(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n)
 {
 
 	if(str == NULL || ch_str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(offset > str->len) {
 
-		return NXS_STRING_ERROR_OFFSET;
+		return NXS_STRING_E_OFFSET;
 	}
 
 	if(offset + n + 1 > str->size) {
 
-		return NXS_STRING_ERROR_DST_SIZE;
+		return NXS_STRING_E_DST_SIZE;
 	}
 
 	nxs_memcpy(str->str + offset, ch_str, n);
@@ -693,37 +696,37 @@ ssize_t nxs_string_char_ncpy(nxs_string_t *str, size_t offset, u_char *ch_str, s
 	str->len           = offset + n;
 	str->str[str->len] = '\0';
 
-	return str->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_char_ncpy_dyn(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n)
+nxs_string_err_t nxs_string_char_ncpy(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n)
 {
-	ssize_t rc;
+	nxs_string_err_t rc;
 
-	if((rc = nxs_string_char_ncpy(str, offset, ch_str, n)) == NXS_STRING_ERROR_DST_SIZE) {
+	if((rc = nxs_string_char_ncpy_static(str, offset, ch_str, n)) == NXS_STRING_E_DST_SIZE) {
 
 		nxs_string_resize(str, offset + n + 1);
 
-		rc = nxs_string_char_ncpy(str, offset, ch_str, n);
+		rc = nxs_string_char_ncpy_static(str, offset, ch_str, n);
 	}
 
 	return rc;
 }
 
-ssize_t nxs_string_char_cat(nxs_string_t *str, u_char *ch_str)
+nxs_string_err_t nxs_string_char_cat_static(nxs_string_t *str, u_char *ch_str)
 {
 	size_t len;
 
 	if(str == NULL || ch_str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	len = strlen((const char *)ch_str);
 
 	if(str->len + len + 1 > str->size) {
 
-		return NXS_STRING_ERROR_DST_SIZE;
+		return NXS_STRING_E_DST_SIZE;
 	}
 
 	nxs_memcpy(str->str + str->len, ch_str, len);
@@ -731,42 +734,42 @@ ssize_t nxs_string_char_cat(nxs_string_t *str, u_char *ch_str)
 	str->len += len;
 	str->str[str->len] = '\0';
 
-	return str->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_char_cat_dyn(nxs_string_t *str, u_char *ch_str)
+nxs_string_err_t nxs_string_char_cat(nxs_string_t *str, u_char *ch_str)
 {
-	size_t  len;
-	ssize_t rc;
+	size_t           len;
+	nxs_string_err_t rc;
 
 	if(ch_str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	len = strlen((const char *)ch_str);
 
-	if((rc = nxs_string_char_cat(str, ch_str)) == NXS_STRING_ERROR_DST_SIZE) {
+	if((rc = nxs_string_char_cat_static(str, ch_str)) == NXS_STRING_E_DST_SIZE) {
 
 		nxs_string_resize(str, str->len + len + 1);
 
-		rc = nxs_string_char_cat(str, ch_str);
+		rc = nxs_string_char_cat_static(str, ch_str);
 	}
 
 	return rc;
 }
 
-ssize_t nxs_string_char_ncat(nxs_string_t *str, u_char *ch_str, size_t n)
+nxs_string_err_t nxs_string_char_ncat_static(nxs_string_t *str, u_char *ch_str, size_t n)
 {
 
 	if(str == NULL || ch_str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(str->len + n + 1 > str->size) {
 
-		return NXS_STRING_ERROR_DST_SIZE;
+		return NXS_STRING_E_DST_SIZE;
 	}
 
 	nxs_memcpy(str->str + str->len, ch_str, n);
@@ -774,98 +777,98 @@ ssize_t nxs_string_char_ncat(nxs_string_t *str, u_char *ch_str, size_t n)
 	str->len += n;
 	str->str[str->len] = '\0';
 
-	return str->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_char_ncat_dyn(nxs_string_t *str, u_char *ch_str, size_t n)
+nxs_string_err_t nxs_string_char_ncat(nxs_string_t *str, u_char *ch_str, size_t n)
 {
-	ssize_t rc;
+	nxs_string_err_t rc;
 
-	if((rc = nxs_string_char_ncat(str, ch_str, n)) == NXS_STRING_ERROR_DST_SIZE) {
+	if((rc = nxs_string_char_ncat_static(str, ch_str, n)) == NXS_STRING_E_DST_SIZE) {
 
 		nxs_string_resize(str, str->len + n + 1);
 
-		rc = nxs_string_char_ncat(str, ch_str, n);
+		rc = nxs_string_char_ncat_static(str, ch_str, n);
 	}
 
 	return rc;
 }
 
-int nxs_string_char_cmp(nxs_string_t *str, size_t offset, u_char *ch_str)
+nxs_bool_t nxs_string_char_cmp(nxs_string_t *str, size_t offset, u_char *ch_str)
 {
 	size_t i, len;
 
 	if(str == NULL || ch_str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_NO;
 	}
 
-	if(offset + 1 > str->len) {
+	if(offset > str->len) {
 
-		return NXS_STRING_ERROR_OFFSET;
+		return NXS_NO;
 	}
 
 	len = strlen((const char *)ch_str);
 
 	if(str->len - offset != len) {
 
-		return NXS_STRING_CMP_NE;
+		return NXS_NO;
 	}
 
 	for(i = 0; i < str->len - offset; i++) {
 
 		if(str->str[offset + i] != ch_str[i]) {
 
-			return NXS_STRING_CMP_NE;
+			return NXS_NO;
 		}
 	}
 
-	return NXS_STRING_CMP_EQ;
+	return NXS_YES;
 }
 
-int nxs_string_char_ncmp(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n)
+nxs_bool_t nxs_string_char_ncmp(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n)
 {
 	size_t i;
 
 	if(str == NULL || ch_str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_NO;
 	}
 
-	if(offset + 1 > str->len) {
+	if(offset > str->len) {
 
-		return NXS_STRING_ERROR_OFFSET;
+		return NXS_NO;
 	}
 
-	if(n > str->len) {
+	if(str->len - offset < n) {
 
-		return NXS_STRING_CMP_NE;
+		return NXS_NO;
 	}
 
 	for(i = 0; i < n; i++) {
 
 		if(str->str[offset + i] != ch_str[i]) {
 
-			return NXS_STRING_CMP_NE;
+			return NXS_NO;
 		}
 	}
 
-	return NXS_STRING_CMP_EQ;
+	return NXS_YES;
 }
 
-ssize_t nxs_string_char_add_char(nxs_string_t *str, u_char c)
+nxs_string_err_t nxs_string_char_add_char_static(nxs_string_t *str, u_char c)
 {
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(c == '\0') {
 
 		if(str->len + 1 > str->size) {
 
-			return NXS_STRING_ERROR_DST_SIZE;
+			return NXS_STRING_E_DST_SIZE;
 		}
 
 		str->str[str->len] = c;
@@ -874,7 +877,7 @@ ssize_t nxs_string_char_add_char(nxs_string_t *str, u_char c)
 
 		if(str->len + 2 > str->size) {
 
-			return NXS_STRING_ERROR_DST_SIZE;
+			return NXS_STRING_E_DST_SIZE;
 		}
 
 		str->str[str->len] = c;
@@ -883,18 +886,18 @@ ssize_t nxs_string_char_add_char(nxs_string_t *str, u_char c)
 		str->str[str->len] = '\0';
 	}
 
-	return str->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_char_add_char_dyn(nxs_string_t *str, u_char c)
+nxs_string_err_t nxs_string_char_add_char(nxs_string_t *str, u_char c)
 {
-	ssize_t rc;
+	nxs_string_err_t rc;
 
-	if((rc = nxs_string_char_add_char(str, c)) == NXS_STRING_ERROR_DST_SIZE) {
+	if((rc = nxs_string_char_add_char_static(str, c)) == NXS_STRING_E_DST_SIZE) {
 
 		nxs_string_resize(str, str->len + 2);
 
-		rc = nxs_string_char_add_char(str, c);
+		rc = nxs_string_char_add_char_static(str, c);
 	}
 
 	return rc;
@@ -914,7 +917,7 @@ void nxs_string_basename(nxs_string_t *dst, nxs_string_t *path)
 
 	if(len == 0) {
 
-		nxs_string_char_cpy_dyn(dst, 0, (u_char *)".");
+		nxs_string_char_cpy(dst, 0, (u_char *)".");
 
 		return;
 	}
@@ -926,7 +929,7 @@ void nxs_string_basename(nxs_string_t *dst, nxs_string_t *path)
 
 	if(len == 1) {
 
-		nxs_string_ncpy_dyn(dst, 0, path, 0, 1);
+		nxs_string_ncpy(dst, 0, path, 0, 1);
 
 		return;
 	}
@@ -970,11 +973,11 @@ void nxs_string_dirname(nxs_string_t *dst, nxs_string_t *path)
 
 		if(path->str[0] == '/') {
 
-			nxs_string_char_cpy_dyn(dst, 0, (u_char *)"/");
+			nxs_string_char_cpy(dst, 0, (u_char *)"/");
 		}
 		else {
 
-			nxs_string_char_cpy_dyn(dst, 0, (u_char *)".");
+			nxs_string_char_cpy(dst, 0, (u_char *)".");
 		}
 	}
 	else {
@@ -994,50 +997,50 @@ void nxs_string_dirname(nxs_string_t *dst, nxs_string_t *path)
 	}
 }
 
-ssize_t nxs_string_set_char(nxs_string_t *str, size_t pos, u_char c)
+nxs_string_err_t nxs_string_set_char(nxs_string_t *str, size_t pos, u_char c)
 {
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	nxs_string_check_not_created(str);
 
 	if(pos > str->len) {
 
-		return NXS_STRING_ERROR_DST_LEN;
+		return NXS_STRING_E_DST_LEN;
 	}
 
 	if(pos == str->len) {
 
-		return nxs_string_char_add_char(str, c);
+		return nxs_string_char_add_char_static(str, c);
 	}
 
 	str->str[pos] = c;
 
-	return str->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_ins_char(nxs_string_t *str, size_t pos, u_char c)
+nxs_string_err_t nxs_string_ins_char_static(nxs_string_t *str, size_t pos, u_char c)
 {
 	size_t i;
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	nxs_string_check_not_created(str);
 
 	if(pos > str->len) {
 
-		return NXS_STRING_ERROR_DST_LEN;
+		return NXS_STRING_E_DST_LEN;
 	}
 
 	if(str->len + 2 > str->size) {
 
-		return NXS_STRING_ERROR_DST_SIZE;
+		return NXS_STRING_E_DST_SIZE;
 	}
 
 	for(i = str->len + 1; i > pos; i--) {
@@ -1049,59 +1052,59 @@ ssize_t nxs_string_ins_char(nxs_string_t *str, size_t pos, u_char c)
 
 	str->len++;
 
-	return str->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_ins_char_dyn(nxs_string_t *str, size_t pos, u_char c)
+nxs_string_err_t nxs_string_ins_char(nxs_string_t *str, size_t pos, u_char c)
 {
-	ssize_t rc;
+	nxs_string_err_t rc;
 
-	if((rc = nxs_string_ins_char(str, pos, c)) == NXS_STRING_ERROR_DST_SIZE) {
+	if((rc = nxs_string_ins_char_static(str, pos, c)) == NXS_STRING_E_DST_SIZE) {
 
 		nxs_string_resize(str, str->len + 2);
 
-		rc = nxs_string_ins_char(str, pos, c);
+		rc = nxs_string_ins_char_static(str, pos, c);
 	}
 
 	return rc;
 }
 
-ssize_t nxs_string_set_len(nxs_string_t *str, size_t len)
+nxs_string_err_t nxs_string_set_len(nxs_string_t *str, size_t len)
 {
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(len >= str->size) {
 
-		return NXS_STRING_ERROR_DST_SIZE;
+		return NXS_STRING_E_DST_SIZE;
 	}
 
 	str->str[len] = '\0';
 
 	str->len = len;
 
-	return str->len;
+	return NXS_STRING_E_OK;
 }
 
-ssize_t nxs_string_len_fix(nxs_string_t *str)
+nxs_string_err_t nxs_string_len_fix(nxs_string_t *str)
 {
 
 	if(str == NULL) {
 
-		return NXS_STRING_ERROR_NULL_PTR;
+		return NXS_STRING_E_NULL_PTR;
 	}
 
 	if(str->size == 0) {
 
-		return NXS_STRING_ERROR_DST_SIZE;
+		return NXS_STRING_E_DST_SIZE;
 	}
 
 	str->str[str->len] = '\0';
 
-	return str->len;
+	return NXS_STRING_E_OK;
 }
 
 u_char nxs_string_get_char(nxs_string_t *str, size_t pos)
@@ -1305,20 +1308,20 @@ size_t nxs_string_subs(nxs_string_t *src, nxs_string_t *dst, nxs_string_t *f_str
 
 	while((c = nxs_string_find_substr_first(src, o, f_str->str, f_str->len)) != NULL && (max_count == 0 || count < max_count)) {
 
-		nxs_string_ncpy_dyn(s, s->len, src, o, c - src->str - o);
+		nxs_string_ncpy(s, s->len, src, o, c - src->str - o);
 
-		nxs_string_cat_dyn(s, d_str);
+		nxs_string_cat(s, d_str);
 
 		o = c - src->str + f_str->len;
 
 		count++;
 	}
 
-	nxs_string_ncpy_dyn(s, s->len, src, o, src->len - o);
+	nxs_string_ncpy(s, s->len, src, o, src->len - o);
 
 	if(dst == NULL) {
 
-		nxs_string_cpy_dyn(src, 0, s, 0);
+		nxs_string_cpy(src, 0, s, 0);
 	}
 
 	return count;
@@ -1342,54 +1345,24 @@ u_char *nxs_string_to_buf(nxs_string_t *str, size_t offset, nxs_buf_t *buf)
 		return NULL;
 	}
 
-	nxs_buf_cpy_dyn(buf, 0, nxs_string_get_substr(str, offset), str->len - offset + 1);
+	nxs_buf_cpy(buf, 0, nxs_string_get_substr(str, offset), str->len - offset + 1);
 
 	return nxs_buf_get_subbuf(buf, 0);
 }
 
-u_char *nxs_string_strerror(int nxs_str_errno)
+u_char *nxs_string_strerror(nxs_string_err_t nxs_string_errno)
 {
+	size_t i;
 
-	switch(nxs_str_errno) {
+	for(i = 0; strerrors[i].error_code != NXS_STRING_E_UNKNOWN; i++) {
 
-		case NXS_STRING_OK:
-			return (u_char *)_NXS_STRING_OK;
+		if(strerrors[i].error_code == nxs_string_errno) {
 
-		case NXS_STRING_ERROR:
-			return (u_char *)_NXS_STRING_ERROR;
-
-		case NXS_STRING_ERROR_NOT_INIT:
-			return (u_char *)_NXS_STRING_ERROR_NOT_INIT;
-
-		case NXS_STRING_ERROR_DST_SIZE:
-			return (u_char *)_NXS_STRING_ERROR_DST_SIZE;
-
-		case NXS_STRING_ERROR_SRC_SIZE:
-			return (u_char *)_NXS_STRING_ERROR_SRC_SIZE;
-
-		case NXS_STRING_ERROR_DST_LEN:
-			return (u_char *)_NXS_STRING_ERROR_DST_LEN;
-
-		case NXS_STRING_ERROR_SRC_LEN:
-			return (u_char *)_NXS_STRING_ERROR_SRC_LEN;
-
-		case NXS_STRING_ERROR_OFFSET:
-			return (u_char *)_NXS_STRING_ERROR_OFFSET;
-
-		case NXS_STRING_ERROR_NOT_CREATED:
-			return (u_char *)_NXS_STRING_ERROR_NOT_CREATED;
-
-		case NXS_STRING_ERROR_NULL_PTR:
-			return (u_char *)_NXS_STRING_ERROR_NULL_PTR;
-
-		case NXS_STRING_ERROR_SPEC_UNKNOWN:
-			return (u_char *)_NXS_STRING_ERROR_SPEC_UNKNOWN;
-
-		case NXS_STRING_ERROR_SPEC_OVERFLOW:
-			return (u_char *)_NXS_STRING_ERROR_SPEC_OVERFLOW;
+			return strerrors[i].text;
+		}
 	}
 
-	return (u_char *)_NXS_STRING_ERROR_UNKNOWN;
+	return strerrors[i].text;
 }
 
 size_t nxs_string_len(nxs_string_t *str)
@@ -1414,23 +1387,23 @@ size_t nxs_string_size(nxs_string_t *str)
 	return str->size;
 }
 
-int nxs_string_check_space(nxs_string_t *str)
+nxs_bool_t nxs_string_check_space(nxs_string_t *str)
 {
 
 	if(str == NULL) {
 
-		return NXS_STRING_FULL;
+		return NXS_NO;
 	}
 
 	if(str->size - str->len > 1) {
 
-		return NXS_STRING_NOT_FULL;
+		return NXS_YES;
 	}
 
-	return NXS_STRING_FULL;
+	return NXS_NO;
 }
 
-ssize_t nxs_string_strftime(nxs_string_t *str, u_char *fmt, time_t t)
+nxs_string_err_t nxs_string_strftime(nxs_string_t *str, u_char *fmt, time_t t)
 {
 	char       s[1024];
 	struct tm *_t;
@@ -1438,10 +1411,10 @@ ssize_t nxs_string_strftime(nxs_string_t *str, u_char *fmt, time_t t)
 	_t = localtime(&t);
 	strftime(s, 1024, (const char *)fmt, _t);
 
-	return nxs_string_printf_dyn(str, "%s", s);
+	return nxs_string_printf(str, "%s", s);
 }
 
-ssize_t nxs_string_fmt_time_interval(nxs_string_t *str, u_char *fmt, time_t sec)
+nxs_string_err_t nxs_string_fmt_time_interval(nxs_string_t *str, u_char *fmt, time_t sec)
 {
 	u_int        i, j, o, s, v[4];
 	nxs_string_t _fmt;
@@ -1488,7 +1461,7 @@ ssize_t nxs_string_fmt_time_interval(nxs_string_t *str, u_char *fmt, time_t sec)
 
 								if(o > 3 || strftime_v[j].o != -1) {
 
-									rc = NXS_STRING_ERROR_SPEC_OVERFLOW;
+									rc = NXS_STRING_E_SPEC_OVERFLOW;
 									goto error;
 								}
 
@@ -1502,7 +1475,7 @@ ssize_t nxs_string_fmt_time_interval(nxs_string_t *str, u_char *fmt, time_t sec)
 
 						if(f == NXS_FALSE) {
 
-							rc = NXS_STRING_ERROR_SPEC_UNKNOWN;
+							rc = NXS_STRING_E_SPEC_UNKNOWN;
 							goto error;
 						}
 
@@ -1540,7 +1513,7 @@ ssize_t nxs_string_fmt_time_interval(nxs_string_t *str, u_char *fmt, time_t sec)
 		v[strftime_v[3].o] = sec;
 	}
 
-	rc = nxs_string_printf_dyn(str, (const char *)nxs_string_str(&_fmt), v[0], v[1], v[2], v[3]);
+	rc = nxs_string_printf(str, (const char *)nxs_string_str(&_fmt), v[0], v[1], v[2], v[3]);
 
 error:
 
@@ -1564,11 +1537,11 @@ void nxs_string_escape(nxs_string_t *str_to, nxs_string_t *str_from, nxs_string_
 
 	if(str_from != NULL) {
 
-		nxs_string_cpy_dyn(&tmp_str, 0, str_from, 0);
+		nxs_string_cpy(&tmp_str, 0, str_from, 0);
 	}
 	else {
 
-		nxs_string_cpy_dyn(&tmp_str, 0, str_to, 0);
+		nxs_string_cpy(&tmp_str, 0, str_to, 0);
 	}
 
 	nxs_string_clear(str_to);
@@ -1581,12 +1554,12 @@ void nxs_string_escape(nxs_string_t *str_to, nxs_string_t *str_from, nxs_string_
 
 			case(u_char)'\\':
 
-				nxs_string_char_cat_dyn(str_to, (u_char *)"\\\\");
+				nxs_string_char_cat(str_to, (u_char *)"\\\\");
 				break;
 
 			case(u_char)'"':
 
-				nxs_string_char_cat_dyn(str_to, (u_char *)"\\\"");
+				nxs_string_char_cat(str_to, (u_char *)"\\\"");
 				break;
 
 			case(u_char)'\'':
@@ -1597,39 +1570,39 @@ void nxs_string_escape(nxs_string_t *str_to, nxs_string_t *str_from, nxs_string_
 				}
 				else {
 
-					nxs_string_char_cat_dyn(str_to, (u_char *)"\\\'");
+					nxs_string_char_cat(str_to, (u_char *)"\\\'");
 				}
 
 				break;
 
 			case(u_char)'/':
 
-				nxs_string_char_cat_dyn(str_to, (u_char *)"\\/");
+				nxs_string_char_cat(str_to, (u_char *)"\\/");
 				break;
 
 			case(u_char)'\b':
 
-				nxs_string_char_cat_dyn(str_to, (u_char *)"\\b");
+				nxs_string_char_cat(str_to, (u_char *)"\\b");
 				break;
 
 			case(u_char)'\f':
 
-				nxs_string_char_cat_dyn(str_to, (u_char *)"\\f");
+				nxs_string_char_cat(str_to, (u_char *)"\\f");
 				break;
 
 			case(u_char)'\n':
 
-				nxs_string_char_cat_dyn(str_to, (u_char *)"\\n");
+				nxs_string_char_cat(str_to, (u_char *)"\\n");
 				break;
 
 			case(u_char)'\r':
 
-				nxs_string_char_cat_dyn(str_to, (u_char *)"\\r");
+				nxs_string_char_cat(str_to, (u_char *)"\\r");
 				break;
 
 			case(u_char)'\t':
 
-				nxs_string_char_cat_dyn(str_to, (u_char *)"\\t");
+				nxs_string_char_cat(str_to, (u_char *)"\\t");
 				break;
 
 			default:
@@ -1641,7 +1614,7 @@ void nxs_string_escape(nxs_string_t *str_to, nxs_string_t *str_from, nxs_string_
 
 		if(f == NXS_YES) {
 
-			nxs_string_char_add_char_dyn(str_to, tmp_str.str[i]);
+			nxs_string_char_add_char(str_to, tmp_str.str[i]);
 		}
 	}
 
@@ -1650,7 +1623,7 @@ void nxs_string_escape(nxs_string_t *str_to, nxs_string_t *str_from, nxs_string_
 
 /* Module internal (static) functions */
 
-static ssize_t nxs_string_vprintf_core_dyn(nxs_string_t *str, size_t offset, const char *fmt, va_list ap)
+static size_t nxs_string_vprintf_core(nxs_string_t *str, size_t offset, const char *fmt, va_list ap)
 {
 	size_t        i, j, k;
 	u_char        zero, *c;
@@ -1793,7 +1766,7 @@ static ssize_t nxs_string_vprintf_core_dyn(nxs_string_t *str, size_t offset, con
 									        precision);
 									sprintf(tmp_str, (const char *)tmp_tpl, lf);
 
-									nxs_string_char_cat_dyn(str, (u_char *)tmp_str);
+									nxs_string_char_cat(str, (u_char *)tmp_str);
 
 									f = NXS_YES;
 
@@ -1866,7 +1839,7 @@ static ssize_t nxs_string_vprintf_core_dyn(nxs_string_t *str, size_t offset, con
 
 						d = (int)va_arg(ap, int);
 
-						nxs_string_char_add_char_dyn(str, (u_char)(d & 0xff));
+						nxs_string_char_add_char(str, (u_char)(d & 0xff));
 
 						f = NXS_YES;
 
@@ -1878,7 +1851,7 @@ static ssize_t nxs_string_vprintf_core_dyn(nxs_string_t *str, size_t offset, con
 
 						for(j = 0; c[j] != (u_char)'\0'; j++) {
 
-							nxs_string_char_add_char_dyn(str, c[j]);
+							nxs_string_char_add_char(str, c[j]);
 						}
 
 						f = NXS_YES;
@@ -1889,7 +1862,7 @@ static ssize_t nxs_string_vprintf_core_dyn(nxs_string_t *str, size_t offset, con
 
 						s = (nxs_string_t *)va_arg(ap, nxs_string_t *);
 
-						nxs_string_cat_dyn(str, s);
+						nxs_string_cat(str, s);
 
 						f = NXS_YES;
 
@@ -1899,7 +1872,7 @@ static ssize_t nxs_string_vprintf_core_dyn(nxs_string_t *str, size_t offset, con
 
 						b = (nxs_buf_t *)va_arg(ap, nxs_buf_t *);
 
-						nxs_string_char_ncat_dyn(str, nxs_buf_get_subbuf(b, 0), nxs_buf_get_len(b));
+						nxs_string_char_ncat(str, nxs_buf_get_subbuf(b, 0), nxs_buf_get_len(b));
 
 						f = NXS_YES;
 
@@ -1914,7 +1887,7 @@ static ssize_t nxs_string_vprintf_core_dyn(nxs_string_t *str, size_t offset, con
 						sprintf(tmp_tpl, NXS_STRING_FLOAT_STR_TPL, zero == '0' ? "0" : "", width, precision);
 						sprintf(tmp_str, (const char *)tmp_tpl, lf);
 
-						nxs_string_char_cat_dyn(str, (u_char *)tmp_str);
+						nxs_string_char_cat(str, (u_char *)tmp_str);
 
 						f = NXS_YES;
 
@@ -1927,7 +1900,7 @@ static ssize_t nxs_string_vprintf_core_dyn(nxs_string_t *str, size_t offset, con
 						sprintf(tmp_tpl, NXS_STRING_HEX_STR_TPL, zero == '0' ? "0" : "", width);
 						sprintf(tmp_str, (const char *)tmp_tpl, i64);
 
-						nxs_string_char_cat_dyn(str, (u_char *)tmp_str);
+						nxs_string_char_cat(str, (u_char *)tmp_str);
 
 						f = NXS_YES;
 
@@ -1940,7 +1913,7 @@ static ssize_t nxs_string_vprintf_core_dyn(nxs_string_t *str, size_t offset, con
 						sprintf(tmp_tpl, NXS_STRING_OCT_STR_TPL, zero == '0' ? "0" : "", width);
 						sprintf(tmp_str, (const char *)tmp_tpl, i64);
 
-						nxs_string_char_cat_dyn(str, (u_char *)tmp_str);
+						nxs_string_char_cat(str, (u_char *)tmp_str);
 
 						f = NXS_YES;
 
@@ -1950,7 +1923,7 @@ static ssize_t nxs_string_vprintf_core_dyn(nxs_string_t *str, size_t offset, con
 
 						if(k == 1) {
 
-							nxs_string_char_add_char_dyn(str, (u_char)'%');
+							nxs_string_char_add_char(str, (u_char)'%');
 
 							f = NXS_YES;
 						}
@@ -1969,12 +1942,12 @@ static ssize_t nxs_string_vprintf_core_dyn(nxs_string_t *str, size_t offset, con
 			}
 			else {
 
-				nxs_string_char_add_char_dyn(str, (u_char)fmt[i]);
+				nxs_string_char_add_char(str, (u_char)fmt[i]);
 			}
 		}
 		else {
 
-			nxs_string_char_add_char_dyn(str, (u_char)fmt[i]);
+			nxs_string_char_add_char(str, (u_char)fmt[i]);
 		}
 	}
 
@@ -2013,17 +1986,17 @@ static void nxs_string_vprintf_uint(nxs_string_t *str, nxs_bool_t sign, uint64_t
 
 	for(l = (tmp + NXS_STRING_MAX_UINT_BUF_SIZE) - s; l < width; l++) {
 
-		nxs_string_char_add_char_dyn(str, zero);
+		nxs_string_char_add_char(str, zero);
 	}
 
 	ls = nxs_string_len(str);
 	l  = (tmp + NXS_STRING_MAX_UINT_BUF_SIZE) - s;
 
-	nxs_string_char_ncpy_dyn(str, ls, s, l);
+	nxs_string_char_ncpy(str, ls, s, l);
 
 	for(l = (tmp + NXS_STRING_MAX_UINT_BUF_SIZE) - s; l < precision; l++) {
 
-		nxs_string_char_add_char_dyn(str, '0');
+		nxs_string_char_add_char(str, '0');
 	}
 }
 

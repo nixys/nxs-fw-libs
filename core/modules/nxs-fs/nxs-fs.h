@@ -64,7 +64,7 @@ struct nxs_fs_file_check_s
 };
 
 #define nxs_fs_open(path, oflag...) \
-			open((char *)nxs_string_get_substr(path, NXS_STRING_NO_OFFSET), oflag)
+			open((char *)nxs_string_get_substr(path, 0), oflag)
 
 #define nxs_fs_close(fd) \
 			close(fd)

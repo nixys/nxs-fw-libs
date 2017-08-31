@@ -98,7 +98,7 @@ int nxs_json_read_file(nxs_process_t *proc, nxs_json_t **json, nxs_string_t *fil
 
 	while((rc = nxs_fs_read_buf(fd, &buf)) > 0) {
 
-		nxs_string_char_ncpy_dyn(&json_text, tb, nxs_buf_get_subbuf(&buf, 0), nxs_buf_get_len(&buf));
+		nxs_string_char_ncpy(&json_text, tb, nxs_buf_get_subbuf(&buf, 0), nxs_buf_get_len(&buf));
 
 		tb += rc;
 	}
@@ -223,7 +223,7 @@ nxs_json_t *nxs_json_child_get_by_key(nxs_json_t *obj, u_char *key)
 
 					json = *j;
 
-					if(nxs_string_char_cmp(&json->key, 0, key) == NXS_STRING_CMP_EQ) {
+					if(nxs_string_char_cmp(&json->key, 0, key) == NXS_YES) {
 
 						return json;
 					}
@@ -761,7 +761,7 @@ static void nxs_json_print_recursive(nxs_process_t *proc, int log_dst, nxs_json_
 
 			val_int = obj->value;
 
-			nxs_string_printf_dyn(&val_str, "%" NXS_JSON_INT_FORMAT, *val_int);
+			nxs_string_printf(&val_str, "%" NXS_JSON_INT_FORMAT, *val_int);
 			val = nxs_string_str(&val_str);
 
 			break;
@@ -772,7 +772,7 @@ static void nxs_json_print_recursive(nxs_process_t *proc, int log_dst, nxs_json_
 
 			val_real = obj->value;
 
-			nxs_string_printf_dyn(&val_str, "%f", *val_real);
+			nxs_string_printf(&val_str, "%f", *val_real);
 			val = nxs_string_str(&val_str);
 
 			break;
@@ -783,7 +783,7 @@ static void nxs_json_print_recursive(nxs_process_t *proc, int log_dst, nxs_json_
 
 			val_bool = obj->value;
 
-			nxs_string_printf_dyn(&val_str, "%d", *val_bool);
+			nxs_string_printf(&val_str, "%d", *val_bool);
 			val = nxs_string_str(&val_str);
 
 			break;
@@ -794,7 +794,7 @@ static void nxs_json_print_recursive(nxs_process_t *proc, int log_dst, nxs_json_
 
 			val_bool = obj->value;
 
-			nxs_string_printf_dyn(&val_str, "%d", *val_bool);
+			nxs_string_printf(&val_str, "%d", *val_bool);
 			val = nxs_string_str(&val_str);
 
 			break;
@@ -829,7 +829,7 @@ static void nxs_json_print_recursive(nxs_process_t *proc, int log_dst, nxs_json_
 
 		len = nxs_string_len(shift);
 
-		nxs_string_char_add_char_dyn(shift, (u_char)'\t');
+		nxs_string_char_add_char(shift, (u_char)'\t');
 
 		for(i = 0; i < count; i++) {
 

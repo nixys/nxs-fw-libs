@@ -434,10 +434,10 @@ int nxs_net_accept(nxs_process_t *proc, nxs_net_server_t *srv, nxs_net_connect_t
 		return NXS_NET_E_ACCEPT;
 	}
 
-	nxs_string_char_cpy_dyn(&con->peer_ip, 0, (u_char *)inet_ntoa(sa.sin_addr));
+	nxs_string_char_cpy(&con->peer_ip, 0, (u_char *)inet_ntoa(sa.sin_addr));
 
 	snprintf((char *)port, 6, "%d", sa.sin_port);
-	nxs_string_char_cpy_dyn(&con->peer_port, 0, (u_char *)port);
+	nxs_string_char_cpy(&con->peer_port, 0, (u_char *)port);
 
 	con->poll_recv = nxs_poll_malloc();
 	nxs_poll_add(con->poll_recv, con->sock, POLLIN);
@@ -505,10 +505,10 @@ int nxs_net_accept2(nxs_process_t *proc, nxs_net_server_t *srv, nxs_net_connect_
 		nxs_proc_signal_block(proc, *sig, NXS_PROCESS_SIG_END_ARGS);
 	}
 
-	nxs_string_char_cpy_dyn(&con->peer_ip, 0, (u_char *)inet_ntoa(sa.sin_addr));
+	nxs_string_char_cpy(&con->peer_ip, 0, (u_char *)inet_ntoa(sa.sin_addr));
 
 	snprintf((char *)port, 6, "%d", sa.sin_port);
-	nxs_string_char_cpy_dyn(&con->peer_port, 0, (u_char *)port);
+	nxs_string_char_cpy(&con->peer_port, 0, (u_char *)port);
 
 	con->poll_recv = nxs_poll_malloc();
 	nxs_poll_add(con->poll_recv, con->sock, POLLIN);
@@ -580,7 +580,7 @@ int nxs_net_connect(nxs_process_t *proc, nxs_net_connect_t *con)
 				nxs_poll_add(con->poll_send, con->sock, POLLIN | POLLOUT);
 
 				ip = (sockaddr_in_t *)p->ai_addr;
-				nxs_string_char_cpy_dyn(&con->peer_ip, 0, (u_char *)inet_ntoa(ip->sin_addr));
+				nxs_string_char_cpy(&con->peer_ip, 0, (u_char *)inet_ntoa(ip->sin_addr));
 
 				freeaddrinfo(r);
 
@@ -588,7 +588,7 @@ int nxs_net_connect(nxs_process_t *proc, nxs_net_connect_t *con)
 			}
 
 			ip = (sockaddr_in_t *)p->ai_addr;
-			nxs_string_char_cpy_dyn(&con->peer_ip, 0, (u_char *)inet_ntoa(ip->sin_addr));
+			nxs_string_char_cpy(&con->peer_ip, 0, (u_char *)inet_ntoa(ip->sin_addr));
 
 			nxs_log_write_debug_net(proc,
 			                        "connect error: %s (ip: %s:%s)",
@@ -727,7 +727,7 @@ int nxs_net_connect2(nxs_process_t *proc, nxs_net_connect_t *con, int timeout)
 				nxs_poll_add(con->poll_send, con->sock, POLLIN | POLLOUT);
 
 				ip = (sockaddr_in_t *)p->ai_addr;
-				nxs_string_char_cpy_dyn(&con->peer_ip, 0, (u_char *)inet_ntoa(ip->sin_addr));
+				nxs_string_char_cpy(&con->peer_ip, 0, (u_char *)inet_ntoa(ip->sin_addr));
 
 				freeaddrinfo(r);
 
@@ -737,7 +737,7 @@ int nxs_net_connect2(nxs_process_t *proc, nxs_net_connect_t *con, int timeout)
 		next_iteration:
 
 			ip = (sockaddr_in_t *)p->ai_addr;
-			nxs_string_char_cpy_dyn(&con->peer_ip, 0, (u_char *)inet_ntoa(ip->sin_addr));
+			nxs_string_char_cpy(&con->peer_ip, 0, (u_char *)inet_ntoa(ip->sin_addr));
 
 			nxs_log_write_debug_net(
 			        proc, "connect attempt failed (ip: %s:%s)", inet_ntoa(ip->sin_addr), nxs_string_str(&con->peer_port));
@@ -1314,7 +1314,7 @@ int nxs_net_unix_accept(nxs_process_t *proc, nxs_net_unix_server_t *srv, nxs_net
 		return NXS_NET_E_ACCEPT;
 	}
 
-	nxs_string_char_cpy_dyn(&con->sock_path, 0, nxs_string_str(&srv->l_sock_path));
+	nxs_string_char_cpy(&con->sock_path, 0, nxs_string_str(&srv->l_sock_path));
 
 	con->poll_recv = nxs_poll_malloc();
 	nxs_poll_add(con->poll_recv, con->sock, POLLIN);
@@ -1380,7 +1380,7 @@ int nxs_net_unix_accept2(nxs_process_t *        proc,
 		nxs_proc_signal_block(proc, *sig, NXS_PROCESS_SIG_END_ARGS);
 	}
 
-	nxs_string_char_cpy_dyn(&con->sock_path, 0, nxs_string_str(&srv->l_sock_path));
+	nxs_string_char_cpy(&con->sock_path, 0, nxs_string_str(&srv->l_sock_path));
 
 	con->poll_recv = nxs_poll_malloc();
 	nxs_poll_add(con->poll_recv, con->sock, POLLIN);
@@ -2389,14 +2389,14 @@ int nxs_net_recv_file(nxs_process_t *proc, nxs_net_connect_t *con, nxs_net_opt_f
 
 	name = nxs_metadata_get_name(pmd);
 
-	nxs_string_cpy_dyn(&path, 0, opt->r_dir, 0);
+	nxs_string_cpy(&path, 0, opt->r_dir, 0);
 
 	if(nxs_string_get_char(&path, nxs_string_len(&path) - 1) != '/') {
 
-		nxs_string_char_add_char_dyn(&path, (u_char)'/');
+		nxs_string_char_add_char(&path, (u_char)'/');
 	}
 
-	nxs_string_cat_dyn(&path, name);
+	nxs_string_cat(&path, name);
 
 	if((ofd = nxs_fs_open(&path, O_WRONLY | O_CREAT | O_TRUNC, _NXS_NET_DEFAULT_PERM)) < 0) {
 
@@ -3281,7 +3281,7 @@ static int nxs_net_header_parse(nxs_net_connect_t *con, nxs_buf_t *buf, nxs_net_
 		return NXS_NET_E_BUF_INCORRECT_SIZE;
 	}
 
-	if(nxs_string_char_ncmp(&con->header, 0, nxs_buf_get_subbuf(buf, 0), nxs_string_len(&con->header)) == NXS_STRING_CMP_NE) {
+	if(nxs_string_char_ncmp(&con->header, 0, nxs_buf_get_subbuf(buf, 0), nxs_string_len(&con->header)) == NXS_NO) {
 
 		return NXS_NET_E_HEADER_INCORRECT;
 	}

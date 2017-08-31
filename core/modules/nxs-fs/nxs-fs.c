@@ -33,7 +33,7 @@
 nxs_fs_dir_t *nxs_fs_opendir(nxs_string_t *path)
 {
 
-	return (nxs_fs_dir_t *)opendir((char *)nxs_string_get_substr(path, NXS_STRING_NO_OFFSET));
+	return (nxs_fs_dir_t *)opendir((char *)nxs_string_get_substr(path, 0));
 }
 
 int nxs_fs_closedir(nxs_fs_dir_t *dir)
@@ -45,7 +45,7 @@ int nxs_fs_closedir(nxs_fs_dir_t *dir)
 nxs_fs_file_t *nxs_fs_fopen(nxs_string_t *path, u_char *mode)
 {
 
-	return (nxs_fs_file_t *)fopen((char *)nxs_string_get_substr(path, NXS_STRING_NO_OFFSET), (char *)mode);
+	return (nxs_fs_file_t *)fopen((char *)nxs_string_get_substr(path, 0), (char *)mode);
 }
 
 int nxs_fs_fclose(nxs_fs_file_t *fp)
@@ -372,7 +372,7 @@ ssize_t nxs_fs_read_file_to_str(nxs_string_t *path, nxs_string_t *str)
 
 	while((bc = read(fd, buf, NXS_FS_BUF_SIZE)) > 0) {
 
-		nxs_string_char_ncat_dyn(str, buf, bc);
+		nxs_string_char_ncat(str, buf, bc);
 	}
 
 	if(bc == -1) {
@@ -434,7 +434,7 @@ int nxs_fs_readdir(nxs_fs_dir_t *dir, nxs_fs_dirent_t *entry, int mode_set)
 				entry->d_reclen = dir_entry->d_reclen;
 				entry->d_type   = dir_entry->d_type;
 
-				nxs_string_char_cpy(entry->d_name, NXS_STRING_NO_OFFSET, (u_char *)dir_entry->d_name);
+				nxs_string_char_cpy_static(entry->d_name, 0, (u_char *)dir_entry->d_name);
 
 				return 0;
 
@@ -449,7 +449,7 @@ int nxs_fs_readdir(nxs_fs_dir_t *dir, nxs_fs_dirent_t *entry, int mode_set)
 					entry->d_reclen = dir_entry->d_reclen;
 					entry->d_type   = dir_entry->d_type;
 
-					nxs_string_char_cpy(entry->d_name, NXS_STRING_NO_OFFSET, (u_char *)dir_entry->d_name);
+					nxs_string_char_cpy_static(entry->d_name, 0, (u_char *)dir_entry->d_name);
 
 					return 0;
 				}
@@ -478,25 +478,25 @@ int nxs_fs_readdir(nxs_fs_dir_t *dir, nxs_fs_dirent_t *entry, int mode_set)
 int nxs_fs_stat(nxs_string_t *file, nxs_fs_stat_t *buf)
 {
 
-	return stat((char *)nxs_string_get_substr(file, NXS_STRING_NO_OFFSET), (struct stat *)buf);
+	return stat((char *)nxs_string_get_substr(file, 0), (struct stat *)buf);
 }
 
 int nxs_fs_lstat(nxs_string_t *file, nxs_fs_stat_t *buf)
 {
 
-	return lstat((char *)nxs_string_get_substr(file, NXS_STRING_NO_OFFSET), (struct stat *)buf);
+	return lstat((char *)nxs_string_get_substr(file, 0), (struct stat *)buf);
 }
 
 int nxs_fs_unlink(nxs_string_t *file)
 {
 
-	return unlink((char *)nxs_string_get_substr(file, NXS_STRING_NO_OFFSET));
+	return unlink((char *)nxs_string_get_substr(file, 0));
 }
 
 int nxs_fs_rmdir(nxs_string_t *dir)
 {
 
-	return rmdir((char *)nxs_string_get_substr(dir, NXS_STRING_NO_OFFSET));
+	return rmdir((char *)nxs_string_get_substr(dir, 0));
 }
 
 /*
@@ -702,9 +702,9 @@ int nxs_fs_getcwd(nxs_string_t *pwd)
 		return -1;
 	}
 
-	nxs_string_char_cpy_dyn(pwd, 0, c_pwd);
+	nxs_string_char_cpy(pwd, 0, c_pwd);
 
-	nxs_string_char_add_char_dyn(pwd, (u_char)'/');
+	nxs_string_char_add_char(pwd, (u_char)'/');
 
 	return 0;
 }

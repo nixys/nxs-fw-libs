@@ -116,7 +116,7 @@ pid_t nxs_proc_fork(nxs_process_t *proc, int sigsave, u_char *ps_child_name)
 
 		if(ps_child_name != NULL) {
 
-			nxs_string_char_cpy_dyn(proc->ps_name, NXS_STRING_NO_OFFSET, ps_child_name);
+			nxs_string_char_cpy(proc->ps_name, 0, ps_child_name);
 		}
 
 		if(sigsave == NXS_PROCESS_CHLD_SIG_CLEAR) {

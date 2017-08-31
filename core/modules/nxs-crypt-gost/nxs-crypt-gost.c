@@ -311,7 +311,7 @@ int nxs_crypt_gost_key_read(nxs_process_t *proc, nxs_string_t *key, nxs_string_t
 		}
 	}
 
-	nxs_string_char_ncpy_dyn(key, NXS_STRING_NO_OFFSET, key_buf, NXS_CRYPT_GOST_KEY_STRING_LEN);
+	nxs_string_char_ncpy(key, 0, key_buf, NXS_CRYPT_GOST_KEY_STRING_LEN);
 
 	return NXS_CRYPT_GOST_E_OK;
 }
@@ -331,7 +331,7 @@ void nxs_crypt_gost_key_gen(nxs_string_t *key)
 
 		sprintf((char *)keyBuf, "%.10u", rnd);
 
-		nxs_string_char_cat_dyn(key, keyBuf);
+		nxs_string_char_cat(key, keyBuf);
 	}
 
 	for(i = 0; i < NXS_CRYPT_GOST_S_LINES; i++) {
@@ -342,7 +342,7 @@ void nxs_crypt_gost_key_gen(nxs_string_t *key)
 
 			sprintf((char *)keyBuf, "%.2u", rnd);
 
-			nxs_string_char_cat_dyn(key, keyBuf);
+			nxs_string_char_cat(key, keyBuf);
 		}
 	}
 }

@@ -503,7 +503,7 @@ u_char *nxs_buf_to_string(nxs_buf_t *buf, size_t offset, nxs_string_t *str)
 		len = buf->len;
 	}
 
-	nxs_string_char_ncpy_dyn(str, 0, buf->data + offset, len - offset);
+	nxs_string_char_ncpy(str, 0, buf->data + offset, len - offset);
 
 	return nxs_string_str(str);
 }

@@ -454,7 +454,7 @@ int nxs_metadata_fill(nxs_metadata_t *md, nxs_metadata_v_t version, nxs_string_t
 			}
 			else {
 
-				nxs_string_char_cpy_dyn(&md_v3->uname, 0, (u_char *)(usr->pw_name));
+				nxs_string_char_cpy(&md_v3->uname, 0, (u_char *)(usr->pw_name));
 			}
 
 			if((grp = getgrgid(f_stat.st_gid)) == NULL) {
@@ -463,7 +463,7 @@ int nxs_metadata_fill(nxs_metadata_t *md, nxs_metadata_v_t version, nxs_string_t
 			}
 			else {
 
-				nxs_string_char_cpy_dyn(&md_v3->gname, 0, (u_char *)(grp->gr_name));
+				nxs_string_char_cpy(&md_v3->gname, 0, (u_char *)(grp->gr_name));
 			}
 
 			md_v3->mode  = f_stat.st_mode;
@@ -883,7 +883,7 @@ int nxs_metadata_set_name(nxs_metadata_t *md, nxs_string_t *name)
 
 			md_v1 = md->m_data;
 
-			nxs_string_cpy_dyn(&md_v1->name, 0, name, 0);
+			nxs_string_cpy(&md_v1->name, 0, name, 0);
 
 			return NXS_METADATA_E_OK;
 
@@ -891,7 +891,7 @@ int nxs_metadata_set_name(nxs_metadata_t *md, nxs_string_t *name)
 
 			md_v2 = md->m_data;
 
-			nxs_string_cpy_dyn(&md_v2->name, 0, name, 0);
+			nxs_string_cpy(&md_v2->name, 0, name, 0);
 
 			return NXS_METADATA_E_OK;
 
@@ -899,7 +899,7 @@ int nxs_metadata_set_name(nxs_metadata_t *md, nxs_string_t *name)
 
 			md_v3 = md->m_data;
 
-			nxs_string_cpy_dyn(&md_v3->name, 0, name, 0);
+			nxs_string_cpy(&md_v3->name, 0, name, 0);
 
 			return NXS_METADATA_E_OK;
 	}
@@ -935,7 +935,7 @@ int nxs_metadata_set_uname(nxs_metadata_t *md, nxs_string_t *uname)
 
 			md_v3 = md->m_data;
 
-			nxs_string_cpy_dyn(&md_v3->uname, 0, uname, 0);
+			nxs_string_cpy(&md_v3->uname, 0, uname, 0);
 
 			return NXS_METADATA_E_OK;
 	}
@@ -971,7 +971,7 @@ int nxs_metadata_set_gname(nxs_metadata_t *md, nxs_string_t *gname)
 
 			md_v3 = md->m_data;
 
-			nxs_string_cpy_dyn(&md_v3->gname, 0, gname, 0);
+			nxs_string_cpy(&md_v3->gname, 0, gname, 0);
 
 			return NXS_METADATA_E_OK;
 	}

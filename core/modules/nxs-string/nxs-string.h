@@ -24,29 +24,32 @@
 
 #include <nxs-core/nxs-core.h>
 
-#define NXS_STRING_OK				0
+enum nxs_string_err_e
+{
+	NXS_STRING_E_OK,
+	NXS_STRING_E_ERR,
+	NXS_STRING_E_NOT_INIT,
+	NXS_STRING_E_DST_SIZE,
+	NXS_STRING_E_SRC_SIZE,
+	NXS_STRING_E_DST_LEN,
+	NXS_STRING_E_SRC_LEN,
+	NXS_STRING_E_OFFSET,
+	NXS_STRING_E_NOT_CREATED,
+	NXS_STRING_E_NULL_PTR,
+	NXS_STRING_E_SPEC_UNKNOWN,
+	NXS_STRING_E_SPEC_OVERFLOW,
+	NXS_STRING_E_UNKNOWN,
+};
 
-#define NXS_STRING_ERROR			-1
-#define NXS_STRING_ERROR_NOT_INIT		-2
-#define NXS_STRING_ERROR_DST_SIZE		-3
-#define NXS_STRING_ERROR_SRC_SIZE		-4
-#define NXS_STRING_ERROR_DST_LEN		-5
-#define NXS_STRING_ERROR_SRC_LEN		-6
-#define NXS_STRING_ERROR_OFFSET			-7
-#define NXS_STRING_ERROR_NOT_CREATED		-8
-#define NXS_STRING_ERROR_NULL_PTR		-9
-#define NXS_STRING_ERROR_SPEC_UNKNOWN		-10
-#define NXS_STRING_ERROR_SPEC_OVERFLOW		-11
-
-#define NXS_STRING_CMP_EQ			0
-#define NXS_STRING_CMP_NE			1
-
-#define NXS_STRING_NOT_FULL			0
-#define NXS_STRING_FULL				1
-
-#define NXS_STRING_NO_OFFSET			0
+enum nxs_string_escape_types_e
+{
+	NXS_STRING_ESCAPE_TYPE_GENERIC,		/**<  GENERIC */
+	NXS_STRING_ESCAPE_TYPE_JSON		/**<  JSON */
+};
 
 #define NXS_STRING_EMPTY_STR			(u_char *)""
+
+#define NXS_STRING_NULL_STR			{NULL, 0, 0}
 
 #define	nxs_string(str)				{(u_char *)str, sizeof(str) - 1, sizeof(str)}
 
@@ -57,23 +60,17 @@ struct nxs_string_s
 	size_t	size;				/**< The amount of allocated memory for #str */
 };
 
-enum nxs_string_escape_types_e
-{
-	NXS_STRING_ESCAPE_TYPE_GENERIC,		/**<  GENERIC */
-	NXS_STRING_ESCAPE_TYPE_JSON		/**<  JSON */
-};
-
 #define nxs_string_atoi(str) \
-			atoi((char *)nxs_string_get_substr(str, NXS_STRING_NO_OFFSET))
+			atoi((char *)nxs_string_get_substr(str, 0))
 
 #define nxs_string_atof(str) \
-			atof((char *)nxs_string_get_substr(str, NXS_STRING_NO_OFFSET))
+			atof((char *)nxs_string_get_substr(str, 0))
 
 #define nxs_string_str(str) \
-			nxs_string_get_substr(str, NXS_STRING_NO_OFFSET)
+			nxs_string_get_substr(str, 0)
 
-#define nxs_string_printf2_cat_dyn(str, msg...) \
-			nxs_string_printf2_dyn(str, nxs_string_len(str), msg)
+#define nxs_string_printf2_cat(str, msg...) \
+			nxs_string_printf2(str, nxs_string_len(str), msg)
 
 /**
  * @brief Allocates memory for a new string and fills it with data from an u_char array.
@@ -189,11 +186,11 @@ void				nxs_string_init				(nxs_string_t *str);
  * @param new_str Pointer to source u_char array.
  *
  * @return
- * * On succes, the new length of the \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If \b str is a null pointer.
+ * * \b NXS_STRING_E_OK		- On succes.
+ * * \b NXS_STRING_E_NULL_PTR	- If \b str is a null pointer.
  * * To see other possible error return values, view the returns of nxs_string_create().
  */
-ssize_t				nxs_string_init2			(nxs_string_t *str, size_t size, u_char *new_str);
+nxs_string_err_t		nxs_string_init2			(nxs_string_t *str, size_t size, u_char *new_str);
 
 /**
  * @brief Zero-initializes a string and fills it with data from another string.
@@ -238,10 +235,10 @@ ssize_t				nxs_string_init2			(nxs_string_t *str, size_t size, u_char *new_str);
  * @param src Pointer to the source string
  *
  * @return
- * * On succes, the new length of the \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b str or \src is a null pointer.
+ * * \b NXS_STRING_E_OK		- On succes.
+ * * \b NXS_STRING_R_NULL_PTR 	- If either \b str or \src is a null pointer.
  */
-ssize_t				nxs_string_init3			(nxs_string_t *str, nxs_string_t *src);
+nxs_string_err_t		nxs_string_init3			(nxs_string_t *str, nxs_string_t *src);
 
 /**
  * @brief Zero-initializes a string and fills it with empty string.
@@ -256,17 +253,17 @@ ssize_t				nxs_string_init3			(nxs_string_t *str, nxs_string_t *src);
  * @param str Pointer to the string to be initialized.
  *
  * @return
- * * On succes, the new length of the \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b str is a null pointer.
+ * * \b NXS_STRING_E_OK		- On succes.
+ * * \b NXS_STRING_E_NULL_PTR 	- If either \b str is a null pointer.
  */
-ssize_t				nxs_string_init_empty			(nxs_string_t *str);
+nxs_string_err_t		nxs_string_init_empty			(nxs_string_t *str);
 
 /**
  * @brief Creates a string from an u_char array.
  *
  * To prevent memory leaks \b str must be zero-initialized before calling this function.
  *
- * If \b str is not zero-initialized, \b NXS_STRING_ERROR_NOT_INIT will be returned.
+ * If \b str is not zero-initialized, \b NXS_STRING_E_NOT_INIT will be returned.
  *
  * If \b new_str != \b NULL and \b size == 0, the size of \b str will be counted automatically as the length of \b new_str + 1.
  *
@@ -281,12 +278,13 @@ ssize_t				nxs_string_init_empty			(nxs_string_t *str);
  * @param new_str Pointer to source u_char array.
  *
  * @return
- * * \b NXS_STRING_ERROR_NOT_INIT 	- If \b str is not zero-initialized.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_DST_SIZE 	- If \b new_str is larger than \b size.
- * * NXS_STRING_ERROR_NOT_CREATED 	- If \b new_str == \b NULL and \b size == 0.
+ * * \b NXS_STRING_E_OK			- On succes.
+ * * \b NXS_STRING_E_NOT_INIT 		- If \b str is not zero-initialized.
+ * * \b NXS_STRING_E_NULL_PTR 		- If \b str is a null pointer.
+ * * \b NXS_STRING_E_DST_SIZE 		- If \b new_str is larger than \b size.
+ * * \b NXS_STRING_E_NOT_CREATED 	- If \b new_str == \b NULL and \b size == 0.
  */
-ssize_t				nxs_string_create			(nxs_string_t *str, size_t size, u_char *new_str);
+nxs_string_err_t		nxs_string_create			(nxs_string_t *str, size_t size, u_char *new_str);
 
 /**
  * @brief Deallocates memory for a string and zero-initializes it
@@ -300,11 +298,11 @@ ssize_t				nxs_string_create			(nxs_string_t *str, size_t size, u_char *new_str)
  * @param str Pointer to the string.
  *
  * @return
- * * \b NXS_STRING_OK - on success.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_NOT_CREATED 	- If string has already been freed or zero-initialized and not created yet.
+ * * \b NXS_STRING_E_OK			- On success.
+ * * \b NXS_STRING_E_NULL_PTR 		- If \b str is a null pointer.
+ * * \b NXS_STRING_E_NOT_CREATED 	- If string has already been freed or zero-initialized and not created yet.
  */
-int				nxs_string_free				(nxs_string_t *str);
+nxs_string_err_t		nxs_string_free				(nxs_string_t *str);
 
 /**
  * @brief Resizes a string
@@ -319,11 +317,11 @@ int				nxs_string_free				(nxs_string_t *str);
  * @param new_size New size of the string.
  *
  * @return
- * * On success, the new size value of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_NOT_CREATED 	- If string already freed or initialized and not created yet
+ * * \b NXS_STRING_E_OK			- On success.
+ * * \b NXS_STRING_E_NULL_PTR 		- If \b str is a null pointer.
+ * * \b NXS_STRING_E_NOT_CREATED 	- If string already freed or initialized and not created yet
  */
-ssize_t				nxs_string_resize			(nxs_string_t *str, size_t new_size);
+nxs_string_err_t		nxs_string_resize			(nxs_string_t *str, size_t new_size);
 
 /**
 * @brief Clears the contents of a string.
@@ -335,11 +333,11 @@ ssize_t				nxs_string_resize			(nxs_string_t *str, size_t new_size);
 * @param str Pointer to the string.
 *
 * @return
-* * \b NXS_STRING_OK - On success.
-* * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
-* * \b NXS_STRING_ERROR_NOT_CREATED 	- If the \b str pointer is already clear, freed or created but not initialized yet
+* * \b NXS_STRING_E_OK 			- On success.
+* * \b NXS_STRING_E_NULL_PTR 		- If \b str is a null pointer.
+* * \b NXS_STRING_E_NOT_CREATED 	- If the \b str pointer is already clear, freed or created but not initialized yet
 */
-int				nxs_string_clear			(nxs_string_t *str);
+nxs_string_err_t		nxs_string_clear			(nxs_string_t *str);
 
 /**
  * @brief Prints formatted data to string \b str according to a format specified in \b msg.
@@ -376,10 +374,9 @@ int				nxs_string_clear			(nxs_string_t *str);
  * @param ... Additional arguments values to be used to replace format specifiers in the format string \b msg.
  *
  * @return
- * * On success, the new length of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
+ * The new length of \b str.
  */
-ssize_t				nxs_string_printf_dyn			(nxs_string_t *str, const char *msg, ...);
+size_t				nxs_string_printf			(nxs_string_t *str, const char *msg, ...);
 
 /**
  * @brief Prints formatted data to string \b str (with specified \b offset) according to a format specified in \b msg.
@@ -417,15 +414,14 @@ ssize_t				nxs_string_printf_dyn			(nxs_string_t *str, const char *msg, ...);
  * @param ... Additional arguments values to be used to replace format specifiers in the format string \b msg.
  *
  * @return
- * * On success, the new length of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
+ * The new length of \b str.
  */
-ssize_t				nxs_string_printf2_dyn			(nxs_string_t *str, size_t offset, const char *msg, ...);
+size_t				nxs_string_printf2			(nxs_string_t *str, size_t offset, const char *msg, ...);
 
 /**
  * @brief Prints formatted data to string \b str according to a format specified in \b msg.
  *
- * This function is equivalent to the function nxs_string_printf_dyn(), except that they are called with a va_list instead of a
+ * This function is equivalent to the function nxs_string_printf(), except that they are called with a va_list instead of a
  * variable number of arguments. These function do not call the va_end macro.
  *
  * The size of \b str is increased dynamically by calling nxs_string_resize() function, if it's necessary.
@@ -435,10 +431,9 @@ ssize_t				nxs_string_printf2_dyn			(nxs_string_t *str, size_t offset, const cha
  * @param ap va_list to be used to replace format specifiers in the format string \b msg.
  *
  * @return
- * * On success, the new length of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
+ * The new length of \b str.
  */
-ssize_t				nxs_string_vprintf_dyn			(nxs_string_t *str, const char *fmt, va_list ap);
+size_t				nxs_string_vprintf			(nxs_string_t *str, const char *fmt, va_list ap);
 
 /**
  * @brief Clone the source string \b src to destination string \b dst,
@@ -450,10 +445,10 @@ ssize_t				nxs_string_vprintf_dyn			(nxs_string_t *str, const char *fmt, va_list
  * @param src Pointer to the source string.
  *
  * @return
- * * On success, the new length value of \b dst.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b dst or \b src is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_NULL_PTR 	- If either \b dst or \b src is a null pointer.
  */
-ssize_t				nxs_string_clone			(nxs_string_t *dst, nxs_string_t *src);
+nxs_string_err_t		nxs_string_clone			(nxs_string_t *dst, nxs_string_t *src);
 
 /**
  * @brief Copies the data from a source string \b src with offset \b offset_src to destination string \b dst with offset \b offset_dst.
@@ -464,12 +459,12 @@ ssize_t				nxs_string_clone			(nxs_string_t *dst, nxs_string_t *src);
  * @param offset_src Offset from the beginning of \b src.
  *
  * @return
- * * On success, the new length value of \b dst.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b dst or \b src is a null pointer.
- * * \b NXS_STRING_ERROR_OFFSET 	- If either \b offset_dst or \b offset_src is greater than the length of the correspondig string.
- * * \b NXS_STRING_ERROR_DST_SIZE 	- If the result size of \b dst is greater than its possible size.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_NULL_PTR 	- If either \b dst or \b src is a null pointer.
+ * * \b NXS_STRING_E_OFFSET 	- If either \b offset_dst or \b offset_src is greater than the length of the correspondig string.
+ * * \b NXS_STRING_E_DST_SIZE 	- If the result size of \b dst is greater than its possible size.
  */
-ssize_t				nxs_string_cpy				(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src);
+nxs_string_err_t		nxs_string_cpy_static			(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src);
 
 /**
  * @brief Copies the data from a source string \b src with offset \b offset_src to destination string \b dst with offset \b offset_dst,
@@ -483,11 +478,11 @@ ssize_t				nxs_string_cpy				(nxs_string_t *dst, size_t offset_dst, nxs_string_t
  * @param offset_src Offset from the beginning of \b src.
  *
  * @return
- * * On success, the new length value of \b dst.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b dst or \b src is a null pointer.
- * * \b NXS_STRING_ERROR_OFFSET 	- If either \b offset_dst or \b offset_src is greater than the length of the correspondig string.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_NULL_PTR 	- If either \b dst or \b src is a null pointer.
+ * * \b NXS_STRING_E_OFFSET 	- If either \b offset_dst or \b offset_src is greater than the length of the correspondig string.
  */
-ssize_t				nxs_string_cpy_dyn			(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src);
+nxs_string_err_t		nxs_string_cpy				(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src);
 
 
 /**
@@ -501,12 +496,12 @@ ssize_t				nxs_string_cpy_dyn			(nxs_string_t *dst, size_t offset_dst, nxs_strin
  * @param n Number of characters to copy.
  *
  * @return
- * * On success, the new length value of \b dst.
- * * \b NXS_STRING_ERROR_OFFSET 	- If \b offset_dst is greater than the length of \b dst.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b dst or \b src is a null pointer.
- * * \b NXS_STRING_ERROR_DST_SIZE 	- If the result size of \b dst is greater than its possible size.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_OFFSET 	- If \b offset_dst is greater than the length of \b dst.
+ * * \b NXS_STRING_E_NULL_PTR 	- If either \b dst or \b src is a null pointer.
+ * * \b NXS_STRING_E_DST_SIZE 	- If the result size of \b dst is greater than its possible size.
  */
-ssize_t				nxs_string_ncpy				(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n);
+nxs_string_err_t		nxs_string_ncpy_static			(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n);
 
 /**
  * @brief Copies at most \b n of characters from a source string \b src with offset \b offset_src to destination
@@ -521,13 +516,12 @@ ssize_t				nxs_string_ncpy				(nxs_string_t *dst, size_t offset_dst, nxs_string_
  * @param n Number of characters to copy.
  *
  * @return
- * * On success, the new length value of \b dst.
- * * \b NXS_STRING_ERROR_OFFSET 	- If \b offset_dst is greater than the length of \b dst.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b dst or \b src is a null pointer.
- * * \b NXS_STRING_ERROR_DST_SIZE 	- If the result size of \b dst is greater than its possible size.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_OFFSET 	- If \b offset_dst is greater than the length of \b dst.
+ * * \b NXS_STRING_E_NULL_PTR 	- If either \b dst or \b src is a null pointer.
+ * * \b NXS_STRING_E_DST_SIZE 	- If the result size of \b dst is greater than its possible size.
  */
-ssize_t				nxs_string_ncpy_dyn			(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n);
-
+nxs_string_err_t		nxs_string_ncpy				(nxs_string_t *dst, size_t offset_dst, nxs_string_t *src, size_t offset_src, size_t n);
 
 /**
  * @brief Concatenates two strings.
@@ -538,11 +532,11 @@ ssize_t				nxs_string_ncpy_dyn			(nxs_string_t *dst, size_t offset_dst, nxs_stri
  * @param src Pointer to the source string.
  *
  * @return
- * * On success, the new length value of \b dst.
- * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b dst is greater than its possible size.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b dst or \b src is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_DST_SIZE	- If the result size of \b dst is greater than its possible size.
+ * * \b NXS_STRING_E_NULL_PTR	- If either \b dst or \b src is a null pointer.
  */
-ssize_t				nxs_string_cat				(nxs_string_t *dst, nxs_string_t *src);
+nxs_string_err_t		nxs_string_cat_static			(nxs_string_t *dst, nxs_string_t *src);
 
 /**
  * @brief Concatenates two strings, dynamically increasing the size of the \b dst string if it's necessary.
@@ -555,10 +549,10 @@ ssize_t				nxs_string_cat				(nxs_string_t *dst, nxs_string_t *src);
  * @param src Pointer to the source string.
  *
  * @return
- * * On success, the new length value of \b dst.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b dst or \b src is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_NULL_PTR	- If either \b dst or \b src is a null pointer.
  */
-ssize_t				nxs_string_cat_dyn			(nxs_string_t *dst, nxs_string_t *src);
+nxs_string_err_t		nxs_string_cat				(nxs_string_t *dst, nxs_string_t *src);
 
 /**
  * @brief Appends at most \b n characters from the \b src string to the \b dst string.
@@ -568,11 +562,11 @@ ssize_t				nxs_string_cat_dyn			(nxs_string_t *dst, nxs_string_t *src);
  * @param n Number of bytes from \b src to add to \b dst
  *
  * @return
- * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b dst or \b src is a null pointer.
- * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b dst is greater than its possible size.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_NULL_PTR	- If either \b dst or \b src is a null pointer.
+ * * \b NXS_STRING_E_DST_SIZE	- If the result size of \b dst is greater than its possible size.
  */
-ssize_t				nxs_string_ncat				(nxs_string_t *dst, nxs_string_t *src, size_t n);
+nxs_string_err_t		nxs_string_ncat_static			(nxs_string_t *dst, nxs_string_t *src, size_t n);
 
 /**
  * @brief Appends at most \b n characters from the \b src string to the \b dst string,
@@ -585,10 +579,10 @@ ssize_t				nxs_string_ncat				(nxs_string_t *dst, nxs_string_t *src, size_t n);
  * @param n Number of bytes from \b src to add to \b dst
  *
  * @return
- * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b dst or \b src is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_NULL_PTR	- If either \b dst or \b src is a null pointer.
  */
-ssize_t				nxs_string_ncat_dyn			(nxs_string_t *dst, nxs_string_t *src, size_t n);
+nxs_string_err_t		nxs_string_ncat				(nxs_string_t *dst, nxs_string_t *src, size_t n);
 
 /**
  * @brief Compares two strings with specified offsets.
@@ -603,12 +597,12 @@ ssize_t				nxs_string_ncat_dyn			(nxs_string_t *dst, nxs_string_t *src, size_t n
  * @param offset2 Offset from the beginning of \b str2
  *
  * @return
- * * \b NXS_STRING_CMP_EQ 		- If the compared strings are equal.
- * * \b NXS_STRING_CMP_NE 		- If the compared strings are not equal.
- * * \b NXS_STRING_ERROR_OFFSET 	- If \b offset1 or \b offset2 is greater than the length of the correspondig string.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str1 or \b str2 is a null pointer.
+ * * \b NXS_YES or NXS_TRUE 		- If the compared strings are equal.
+ * * \b NXS_NO or NXS_FALSE 		- If the compared strings are not equal.
+ * 						Or if \b offset1 or \b offset2 is greater than the length of the correspondig string.
+ * 						Or if either \b str1 or \b str2 is a null pointer.
  */
-int				nxs_string_cmp				(nxs_string_t *str1, size_t offset1, nxs_string_t *str2, size_t offset2);
+nxs_bool_t			nxs_string_cmp				(nxs_string_t *str1, size_t offset1, nxs_string_t *str2, size_t offset2);
 
 /**
  * @brief Compares \b n (at most) characters of two strings with specified offsets.
@@ -624,12 +618,12 @@ int				nxs_string_cmp				(nxs_string_t *str1, size_t offset1, nxs_string_t *str2
  * @param n Number of bytes to compare
  *
  * @return
- * * \b NXS_STRING_CMP_EQ 		- If the compared strings are equal.
- * * \b NXS_STRING_CMP_NE 		- If the compared strings are not equal.
- * * \b NXS_STRING_ERROR_OFFSET 	- If \b offset1 or \b offset2 is greater than the length of the correspondig string.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str1 or \b str2 is a null pointer.
+ * * \b NXS_YES or NXS_TRUE 		- If the compared strings are equal.
+ * * \b NXS_NO or NXS_FALSE 		- If the compared strings are not equal.
+ * 						Or if \b offset1 or \b offset2 is greater than the length of the correspondig string.
+ * 						Or if either \b str1 or \b str2 is a null pointer.
  */
-int				nxs_string_ncmp				(nxs_string_t *str1, size_t offset, nxs_string_t *str2, size_t offset2, size_t n);
+nxs_bool_t			nxs_string_ncmp				(nxs_string_t *str1, size_t offset, nxs_string_t *str2, size_t offset2, size_t n);
 
 /**
  * @brief Copies the u_char array \b ch_str, excluding the terminating null byte ('\0'), to a string \b str with specified \b offset.
@@ -639,12 +633,12 @@ int				nxs_string_ncmp				(nxs_string_t *str1, size_t offset, nxs_string_t *str2
  * @param ch_str Pointer to source u_char array.
  *
  * @return
- * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_OFFSET - If \b offset is greater than the length of the string.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b str or \b ch_str is a null pointer.
- * * \b NXS_STRING_ERROR_DST_SIZE 	- If the result size of \b str is greater than its possible size.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_OFFSET 	- If \b offset is greater than the length of the string.
+ * * \b NXS_STRING_E_NULL_PTR 	- If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_STRING_E_DST_SIZE 	- If the result size of \b str is greater than its possible size.
  */
-ssize_t				nxs_string_char_cpy			(nxs_string_t *str, size_t offset, u_char *ch_str);
+nxs_string_err_t		nxs_string_char_cpy_static		(nxs_string_t *str, size_t offset, u_char *ch_str);
 
 /**
  * @brief Copies the u_char array \b ch_str, excluding the terminating null byte ('\0'), to a string \b str with specified \b offset,
@@ -657,11 +651,11 @@ ssize_t				nxs_string_char_cpy			(nxs_string_t *str, size_t offset, u_char *ch_s
  * @param ch_str Pointer to source u_char array.
  *
  * @return
- * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_OFFSET 	- If \b offset is greater than the length of the string.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_OFFSET 	- If \b offset is greater than the length of the string.
+ * * \b NXS_STRING_E_NULL_PTR 	- If either \b str or \b ch_str is a null pointer.
  */
-ssize_t				nxs_string_char_cpy_dyn			(nxs_string_t *str, size_t offset, u_char *ch_str);
+nxs_string_err_t		nxs_string_char_cpy			(nxs_string_t *str, size_t offset, u_char *ch_str);
 
 /**
  * @brief Copies \b n first bytes of u_char array \b ch_str to a string \b str with specified \b offset.
@@ -672,12 +666,12 @@ ssize_t				nxs_string_char_cpy_dyn			(nxs_string_t *str, size_t offset, u_char *
  * @param n Number of bytes to copy.
  *
  * @return
- * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_OFFSET 	- If \b offset is greater than the length of the string.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If either \b str or \b ch_str is a null pointer.
- * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b str is greater than its possible size.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_OFFSET 	- If \b offset is greater than the length of the string.
+ * * \b NXS_STRING_E_NULL_PTR 	- If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_STRING_E_DST_SIZE	- If the result size of \b str is greater than its possible size.
  */
-ssize_t				nxs_string_char_ncpy			(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n);
+nxs_string_err_t		nxs_string_char_ncpy_static		(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n);
 
 /**
  * @brief Copies \b n first bytes of u_char array \b ch_str to a string \b str with specified \b offset,
@@ -691,11 +685,11 @@ ssize_t				nxs_string_char_ncpy			(nxs_string_t *str, size_t offset, u_char *ch_
  * @param n Number of bytes to copy.
  *
  * @return
- * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_OFFSET - If \b offset is greater than the length of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR - If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_OFFSET 	- If \b offset is greater than the length of \b str.
+ * * \b NXS_STRING_E_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
  */
-ssize_t				nxs_string_char_ncpy_dyn		(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n);
+nxs_string_err_t		nxs_string_char_ncpy			(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n);
 
 /**
  * @brief Concatenates a string \b str and an u_char array \b ch_str terminated by null byte ('\0').
@@ -704,11 +698,11 @@ ssize_t				nxs_string_char_ncpy_dyn		(nxs_string_t *str, size_t offset, u_char *
  * @param ch_str Pointer to u_char array.
  *
  * @return
- * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b str is greater than its possible size.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_DST_SIZE	- If the result size of \b str is greater than its possible size.
+ * * \b NXS_STRING_E_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
  */
-ssize_t				nxs_string_char_cat			(nxs_string_t *str, u_char *ch_str);
+nxs_string_err_t		nxs_string_char_cat_static		(nxs_string_t *str, u_char *ch_str);
 
 /**
  * @brief Concatenates a string \b str and an u_char array \b ch_str terminated by null byte ('\0'),
@@ -720,10 +714,10 @@ ssize_t				nxs_string_char_cat			(nxs_string_t *str, u_char *ch_str);
  * @param ch_str Pointer to u_char array.
  *
  * @return
- * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
  */
-ssize_t				nxs_string_char_cat_dyn			(nxs_string_t *str, u_char *ch_str);
+nxs_string_err_t		nxs_string_char_cat			(nxs_string_t *str, u_char *ch_str);
 
 /**
  * @brief Concatenates a string \b str and first \b n bytes of u_char array \b ch_str.
@@ -733,11 +727,11 @@ ssize_t				nxs_string_char_cat_dyn			(nxs_string_t *str, u_char *ch_str);
  * @param n Number of bytes from \b ch_str to add to \b str
  *
  * @return
- * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b str is greater than its possible size.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_DST_SIZE	- If the result size of \b str is greater than its possible size.
+ * * \b NXS_STRING_E_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
  */
-ssize_t				nxs_string_char_ncat			(nxs_string_t *str, u_char *ch_str, size_t n);
+nxs_string_err_t		nxs_string_char_ncat_static		(nxs_string_t *str, u_char *ch_str, size_t n);
 
 /**
  * @brief Concatenates a string \b str and first \b n bytes of u_char array \b ch_str,
@@ -750,11 +744,10 @@ ssize_t				nxs_string_char_ncat			(nxs_string_t *str, u_char *ch_str, size_t n);
  * @param n Number of bytes from \b ch_str to add to \b str
  *
  * @return
- * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
  */
-ssize_t				nxs_string_char_ncat_dyn		(nxs_string_t *str, u_char *ch_str, size_t n);
-
+nxs_string_err_t		nxs_string_char_ncat			(nxs_string_t *str, u_char *ch_str, size_t n);
 
 /**
  * @brief Compares a string \b str with a specified \b offset to an u_char array \b ch_str terminated by null byte ('\0').
@@ -766,12 +759,12 @@ ssize_t				nxs_string_char_ncat_dyn		(nxs_string_t *str, u_char *ch_str, size_t 
  * @param ch_str Pointer to u_char array.
  *
  * @return
- * * \b NXS_STRING_CMP_EQ 		- If the compared strings are equal.
- * * \b NXS_STRING_CMP_NE 		- If the compared strings are not equal.
- * * \b NXS_STRING_ERROR_OFFSET 	- If \b offset is greater than the length of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_YES or NXS_TRUE 		- If the compared strings are equal.
+ * * \b NXS_NO or NXS_FALSE 		- If the compared strings are not equal.
+ *						Or if \b offset is greater than the length of \b str.
+ *						Or if either \b str or \b ch_str is a null pointer.
  */
-int				nxs_string_char_cmp			(nxs_string_t *str, size_t offset, u_char *ch_str);
+nxs_bool_t			nxs_string_char_cmp			(nxs_string_t *str, size_t offset, u_char *ch_str);
 
 /**
  * @brief Compares \b n bytes of a string \b str with a specified \b offset to an u_char array \b ch_str.
@@ -784,13 +777,12 @@ int				nxs_string_char_cmp			(nxs_string_t *str, size_t offset, u_char *ch_str);
  * @param n Number of bytes to compare to.
  *
  * @return
- * * \b NXS_STRING_CMP_EQ 		- If the compared strings are equal.
- * * \b NXS_STRING_CMP_NE 		- If the compared strings are not equal.
- * * \b NXS_STRING_ERROR_OFFSET 	- If \b offset is greater than the length of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If either \b str or \b ch_str is a null pointer.
+ * * \b NXS_YES or NXS_TRUE 		- If the compared strings are equal.
+ * * \b NXS_NO or NXS_FALSE 		- If the compared strings are not equal.
+ *						Or if \b offset is greater than the length of \b str.
+ *						Or if either \b str or \b ch_str is a null pointer.
  */
-int				nxs_string_char_ncmp			(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n);
-
+nxs_bool_t			nxs_string_char_ncmp			(nxs_string_t *str, size_t offset, u_char *ch_str, size_t n);
 
 /**
  * @brief Adds a character \b c to a string \b str.
@@ -799,10 +791,11 @@ int				nxs_string_char_ncmp			(nxs_string_t *str, size_t offset, u_char *ch_str,
  * @param c Character to be added.
  *
  * @return
- * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b str is greater than its possible size.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If \b str is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_DST_SIZE	- If the result size of \b str is greater than its possible size.
+ * * \b NXS_STRING_E_NULL_PTR	- If \b str is a null pointer.
  */
-ssize_t				nxs_string_char_add_char		(nxs_string_t *str, u_char c);
+nxs_string_err_t		nxs_string_char_add_char_static		(nxs_string_t *str, u_char c);
 
 /**
  * @brief Adds a character \b c to a string \b str, dynamically increasing the size of the string if it's necessary.
@@ -813,11 +806,11 @@ ssize_t				nxs_string_char_add_char		(nxs_string_t *str, u_char c);
  * @param c Character to be added.
  *
  * @return
- * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b str is greater than its possible size.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If \b str is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_DST_SIZE	- If the result size of \b str is greater than its possible size.
+ * * \b NXS_STRING_E_NULL_PTR	- If \b str is a null pointer.
  */
-ssize_t				nxs_string_char_add_char_dyn		(nxs_string_t *str, u_char c);
-
+nxs_string_err_t		nxs_string_char_add_char		(nxs_string_t *str, u_char c);
 
 /**
  * @brief Extracts the component of \b path following the final '/' to string \b dst.
@@ -880,13 +873,13 @@ void				nxs_string_dirname			(nxs_string_t *dst, nxs_string_t *path);
  * @param c Character to be set.
  *
  * @return
- * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_NOT_CREATED	- If \b str is zero-initialized.
- * * \b NXS_STRING_ERROR_DST_LEN	- If \b pos is beyond the length of \b str.
- * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b str is greater than its possible size.
+ * * \b NXS_STRING_E_OK 		- On success.
+ * * \b NXS_STRING_E_NULL_PTR		- If \b str is a null pointer.
+ * * \b NXS_STRING_E_NOT_CREATED	- If \b str is zero-initialized.
+ * * \b NXS_STRING_E_DST_LEN		- If \b pos is beyond the length of \b str.
+ * * \b NXS_STRING_E_DST_SIZE		- If the result size of \b str is greater than its possible size.
  */
-ssize_t				nxs_string_set_char			(nxs_string_t *str, size_t pos, u_char c);
+nxs_string_err_t		nxs_string_set_char			(nxs_string_t *str, size_t pos, u_char c);
 
 /**
  * @brief Inserts the character \b c at the specified position \b pos of a string \b str.
@@ -899,12 +892,13 @@ ssize_t				nxs_string_set_char			(nxs_string_t *str, size_t pos, u_char c);
  * @param pos Position to insert the character at.
  *
  * @return
- * * \b NXS_STRING_ERROR_NULL_PTR	- If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_NOT_CREATED	- If \b str is zero-initialized.
- * * \b NXS_STRING_ERROR_DST_LEN	- If \b pos is beyond the length of \b str.
- * * \b NXS_STRING_ERROR_DST_SIZE	- If the result size of \b str is greater than its possible size.
+ * * \b NXS_STRING_E_OK 		- On success.
+ * * \b NXS_STRING_E_NULL_PTR		- If \b str is a null pointer.
+ * * \b NXS_STRING_E_NOT_CREATED	- If \b str is zero-initialized.
+ * * \b NXS_STRING_E_DST_LEN		- If \b pos is beyond the length of \b str.
+ * * \b NXS_STRING_E_DST_SIZE		- If the result size of \b str is greater than its possible size.
  */
-ssize_t				nxs_string_ins_char			(nxs_string_t *str, size_t pos, u_char c);
+nxs_string_err_t		nxs_string_ins_char_static		(nxs_string_t *str, size_t pos, u_char c);
 
 /**
  * @brief Inserts a character \b c at the specified position \b pos of a string \b str,
@@ -919,11 +913,12 @@ ssize_t				nxs_string_ins_char			(nxs_string_t *str, size_t pos, u_char c);
  * @param pos Position to insert the character at.
  *
  * @return
- * * \b NXS_STRING_ERROR_NULL_PTR	- If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_NOT_CREATED	- If \b str is zero-initialized.
- * * \b NXS_STRING_ERROR_DST_LEN	- If \b pos is beyond the length of \b str.
+ * * \b NXS_STRING_E_OK 		- On success.
+ * * \b NXS_STRING_E_NULL_PTR		- If \b str is a null pointer.
+ * * \b NXS_STRING_E_NOT_CREATED	- If \b str is zero-initialized.
+ * * \b NXS_STRING_E_DST_LEN		- If \b pos is beyond the length of \b str.
  */
-ssize_t				nxs_string_ins_char_dyn			(nxs_string_t *str, size_t pos, u_char c);
+nxs_string_err_t		nxs_string_ins_char			(nxs_string_t *str, size_t pos, u_char c);
 
 /**
  * @brief Sets length for a string \b str as \b len.
@@ -936,11 +931,11 @@ ssize_t				nxs_string_ins_char_dyn			(nxs_string_t *str, size_t pos, u_char c);
  * @param len New length of the string.
  *
  * @return
- * * On success, the new length value of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_DST_SIZE	- If \len is greater than the possible size of \b str.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_NULL_PTR 	- If \b str is a null pointer.
+ * * \b NXS_STRING_E_DST_SIZE	- If \len is greater than the possible size of \b str.
  */
-ssize_t				nxs_string_set_len			(nxs_string_t *str, size_t len);
+nxs_string_err_t		nxs_string_set_len			(nxs_string_t *str, size_t len);
 
 /**
  * @brief Places the '\0' character at the position corresponding to the length value of the string \b str.
@@ -951,10 +946,11 @@ ssize_t				nxs_string_set_len			(nxs_string_t *str, size_t len);
  * @param str Pointer to the string.
  *
  * @return
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_DST_SIZE 	- If the size of \b str equals 0.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_NULL_PTR 	- If \b str is a null pointer.
+ * * \b NXS_STRING_E_DST_SIZE 	- If the size of \b str equals 0.
  */
-ssize_t				nxs_string_len_fix			(nxs_string_t *str);
+nxs_string_err_t		nxs_string_len_fix			(nxs_string_t *str);
 
 /**
  * @brief Returns the character at the specified position \b pos of a string \b str.
@@ -1066,7 +1062,6 @@ u_char				*nxs_string_find_char_last		(nxs_string_t *str, size_t offset, u_char 
  */
 size_t				nxs_string_subs				(nxs_string_t *src, nxs_string_t *dst, nxs_string_t *f_str, nxs_string_t *d_str, size_t max_count);
 
-
 /**
  * @brief Converts a string \b str with \b offset into a buffer \b buf.
  *
@@ -1084,13 +1079,13 @@ size_t				nxs_string_subs				(nxs_string_t *src, nxs_string_t *dst, nxs_string_t
  */
 u_char				*nxs_string_to_buf			(nxs_string_t *str, size_t offset, nxs_buf_t *buf);
 
-/** @brief Returns a pointer to a u_char string that describes the nxs-string module error code passed in the argument \b nxs_str_errno.
+/** @brief Returns a pointer to a u_char string that describes the nxs-string module error code passed in the argument \b nxs_string_errno.
  *
 * @param nxs_str_errno The nxs-string module error code
 *
 * @return A string message for the specified error code
 */
-u_char				*nxs_string_strerror			(int nxs_str_errno);
+u_char				*nxs_string_strerror			(nxs_string_err_t nxs_string_errno);
 
 /** @brief Returns the length of a string \b str.
 *
@@ -1099,7 +1094,6 @@ u_char				*nxs_string_strerror			(int nxs_str_errno);
 * @return The length of the string.
 */
 size_t				nxs_string_len				(nxs_string_t *str);
-
 
 /**
 * @brief Returns the size (amount of the allocated memory) of a string \b str.
@@ -1112,17 +1106,16 @@ size_t				nxs_string_len				(nxs_string_t *str);
 */
 size_t				nxs_string_size				(nxs_string_t *str);
 
-
 /**
 * @brief Checks for available space in the string \b str.
 *
 * @param str Pointer to the string
 *
 * @return
-* * \b NXS_STRING_NOT_FULL		- if there is available space (one or more bytes)
-* * \b NXS_STRING_FULL			- if the string is full and there's no more space available
+* * \b NXS_YES or NXS_TRUE		- if there is available space (one or more bytes)
+* * \b NXS_NO or NXS_FALSE		- if the string is full and there's no more space available
 */
-int				nxs_string_check_space			(nxs_string_t *str);
+nxs_bool_t			nxs_string_check_space			(nxs_string_t *str);
 
 /**
  * @brief Formats unix time stamp \b t according to the strftime() format specification
@@ -1135,10 +1128,10 @@ int				nxs_string_check_space			(nxs_string_t *str);
  * @param t Time value (unix time stamp).
  *
  * @return
- * * On success, the new length of \b str.
- * * \b NXS_STRING_ERROR_NULL_PTR	- If \b str is a null pointer.
+ * * \b NXS_STRING_E_OK 	- On success.
+ * * \b NXS_STRING_E_NULL_PTR	- If \b str is a null pointer.
  */
-ssize_t				nxs_string_strftime			(nxs_string_t *str, u_char *fmt, time_t t);
+nxs_string_err_t		nxs_string_strftime			(nxs_string_t *str, u_char *fmt, time_t t);
 
 /**
  * @brief Formats time \b t given in seconds according to the format specification \b fmt
@@ -1158,12 +1151,12 @@ ssize_t				nxs_string_strftime			(nxs_string_t *str, u_char *fmt, time_t t);
  * @param t Time value represented in seconds.
  *
  * @return
- * * On success, the new length of \b str
- * * \b NXS_STRING_ERROR_NULL_PTR 	- If \b str is a null pointer.
- * * \b NXS_STRING_ERROR_SPEC_OVERFLOW	- If one or more specifiers in \b fmt used more than one times.
- * * \b NXS_STRING_ERROR_SPEC_UNKNOWN	- if there is an unknown format specifier in \b fmt.
+ * * \b NXS_STRING_E_OK 		- On success.
+ * * \b NXS_STRING_E_NULL_PTR 		- If \b str is a null pointer.
+ * * \b NXS_STRING_E_SPEC_OVERFLOW	- If one or more specifiers in \b fmt used more than one times.
+ * * \b NXS_STRING_E_SPEC_UNKNOWN	- if there is an unknown format specifier in \b fmt.
  */
-ssize_t				nxs_string_fmt_time_interval		(nxs_string_t *str, u_char *fmt, time_t t);
+nxs_string_err_t		nxs_string_fmt_time_interval		(nxs_string_t *str, u_char *fmt, time_t t);
 
 /**
  * @brief Adds escape symbols to an metacharacters according to the \b type in the string \b str_from and

@@ -270,7 +270,7 @@ ssize_t nxs_args_argv_init(u_char *argv_str, nxs_array_t *argv)
 
 		if(p != NULL && f == NXS_YES) {
 
-			nxs_string_char_add_char_dyn(&p->arg, c);
+			nxs_string_char_add_char(&p->arg, c);
 
 			p->end = i + 1;
 		}
@@ -379,7 +379,7 @@ int nxs_args_handler(nxs_process_t *proc, nxs_args_t args, int argc, u_char **ar
 	optind = 0;
 	opterr = 0;
 
-	while((arg = getopt(argc, (char **)argv, (char *)nxs_string_get_substr(&arg_str, NXS_STRING_NO_OFFSET))) != -1) {
+	while((arg = getopt(argc, (char **)argv, (char *)nxs_string_get_substr(&arg_str, 0))) != -1) {
 
 		/*
 		 * arg может принимать следующие значения:
@@ -387,7 +387,8 @@ int nxs_args_handler(nxs_process_t *proc, nxs_args_t args, int argc, u_char **ar
 		 * * символ, отличный от '?' и ':'	- опция определилась корректно
 		 * * символ '?' 					- опция не найдена (значени самой опции находится в переменной
 		 * "optopt")
-		 * * символ ':' 					- в командной строке всего одна опция, которая ожидает аргумента, но он
+		 * * символ ':' 					- в командной строке всего одна опция, которая ожидает аргумента, но
+		 * он
 		 * не
 		 * указан
 		 * 											(значени самой опции находится в
@@ -627,17 +628,17 @@ static void nxs_args_s_make_arg_str(nxs_args_shortopt_t *args_s_els, nxs_string_
 {
 	int i;
 
-	nxs_string_char_add_char_dyn(arg_str, (u_char)':');
+	nxs_string_char_add_char(arg_str, (u_char)':');
 
 	for(i = 0; !nxs_args_s_eop(args_s_els[i]); i++) {
 
 		if(args_s_els[i].opt != (u_char)'?' && args_s_els[i].opt != (u_char)':') {
 
-			nxs_string_char_add_char_dyn(arg_str, args_s_els[i].opt);
+			nxs_string_char_add_char(arg_str, args_s_els[i].opt);
 
 			if(args_s_els[i].have_arg == NXS_ARGS_HAVE_ARGS_YES) {
 
-				nxs_string_char_add_char_dyn(arg_str, (u_char)':');
+				nxs_string_char_add_char(arg_str, (u_char)':');
 			}
 		}
 	}

@@ -239,11 +239,11 @@ void nxs_mysql_escape_string(nxs_mysql_t *mysql, nxs_string_t *str_to, nxs_strin
 
 	if(str_from != NULL) {
 
-		nxs_string_cpy_dyn(&tmp, 0, str_from, 0);
+		nxs_string_cpy(&tmp, 0, str_from, 0);
 	}
 	else {
 
-		nxs_string_cpy_dyn(&tmp, 0, str_to, 0);
+		nxs_string_cpy(&tmp, 0, str_to, 0);
 	}
 
 	len = nxs_string_len(&tmp);
@@ -293,7 +293,7 @@ nxs_mysql_err_t nxs_mysql_query(nxs_mysql_t *mysql, nxs_mysql_query_type_t type,
 	nxs_string_init(&q);
 
 	va_start(arg, query);
-	n = nxs_string_vprintf_dyn(&q, query, arg);
+	n = nxs_string_vprintf(&q, query, arg);
 	va_end(arg);
 
 	/*
