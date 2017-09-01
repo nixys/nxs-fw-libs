@@ -173,7 +173,7 @@ nxs_buf_t *nxs_curl_get_out_buf(nxs_curl_t *curl)
 	return &curl->out_buf;
 }
 
-int nxs_curl_query(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_api_common_cmd_type_t method, u_char *query_str, ...)
+nxs_curl_err_t nxs_curl_query(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_api_common_cmd_type_t method, u_char *query_str, ...)
 {
 	va_list            va_query_str;
 	nxs_string_t       query;
@@ -183,7 +183,7 @@ int nxs_curl_query(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_api_common_cm
 	long int           http_code = 0;
 	nxs_string_t *     h;
 	size_t             i;
-	int                rc;
+	nxs_curl_err_t     rc;
 
 	if(curl == NULL || query_str == NULL) {
 
@@ -240,8 +240,7 @@ int nxs_curl_query(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_api_common_cm
 			                    nxs_string_str(&query));
 		}
 
-		rc = NXS_CURL_E_ERR;
-		goto error;
+		nxs_error(rc, NXS_CURL_E_ERR, error);
 	}
 
 	curl_easy_getinfo(c, CURLINFO_RESPONSE_CODE, &http_code);
@@ -285,7 +284,7 @@ static CURL *nxs_curl_q_init(void)
 
 static size_t nxs_curl_q_get_data(void *buffer, size_t size, size_t nmemb, void *r)
 {
-	int        chunk_size;
+	size_t     chunk_size;
 	nxs_buf_t *response;
 
 	chunk_size = size * nmemb;

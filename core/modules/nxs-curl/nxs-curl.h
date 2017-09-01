@@ -12,18 +12,23 @@
 
 #include <nxs-core/nxs-core.h>
 
-#define NXS_CURL_E_OK		0
-#define NXS_CURL_E_ERR		1
-#define NXS_CURL_E_PTR		2
-#define NXS_CURL_E_INIT		3
+enum nxs_curl_err_e
+{
+	NXS_CURL_E_OK,
+	NXS_CURL_E_ERR,
+	NXS_CURL_E_PTR,
+	NXS_CURL_E_INIT
+};
 
-enum nxs_curl_log_e {
+enum nxs_curl_log_e
+{
 	NXS_CURL_LOG_NONE,
 	NXS_CURL_LOG_ERROR,
 	NXS_CURL_LOG_DEBUG
 };
 
-struct nxs_curl_s {
+struct nxs_curl_s
+{
 	nxs_buf_t		out_buf;
 	nxs_buf_t		post_data;
 	nxs_array_t		headers;		/* type: nxs_string_t */
@@ -46,7 +51,7 @@ void				nxs_curl_set_debug			(nxs_curl_t *curl, nxs_curl_log_t log_type);
 nxs_http_code_t			nxs_curl_get_ret_code			(nxs_curl_t *curl);
 nxs_buf_t			*nxs_curl_get_out_buf			(nxs_curl_t *curl);
 
-int				nxs_curl_query				(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_api_common_cmd_type_t method, u_char *query_str, ...);
+nxs_curl_err_t			nxs_curl_query				(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_api_common_cmd_type_t method, u_char *query_str, ...);
 
 /** @} */ // end of nxs-curl
 #endif /* _INCLUDE_NXS_CURL_H */

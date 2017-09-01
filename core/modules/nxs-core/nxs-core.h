@@ -261,8 +261,9 @@ typedef struct			nxs_rest_api_request_s			nxs_rest_api_request_t;
 
 /* nxs-curl.h */
 #ifdef USE_NXS_CURL
-typedef struct			nxs_curl_s				nxs_curl_t;
+typedef enum			nxs_curl_err_e				nxs_curl_err_t;
 typedef enum			nxs_curl_log_e				nxs_curl_log_t;
+typedef struct			nxs_curl_s				nxs_curl_t;
 #endif
 
 
