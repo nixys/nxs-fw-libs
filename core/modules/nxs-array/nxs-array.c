@@ -111,6 +111,11 @@ void nxs_array_clear(nxs_array_t *array)
 void *nxs_array_add(nxs_array_t *array)
 {
 
+	if(array == NULL) {
+
+		return NULL;
+	}
+
 	array->count++;
 
 	if(array->count > array->nalloc) {
@@ -132,6 +137,11 @@ void *nxs_array_add(nxs_array_t *array)
  */
 void *nxs_array_add_i(nxs_array_t *array, size_t i)
 {
+
+	if(array == NULL) {
+
+		return NULL;
+	}
 
 	if(i >= array->count) {
 
