@@ -61,6 +61,11 @@ nxs_list_t *nxs_list_destroy(nxs_list_t *list)
 void nxs_list_init(nxs_list_t *list, size_t size)
 {
 
+	if(list == NULL) {
+
+		return;
+	}
+
 	list->ptr = list->head = list->tail = NULL;
 	list->size                          = size;
 	list->count                         = 0;
@@ -69,6 +74,11 @@ void nxs_list_init(nxs_list_t *list, size_t size)
 void nxs_list_free(nxs_list_t *list)
 {
 	nxs_list_el_t *p;
+
+	if(list == NULL) {
+
+		return;
+	}
 
 	for(list->ptr = list->head; list->ptr != NULL; list->ptr = p) {
 
@@ -92,6 +102,11 @@ void nxs_list_free(nxs_list_t *list)
 void *nxs_list_add_head(nxs_list_t *list)
 {
 	nxs_list_el_t *p = NULL;
+
+	if(list == NULL) {
+
+		return NULL;
+	}
 
 	p = (nxs_list_el_t *)nxs_calloc(p, sizeof(nxs_list_el_t));
 
@@ -134,6 +149,11 @@ void *nxs_list_add_tail(nxs_list_t *list)
 {
 	nxs_list_el_t *p = NULL;
 
+	if(list == NULL) {
+
+		return NULL;
+	}
+
 	p = (nxs_list_el_t *)nxs_calloc(p, sizeof(nxs_list_el_t));
 
 	if(list->tail == NULL) {
@@ -175,6 +195,11 @@ void *nxs_list_add_tail(nxs_list_t *list)
 void *nxs_list_add_after(nxs_list_t *list)
 {
 	nxs_list_el_t *p = NULL;
+
+	if(list == NULL) {
+
+		return NULL;
+	}
 
 	if(list->ptr == NULL) {
 
@@ -219,6 +244,11 @@ void *nxs_list_add_before(nxs_list_t *list)
 {
 	nxs_list_el_t *p = NULL;
 
+	if(list == NULL) {
+
+		return NULL;
+	}
+
 	if(list->ptr == NULL) {
 
 		return nxs_list_add_head(list);
@@ -262,6 +292,11 @@ void *nxs_list_del_head(nxs_list_t *list)
 {
 	nxs_list_el_t *p = NULL;
 
+	if(list == NULL) {
+
+		return NULL;
+	}
+
 	if(list->head == NULL) {
 
 		return NULL;
@@ -303,6 +338,11 @@ void *nxs_list_del_head(nxs_list_t *list)
 void *nxs_list_del_tail(nxs_list_t *list)
 {
 	nxs_list_el_t *p = NULL;
+
+	if(list == NULL) {
+
+		return NULL;
+	}
 
 	if(list->tail == NULL) {
 
@@ -347,6 +387,11 @@ void *nxs_list_del_tail(nxs_list_t *list)
 void *nxs_list_del(nxs_list_t *list, nxs_list_move_t ptr_move)
 {
 	nxs_list_el_t *p = NULL;
+
+	if(list == NULL) {
+
+		return NULL;
+	}
 
 	if(list->ptr == NULL) {
 
@@ -403,8 +448,13 @@ void *nxs_list_del(nxs_list_t *list, nxs_list_move_t ptr_move)
  * * Указатель на данные первого или последнего элемента (в зависимости от значения "type")
  * * NULL - если список пустой
  */
-void *nxs_list_ptr_init(nxs_list_init_t type, nxs_list_t *list)
+void *nxs_list_ptr_init(nxs_list_t *list, nxs_list_init_t type)
 {
+
+	if(list == NULL) {
+
+		return NULL;
+	}
 
 	if(type == NXS_LIST_PTR_INIT_HEAD) {
 
@@ -434,6 +484,11 @@ void *nxs_list_ptr_init(nxs_list_init_t type, nxs_list_t *list)
 void *nxs_list_ptr_set(nxs_list_t *list, nxs_list_el_t *ptr)
 {
 
+	if(list == NULL) {
+
+		return NULL;
+	}
+
 	if(ptr == NULL) {
 
 		return NULL;
@@ -453,6 +508,11 @@ void *nxs_list_ptr_set(nxs_list_t *list, nxs_list_el_t *ptr)
  */
 void *nxs_list_ptr_next(nxs_list_t *list)
 {
+
+	if(list == NULL) {
+
+		return NULL;
+	}
 
 	if(list->ptr == NULL) {
 
@@ -478,6 +538,11 @@ void *nxs_list_ptr_next(nxs_list_t *list)
  */
 void *nxs_list_ptr_prev(nxs_list_t *list)
 {
+
+	if(list == NULL) {
+
+		return NULL;
+	}
 
 	if(list->ptr == NULL) {
 
@@ -509,6 +574,11 @@ nxs_list_el_t *nxs_list_ptr_get(nxs_list_t *list)
 void *nxs_list_data_get(nxs_list_t *list)
 {
 
+	if(list == NULL) {
+
+		return NULL;
+	}
+
 	if(list->ptr == NULL) {
 
 		return NULL;
@@ -523,6 +593,11 @@ void *nxs_list_data_get(nxs_list_t *list)
 size_t nxs_list_count(nxs_list_t *list)
 {
 
+	if(list == NULL) {
+
+		return 0;
+	}
+
 	return list->count;
 }
 
@@ -531,6 +606,11 @@ size_t nxs_list_count(nxs_list_t *list)
  */
 size_t nxs_list_size(nxs_list_t *list)
 {
+
+	if(list == NULL) {
+
+		return 0;
+	}
 
 	return list->size;
 }

@@ -1628,7 +1628,7 @@ void nxs_net_crypt_gost_enable(nxs_process_t *proc, nxs_net_connect_t *con)
 	}
 	else {
 
-		con->gost_el = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, &con->gost_ctx->els);
+		con->gost_el = nxs_list_ptr_init(&con->gost_ctx->els, NXS_LIST_PTR_INIT_HEAD);
 	}
 }
 
@@ -2146,7 +2146,7 @@ ssize_t nxs_net_send(nxs_process_t *proc, nxs_net_connect_t *con, time_t timeout
 
 			nxs_net_crypt_gost_reset(proc, con);
 
-			for(i = 0, flag = NXS_NET_FLAG_BUF, buf = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, lst); buf != NULL;
+			for(i = 0, flag = NXS_NET_FLAG_BUF, buf = nxs_list_ptr_init(lst, NXS_LIST_PTR_INIT_HEAD); buf != NULL;
 			    buf = nxs_list_ptr_next(lst), i++) {
 
 				if(i == nxs_list_count(lst) - 1) {

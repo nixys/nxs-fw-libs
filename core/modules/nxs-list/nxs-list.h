@@ -56,7 +56,7 @@ void				*nxs_list_add_before			(nxs_list_t *list);
 void				*nxs_list_del_head			(nxs_list_t *list);
 void				*nxs_list_del_tail			(nxs_list_t *list);
 void				*nxs_list_del				(nxs_list_t *list, nxs_list_move_t ptr_move);
-void				*nxs_list_ptr_init			(nxs_list_init_t type, nxs_list_t *list);
+void				*nxs_list_ptr_init			(nxs_list_t *list, nxs_list_init_t type);
 void				*nxs_list_ptr_set			(nxs_list_t *list, nxs_list_el_t *ptr);
 void				*nxs_list_ptr_next			(nxs_list_t *list);
 void				*nxs_list_ptr_prev			(nxs_list_t *list);

@@ -190,7 +190,7 @@ void *nxs_ilist_find(nxs_ilist_t *ilist, void *key)
 	/*
 	 * Проход по всем элементам списка "el_iarray" и поиск нужного элемента
 	 */
-	for(el_iarray_data = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, el_iarray); el_iarray_data != NULL;
+	for(el_iarray_data = nxs_list_ptr_init(el_iarray, NXS_LIST_PTR_INIT_HEAD); el_iarray_data != NULL;
 	    el_iarray_data = nxs_list_ptr_next(el_iarray)) {
 
 		printf("index: %d, ilist->index: %p\n", index, (*el_iarray_data));

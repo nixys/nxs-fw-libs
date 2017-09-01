@@ -252,7 +252,7 @@ nxs_crypt_gost_el_t *nxs_crypt_gost_key_close(nxs_crypt_gost_ctx_t *nxs_crypt_go
 		return NULL;
 	}
 
-	for(el = nxs_list_ptr_init(NXS_LIST_PTR_INIT_TAIL, &nxs_crypt_gost_ctx->els); el != NULL;
+	for(el = nxs_list_ptr_init(&nxs_crypt_gost_ctx->els, NXS_LIST_PTR_INIT_TAIL); el != NULL;
 	    el = nxs_list_ptr_prev(&nxs_crypt_gost_ctx->els)) {
 
 		if(el == key_el) {

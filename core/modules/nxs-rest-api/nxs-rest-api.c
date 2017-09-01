@@ -321,7 +321,7 @@ void nxs_rest_api_handler_del(nxs_rest_api_ctx_t *ctx, nxs_string_t *handler_nam
 {
 	nxs_rest_api_handler_t *h;
 
-	for(h = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, &ctx->handlers); h != NULL; h = nxs_list_ptr_next(&ctx->handlers)) {
+	for(h = nxs_list_ptr_init(&ctx->handlers, NXS_LIST_PTR_INIT_HEAD); h != NULL; h = nxs_list_ptr_next(&ctx->handlers)) {
 
 		if(nxs_string_cmp(&h->handler_name, 0, handler_name, 0) == NXS_YES) {
 
@@ -1131,7 +1131,7 @@ static nxs_rest_api_err_t nxs_rest_api_handler_exec(nxs_rest_api_ctx_t *ctx, nxs
 
 		nxs_string_cat(&uri, r_h);
 
-		for(h = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, &ctx->handlers); h != NULL; h = nxs_list_ptr_next(&ctx->handlers)) {
+		for(h = nxs_list_ptr_init(&ctx->handlers, NXS_LIST_PTR_INIT_HEAD); h != NULL; h = nxs_list_ptr_next(&ctx->handlers)) {
 
 			if(nxs_string_cmp(&h->handler_name, 0, &uri, 0) == NXS_YES && r_type == h->cmd_type) {
 
@@ -1159,7 +1159,7 @@ static void nxs_rest_api_handler_free(nxs_rest_api_ctx_t *ctx)
 {
 	nxs_rest_api_handler_t *h;
 
-	for(h = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, &ctx->handlers); h != NULL;
+	for(h = nxs_list_ptr_init(&ctx->handlers, NXS_LIST_PTR_INIT_HEAD); h != NULL;
 	    h = nxs_list_del(&ctx->handlers, NXS_LIST_MOVE_NEXT)) {
 
 		nxs_string_free(&h->handler_name);

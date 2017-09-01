@@ -229,7 +229,7 @@ static void nxs_cfg_required_list_del(nxs_list_t *required_list, nxs_cfg_par_t c
 
 	if(cfg_par.required == NXS_CFG_REQUIRED_YES) {
 
-		for(index = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, required_list); index != NULL;
+		for(index = nxs_list_ptr_init(required_list, NXS_LIST_PTR_INIT_HEAD); index != NULL;
 		    index = nxs_list_ptr_next(required_list)) {
 
 			if(*index == option_id) {
@@ -259,7 +259,7 @@ static int nxs_cfg_required_list_check(nxs_process_t *proc, nxs_list_t *required
 		return NXS_CFG_CONF_OK;
 	}
 
-	for(index = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, required_list); index != NULL; index = nxs_list_ptr_next(required_list)) {
+	for(index = nxs_list_ptr_init(required_list, NXS_LIST_PTR_INIT_HEAD); index != NULL; index = nxs_list_ptr_next(required_list)) {
 
 		nxs_log_write_error(proc, "required option was not defined (option: \"%s\")", nxs_string_str(&cfg_par[*index].name));
 	}
@@ -296,7 +296,7 @@ static int nxs_cfg_definition_list_check(nxs_list_t *definition_list, nxs_cfg_pa
 		return NXS_CFG_CONF_OK;
 	}
 
-	for(index = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, definition_list); index != NULL; index = nxs_list_ptr_next(definition_list)) {
+	for(index = nxs_list_ptr_init(definition_list, NXS_LIST_PTR_INIT_HEAD); index != NULL; index = nxs_list_ptr_next(definition_list)) {
 
 		if(*index == option_id) {
 
@@ -1047,7 +1047,7 @@ static int nxs_cfg_type_handler_list(nxs_process_t *proc, nxs_string_t *opt, nxs
 
 	if(distinct == NXS_YES) {
 
-		for(p = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, var); p != NULL; p = nxs_list_ptr_next(var)) {
+		for(p = nxs_list_ptr_init(var, NXS_LIST_PTR_INIT_HEAD); p != NULL; p = nxs_list_ptr_next(var)) {
 
 			if(nxs_string_cmp(p, 0, val, 0) == NXS_YES) {
 
@@ -1075,7 +1075,7 @@ static int nxs_cfg_type_handler_list_num(nxs_process_t *proc,
 
 	if(distinct == NXS_YES) {
 
-		for(p = nxs_list_ptr_init(NXS_LIST_PTR_INIT_HEAD, var); p != NULL; p = nxs_list_ptr_next(var)) {
+		for(p = nxs_list_ptr_init(var, NXS_LIST_PTR_INIT_HEAD); p != NULL; p = nxs_list_ptr_next(var)) {
 
 			if(nxs_string_cmp(p, 0, val, 0) == NXS_YES) {
 
