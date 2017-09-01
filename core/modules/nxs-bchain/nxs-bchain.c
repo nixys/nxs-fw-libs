@@ -54,7 +54,7 @@ nxs_bchain_t *nxs_bchain_destroy(nxs_bchain_t *bchain)
 	return (nxs_bchain_t *)nxs_free(bchain);
 }
 
-int nxs_bchain_init(nxs_bchain_t *bchain)
+nxs_bchain_err_t nxs_bchain_init(nxs_bchain_t *bchain)
 {
 
 	if(bchain == NULL) {
@@ -72,7 +72,7 @@ int nxs_bchain_init(nxs_bchain_t *bchain)
 	return NXS_BCHAIN_E_OK;
 }
 
-int nxs_bchain_free(nxs_bchain_t *bchain)
+nxs_bchain_err_t nxs_bchain_free(nxs_bchain_t *bchain)
 {
 
 	if(bchain == NULL) {
@@ -88,7 +88,7 @@ int nxs_bchain_free(nxs_bchain_t *bchain)
 	return NXS_BCHAIN_E_OK;
 }
 
-int nxs_bchain_add_buf(nxs_bchain_t *bchain, nxs_buf_t *buf)
+nxs_bchain_err_t nxs_bchain_add_buf(nxs_bchain_t *bchain, nxs_buf_t *buf)
 {
 	nxs_bchain_el_t *el = NULL;
 
@@ -130,7 +130,7 @@ int nxs_bchain_add_buf(nxs_bchain_t *bchain, nxs_buf_t *buf)
 	return NXS_BCHAIN_E_OK;
 }
 
-int nxs_bchain_add_buf_cpy(nxs_bchain_t *bchain, nxs_buf_t *buf)
+nxs_bchain_err_t nxs_bchain_add_buf_cpy(nxs_bchain_t *bchain, nxs_buf_t *buf)
 {
 	nxs_buf_t *b = NULL;
 
@@ -153,7 +153,7 @@ int nxs_bchain_add_buf_cpy(nxs_bchain_t *bchain, nxs_buf_t *buf)
 	return NXS_BCHAIN_E_OK;
 }
 
-int nxs_bchain_drop(nxs_bchain_t *bchain)
+nxs_bchain_err_t nxs_bchain_drop(nxs_bchain_t *bchain)
 {
 	nxs_bchain_el_t *el;
 
@@ -191,7 +191,7 @@ int nxs_bchain_drop(nxs_bchain_t *bchain)
 	return NXS_BCHAIN_E_OK;
 }
 
-int nxs_bchain_get_buf(nxs_bchain_t *bchain, nxs_buf_t **buf)
+nxs_bchain_err_t nxs_bchain_get_buf(nxs_bchain_t *bchain, nxs_buf_t **buf)
 {
 	int rc;
 
@@ -218,7 +218,7 @@ int nxs_bchain_get_buf(nxs_bchain_t *bchain, nxs_buf_t **buf)
 	return NXS_BCHAIN_E_OK;
 }
 
-int nxs_bchain_get_char(nxs_bchain_t *bchain, u_char *c)
+nxs_bchain_err_t nxs_bchain_get_char(nxs_bchain_t *bchain, u_char *c)
 {
 
 	if(bchain == NULL) {
@@ -242,7 +242,7 @@ int nxs_bchain_get_char(nxs_bchain_t *bchain, u_char *c)
 	return NXS_BCHAIN_E_OK;
 }
 
-int nxs_bchain_read_char(nxs_bchain_t *bchain, u_char *c)
+nxs_bchain_err_t nxs_bchain_read_char(nxs_bchain_t *bchain, u_char *c)
 {
 	int rc;
 
@@ -318,7 +318,7 @@ ssize_t nxs_bchain_read_block(nxs_bchain_t *bchain, nxs_buf_t *buf, size_t size)
  * * NXS_BCHAIN_E_OFFSET	- требуемое смещение больше доступного числа элементов (конец цепочки) или значение offset отрицательное для
  * случаев NXS_BCHAIN_SEEK_FIRST или NXS_BCHAIN_SEEK_LAST
  */
-int nxs_bchain_seek_buf(nxs_bchain_t *bchain, u_char whence, ssize_t offset)
+nxs_bchain_err_t nxs_bchain_seek_buf(nxs_bchain_t *bchain, nxs_bchain_seek_t whence, ssize_t offset)
 {
 	nxs_bchain_el_t *el = NULL;
 	ssize_t          i;
@@ -390,7 +390,7 @@ int nxs_bchain_seek_buf(nxs_bchain_t *bchain, u_char whence, ssize_t offset)
 	return NXS_BCHAIN_E_OK;
 }
 
-int nxs_bchain_seek_char(nxs_bchain_t *bchain, u_char whence, ssize_t offset)
+nxs_bchain_err_t nxs_bchain_seek_char(nxs_bchain_t *bchain, nxs_bchain_seek_t whence, ssize_t offset)
 {
 	nxs_bchain_el_t *el = NULL;
 	ssize_t          i, l;

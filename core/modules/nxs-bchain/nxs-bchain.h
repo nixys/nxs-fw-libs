@@ -12,19 +12,25 @@
 
 #include <nxs-core/nxs-core.h>
 
-#define NXS_BCHAIN_E_OK			0
-#define NXS_BCHAIN_E_NULL		-1
-#define NXS_BCHAIN_E_EMPTY		-2
-#define NXS_BCHAIN_E_BUF_NULL		-3
-#define NXS_BCHAIN_E_PTR_INIT		-4
-#define NXS_BCHAIN_E_OFFSET		-5
-#define NXS_BCHAIN_E_PARAMETER		-6
-#define NXS_BCHAIN_E_EOB		-7 /* End Of Buffers */
-#define NXS_BCHAIN_E_EOC		-8 /* End Of Chars */
+enum nxs_bchain_err_e
+{
+	NXS_BCHAIN_E_OK,
+	NXS_BCHAIN_E_NULL,
+	NXS_BCHAIN_E_EMPTY,
+	NXS_BCHAIN_E_BUF_NULL,
+	NXS_BCHAIN_E_PTR_INIT,
+	NXS_BCHAIN_E_OFFSET,
+	NXS_BCHAIN_E_PARAMETER,
+	NXS_BCHAIN_E_EOB,		/* End Of Buffers */
+	NXS_BCHAIN_E_EOC		/* End Of Chars */
+};
 
-#define	NXS_BCHAIN_SEEK_FIRST		0
-#define	NXS_BCHAIN_SEEK_LAST		1
-#define	NXS_BCHAIN_SEEK_CUR		2
+enum nxs_bchain_seek_e
+{
+	NXS_BCHAIN_SEEK_FIRST,
+	NXS_BCHAIN_SEEK_LAST,
+	NXS_BCHAIN_SEEK_CUR
+};
 
 struct nxs_bchain_el_s
 {
@@ -46,18 +52,18 @@ struct nxs_bchain_s
 
 nxs_bchain_t			*nxs_bchain_malloc			(void);
 nxs_bchain_t			*nxs_bchain_destroy			(nxs_bchain_t *bchain);
-int				nxs_bchain_init				(nxs_bchain_t *bchain);
-int				nxs_bchain_free				(nxs_bchain_t *bchain);
-int				nxs_bchain_add_buf			(nxs_bchain_t *bchain, nxs_buf_t *buf);
-int				nxs_bchain_add_buf_cpy			(nxs_bchain_t *bchain, nxs_buf_t *buf);
-int				nxs_bchain_drop				(nxs_bchain_t *bchain);
-int				nxs_bchain_get_buf			(nxs_bchain_t *bchain, nxs_buf_t **buf);
-int				nxs_bchain_get_char			(nxs_bchain_t *bchain, u_char *c);
-int				nxs_bchain_read_char			(nxs_bchain_t *bchain, u_char *c);
+nxs_bchain_err_t		nxs_bchain_init				(nxs_bchain_t *bchain);
+nxs_bchain_err_t		nxs_bchain_free				(nxs_bchain_t *bchain);
+nxs_bchain_err_t		nxs_bchain_add_buf			(nxs_bchain_t *bchain, nxs_buf_t *buf);
+nxs_bchain_err_t		nxs_bchain_add_buf_cpy			(nxs_bchain_t *bchain, nxs_buf_t *buf);
+nxs_bchain_err_t		nxs_bchain_drop				(nxs_bchain_t *bchain);
+nxs_bchain_err_t		nxs_bchain_get_buf			(nxs_bchain_t *bchain, nxs_buf_t **buf);
+nxs_bchain_err_t		nxs_bchain_get_char			(nxs_bchain_t *bchain, u_char *c);
+nxs_bchain_err_t		nxs_bchain_read_char			(nxs_bchain_t *bchain, u_char *c);
 ssize_t				nxs_bchain_get_block			(nxs_bchain_t *bchain, nxs_buf_t *buf, size_t size);
 ssize_t				nxs_bchain_read_block			(nxs_bchain_t *bchain, nxs_buf_t *buf, size_t size);
-int				nxs_bchain_seek_buf			(nxs_bchain_t *bchain, u_char whence, ssize_t offset);
-int				nxs_bchain_seek_char			(nxs_bchain_t *bchain, u_char whence, ssize_t offset);
+nxs_bchain_err_t		nxs_bchain_seek_buf			(nxs_bchain_t *bchain, nxs_bchain_seek_t whence, ssize_t offset);
+nxs_bchain_err_t		nxs_bchain_seek_char			(nxs_bchain_t *bchain, nxs_bchain_seek_t whence, ssize_t offset);
 size_t				nxs_bchain_get_len			(nxs_bchain_t *bchain);
 size_t				nxs_bchain_get_size			(nxs_bchain_t *bchain);
 size_t				nxs_bchain_get_count			(nxs_bchain_t *bchain);

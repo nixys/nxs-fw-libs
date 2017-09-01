@@ -141,6 +141,8 @@ typedef struct			nxs_buf_s				nxs_buf_t;
 
 
 /* nxs-bchain.h */
+typedef enum			nxs_bchain_err_e			nxs_bchain_err_t;
+typedef enum			nxs_bchain_seek_e			nxs_bchain_seek_t;
 typedef struct			nxs_bchain_el_s				nxs_bchain_el_t;
 typedef struct			nxs_bchain_s				nxs_bchain_t;
 
