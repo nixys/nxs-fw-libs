@@ -233,7 +233,9 @@ typedef struct			nxs_xml_attr_s				nxs_xml_attr_t;
 
 /* nxs-json.h */
 #ifdef USE_NXS_JSON
+typedef enum			nxs_json_err_e				nxs_json_err_t;
 typedef enum			nxs_json_type_e				nxs_json_type_t;
+typedef enum			nxs_json_print_e			nxs_json_print_t;
 typedef struct			nxs_json_s				nxs_json_t;
 
 typedef enum			nxs_cfg_json_state_e			nxs_cfg_json_state_t;

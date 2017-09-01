@@ -35,7 +35,7 @@ static nxs_json_type_t nxs_json_get_type_jansson(json_t *obj);
 
 static nxs_json_t *nxs_json_free_recursive(nxs_json_t *obj);
 
-static void nxs_json_print_recursive(nxs_process_t *proc, int log_dst, nxs_json_t *obj, nxs_string_t *shift);
+static void nxs_json_print_recursive(nxs_process_t *proc, nxs_json_print_t log_dst, nxs_json_t *obj, nxs_string_t *shift);
 
 // clang-format off
 
@@ -69,7 +69,7 @@ void nxs_json_free(nxs_json_t **json)
 	*json = nxs_json_free_recursive(*json);
 }
 
-int nxs_json_read_file(nxs_process_t *proc, nxs_json_t **json, nxs_string_t *filename, size_t flags)
+nxs_json_err_t nxs_json_read_file(nxs_process_t *proc, nxs_json_t **json, nxs_string_t *filename, size_t flags)
 {
 	nxs_buf_t    buf;
 	nxs_string_t json_text;
@@ -140,7 +140,7 @@ int nxs_json_read_file(nxs_process_t *proc, nxs_json_t **json, nxs_string_t *fil
 	return NXS_JSON_E_OK;
 }
 
-int nxs_json_read_mem(nxs_process_t *proc, nxs_json_t **json, nxs_buf_t *buf, size_t flags)
+nxs_json_err_t nxs_json_read_mem(nxs_process_t *proc, nxs_json_t **json, nxs_buf_t *buf, size_t flags)
 {
 	json_t *     j;
 	json_error_t j_error;
@@ -496,7 +496,7 @@ nxs_json_t *nxs_json_clone(nxs_json_t *obj)
 	return json;
 }
 
-void nxs_json_print(nxs_process_t *proc, int log_dst, nxs_json_t *obj)
+void nxs_json_print(nxs_process_t *proc, nxs_json_print_t log_dst, nxs_json_t *obj)
 {
 	nxs_string_t shift;
 
@@ -718,7 +718,7 @@ static nxs_json_t *nxs_json_free_recursive(nxs_json_t *obj)
 	return nxs_free(obj);
 }
 
-static void nxs_json_print_recursive(nxs_process_t *proc, int log_dst, nxs_json_t *obj, nxs_string_t *shift)
+static void nxs_json_print_recursive(nxs_process_t *proc, nxs_json_print_t log_dst, nxs_json_t *obj, nxs_string_t *shift)
 {
 	size_t          count, i, len;
 	u_char *        key, *val, *type;
