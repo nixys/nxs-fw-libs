@@ -35,7 +35,7 @@
  * После записи смещение будет увеличено на величину (s)
  */
 #define macro_buf_cpy_metadata(d, ds, s)		\
-			nxs_buf_cpy_dyn(buf, _offset, d, ds); \
+			nxs_buf_cpy(buf, _offset, d, ds); \
 			_offset += s;
 
 /*

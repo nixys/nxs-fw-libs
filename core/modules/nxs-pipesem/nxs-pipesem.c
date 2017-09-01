@@ -316,8 +316,8 @@ int nxs_pipesem_write(nxs_process_t *proc, nxs_pipesem_t *out, size_t size, void
 		return NXS_PIPESEM_E_LOCK;
 	}
 
-	nxs_buf_cpy_dyn(&out->tmp_buf, 0, &size, sizeof(size_t));
-	nxs_buf_cat_dyn(&out->tmp_buf, data, size);
+	nxs_buf_cpy(&out->tmp_buf, 0, &size, sizeof(size_t));
+	nxs_buf_cat(&out->tmp_buf, data, size);
 
 	if((rc = nxs_pipesem_write_core(proc, out, _NXS_PIPESEM_FD_TIMEOUT)) != NXS_PIPESEM_E_OK) {
 

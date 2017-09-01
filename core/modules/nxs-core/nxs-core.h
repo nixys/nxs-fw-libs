@@ -136,6 +136,7 @@ typedef struct			nxs_wstring_s				nxs_wstring_t;
 
 
 /* nxs-buf.h */
+typedef enum			nxs_buf_err_e				nxs_buf_err_t;
 typedef struct			nxs_buf_s				nxs_buf_t;
 
 

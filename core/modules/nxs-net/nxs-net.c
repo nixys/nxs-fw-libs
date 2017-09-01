@@ -2490,7 +2490,7 @@ int nxs_net_recv_file(nxs_process_t *proc, nxs_net_connect_t *con, nxs_net_opt_f
 					                        strerror(errno),
 					                        nxs_string_str(&path));
 
-					nxs_buf_cpy_dyn(&confirm_msg, 0, _NXS_NET_SENDFILE_C_CHOWN, sizeof(_NXS_NET_SENDFILE_C_CHOWN));
+					nxs_buf_cpy(&confirm_msg, 0, _NXS_NET_SENDFILE_C_CHOWN, sizeof(_NXS_NET_SENDFILE_C_CHOWN));
 					confirm_res = NXS_NO;
 
 					ec = NXS_NET_E_CHOWN;
@@ -2506,7 +2506,7 @@ int nxs_net_recv_file(nxs_process_t *proc, nxs_net_connect_t *con, nxs_net_opt_f
 				nxs_log_write_debug_net(
 				        proc, "file recv error: chmod error: %s (file: \"%s\")", strerror(errno), nxs_string_str(&path));
 
-				nxs_buf_cpy_dyn(&confirm_msg, 0, _NXS_NET_SENDFILE_C_CHMOD, sizeof(_NXS_NET_SENDFILE_C_CHMOD));
+				nxs_buf_cpy(&confirm_msg, 0, _NXS_NET_SENDFILE_C_CHMOD, sizeof(_NXS_NET_SENDFILE_C_CHMOD));
 				confirm_res = NXS_NO;
 
 				ec = NXS_NET_E_CHMOD;
@@ -2525,7 +2525,7 @@ int nxs_net_recv_file(nxs_process_t *proc, nxs_net_connect_t *con, nxs_net_opt_f
 					                        strerror(errno),
 					                        nxs_string_str(&path));
 
-					nxs_buf_cpy_dyn(&confirm_msg, 0, _NXS_NET_SENDFILE_C_UTIME, sizeof(_NXS_NET_SENDFILE_C_UTIME));
+					nxs_buf_cpy(&confirm_msg, 0, _NXS_NET_SENDFILE_C_UTIME, sizeof(_NXS_NET_SENDFILE_C_UTIME));
 					confirm_res = NXS_NO;
 
 					ec = NXS_NET_E_UTIME;
@@ -2535,7 +2535,7 @@ int nxs_net_recv_file(nxs_process_t *proc, nxs_net_connect_t *con, nxs_net_opt_f
 		}
 	}
 
-	nxs_buf_cpy_dyn(&confirm_msg, 0, "", sizeof(u_char));
+	nxs_buf_cpy(&confirm_msg, 0, "", sizeof(u_char));
 
 confirm:
 
@@ -3176,41 +3176,41 @@ static void nxs_net_header_prep(nxs_buf_t *buf, nxs_string_t *header, nxs_net_hd
 	/*
 	 * header
 	 */
-	nxs_buf_cat_dyn(buf, nxs_string_str(header), nxs_string_len(header));
+	nxs_buf_cat(buf, nxs_string_str(header), nxs_string_len(header));
 
 	/*
 	 * flag
 	 */
-	nxs_buf_cat_dyn(buf, &flag, sizeof(nxs_net_hdr_f_t));
+	nxs_buf_cat(buf, &flag, sizeof(nxs_net_hdr_f_t));
 
 	/*
 	 * size
 	 */
-	nxs_buf_cat_dyn(buf, &size, sizeof(off_t));
+	nxs_buf_cat(buf, &size, sizeof(off_t));
 }
 
 static void nxs_net_header_set_hdr(nxs_net_connect_t *con)
 {
 
-	nxs_buf_cpy_dyn(&con->tmp_buf, 0, nxs_string_str(&con->header), nxs_string_len(&con->header));
+	nxs_buf_cpy(&con->tmp_buf, 0, nxs_string_str(&con->header), nxs_string_len(&con->header));
 }
 
 static void nxs_net_header_set_flag(nxs_net_connect_t *con, nxs_net_hdr_f_t flag)
 {
 
-	nxs_buf_cpy_dyn(&con->tmp_buf, nxs_string_len(&con->header), &flag, sizeof(nxs_net_hdr_f_t));
+	nxs_buf_cpy(&con->tmp_buf, nxs_string_len(&con->header), &flag, sizeof(nxs_net_hdr_f_t));
 }
 
 static void nxs_net_header_set_size(nxs_net_connect_t *con, off_t size)
 {
 
-	nxs_buf_cpy_dyn(&con->tmp_buf, nxs_string_len(&con->header) + sizeof(nxs_net_hdr_f_t), &size, sizeof(off_t));
+	nxs_buf_cpy(&con->tmp_buf, nxs_string_len(&con->header) + sizeof(nxs_net_hdr_f_t), &size, sizeof(off_t));
 }
 
 static void nxs_net_header_set_offset(nxs_net_connect_t *con, off_t offset)
 {
 
-	nxs_buf_cpy_dyn(&con->tmp_buf, con->h_len, &offset, sizeof(off_t));
+	nxs_buf_cpy(&con->tmp_buf, con->h_len, &offset, sizeof(off_t));
 }
 
 /*
@@ -3223,7 +3223,7 @@ static size_t nxs_net_header_set_metadata(nxs_net_connect_t *con, nxs_metadata_t
 
 	nxs_metadata_to_buf(md, con->h_len + sizeof(off_t) + sizeof(off_t), &con->tmp_buf, (size_t *)&dsize);
 
-	nxs_buf_cpy_dyn(&con->tmp_buf, con->h_len + sizeof(off_t), &dsize, sizeof(off_t));
+	nxs_buf_cpy(&con->tmp_buf, con->h_len + sizeof(off_t), &dsize, sizeof(off_t));
 
 	return (size_t)dsize;
 }
@@ -3419,7 +3419,7 @@ static ssize_t nxs_net_send_buf(nxs_process_t *proc, nxs_net_connect_t *con, tim
 
 	nxs_net_header_prep(&con->tmp_buf, &con->header, flag, nxs_buf_get_len(data));
 
-	nxs_buf_cat_dyn(&con->tmp_buf, nxs_buf_get_subbuf(data, 0), nxs_buf_get_len(data));
+	nxs_buf_cat(&con->tmp_buf, nxs_buf_get_subbuf(data, 0), nxs_buf_get_len(data));
 
 	/*
 	 * Шифрование передаваемого блока данных (вместе с заголовком прикладного уровня).

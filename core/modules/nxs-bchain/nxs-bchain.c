@@ -146,7 +146,7 @@ int nxs_bchain_add_buf_cpy(nxs_bchain_t *bchain, nxs_buf_t *buf)
 
 	b = nxs_buf_malloc(buf->len);
 
-	nxs_buf_cpy(b, 0, buf, buf->len);
+	nxs_buf_cpy_static(b, 0, buf, buf->len);
 
 	nxs_bchain_add_buf(bchain, b);
 
@@ -275,7 +275,7 @@ ssize_t nxs_bchain_get_block(nxs_bchain_t *bchain, nxs_buf_t *buf, size_t size)
 			break;
 		}
 
-		nxs_buf_add_char_dyn(buf, c);
+		nxs_buf_add_char(buf, c);
 	}
 
 	return (ssize_t)i;
@@ -303,7 +303,7 @@ ssize_t nxs_bchain_read_block(nxs_bchain_t *bchain, nxs_buf_t *buf, size_t size)
 			break;
 		}
 
-		nxs_buf_add_char_dyn(buf, c);
+		nxs_buf_add_char(buf, c);
 	}
 
 	return (ssize_t)i;

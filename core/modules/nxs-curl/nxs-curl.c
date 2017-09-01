@@ -228,7 +228,7 @@ int nxs_curl_query(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_api_common_cm
 
 	res = curl_easy_perform(c);
 
-	nxs_buf_add_char_dyn(&curl->out_buf, (u_char)'\0');
+	nxs_buf_add_char(&curl->out_buf, (u_char)'\0');
 
 	if(res != CURLE_OK) {
 
@@ -291,7 +291,7 @@ static size_t nxs_curl_q_get_data(void *buffer, size_t size, size_t nmemb, void 
 	chunk_size = size * nmemb;
 	response   = r;
 
-	nxs_buf_cpy_dyn(response, nxs_buf_get_len(response), buffer, chunk_size);
+	nxs_buf_cpy(response, nxs_buf_get_len(response), buffer, chunk_size);
 
 	return chunk_size;
 }
