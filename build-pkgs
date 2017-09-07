@@ -9,46 +9,60 @@ else
 	command=$1
 fi
 
-echo -n "Input package version: "
+echo -n "Input release: "
+read RELEASE
+
+echo -n "Input edition: "
+read EDITION
+
+echo -n "Input nxs-fw-libs code version: "
 read VER
+
+P_NAME="nxs-fw-libs"
 
 function build_package()
 {
 
-	clean_build_files
+	rm -rf /tmp/nxs/${P_NAME}-${EDITION}
 
-	TPL_PATH=`pwd`
+	mkdir -p /tmp/nxs/${P_NAME}-${EDITION}
+
+	rsync -av ./core/* /tmp/nxs/${P_NAME}-${EDITION} \
+		--exclude "objs/*" \
 
 	(
-		cd ./core
 
-		dh_make -p nxs-fw-${VER}_${VER} --email b.ershov@nixys.ru --single --templates ${TPL_PATH}/build-pkgs-tpls/debian --yes --createorig
+		TPL_PATH=`pwd`/build-pkgs-tpls/debian/${RELEASE}
 
-		echo -n > ./debian/nxs-fw-${VER}.install
+		cd /tmp/nxs/${P_NAME}-${EDITION}
+
+		clean_build_files
+
+		dh_make -p ${P_NAME}-${EDITION}_${VER} --email b.ershov@nixys.ru --single --templates ${TPL_PATH} --yes --createorig
+
+		echo -n > ./debian/${P_NAME}-${EDITION}.install
 
 		for i in `find ./modules -type f -name "*.h"`;
 		do
 			a=`echo $i | sed 's/\.\/modules\///g' | xargs -n1 dirname`
-			echo "$i /usr/include/nxs-fw/${VER}/$a" >> ./debian/nxs-fw-${VER}.install
+			echo "$i /usr/include/${P_NAME}/${EDITION}/$a" >> ./debian/${P_NAME}-${EDITION}.install
 		done
 
 		for a in `echo "libnxs-cfg-json.a libnxs-curl.a libnxs-general.a libnxs-json.a libnxs-mysql.a libnxs-ncurses.a libnxs-rest-api.a libnxs-xml.a"`;
 		do
-			echo "./objs/$a /usr/lib/nxs-fw/${VER}" >> ./debian/nxs-fw-${VER}.install
+			echo "./objs/$a /usr/lib/${P_NAME}/${EDITION}" >> ./debian/${P_NAME}-${EDITION}.install
 		done
 
-		echo "./nxs-fw-mods-desc.conf /usr/share/nxs-fw/${VER}" >> ./debian/nxs-fw-${VER}.install
+		echo "./nxs-fw-mods-desc.conf /usr/share/${P_NAME}/${EDITION}" >> ./debian/${P_NAME}-${EDITION}.install
 
 		dpkg-buildpackage
-
-		rm -rf ./debian
-  )
+	)
 }
 
 function clean_build_files()
 {
 
-	rm nxs-fw-${VER}_${VER}-1_amd64.changes nxs-fw-${VER}_${VER}-1_amd64.deb  nxs-fw-${VER}_${VER}-1.debian.tar.xz nxs-fw-${VER}_${VER}-1.dsc nxs-fw-${VER}_${VER}.orig.tar.xz
+	rm ../${P_NAME}-${EDITION}_${VER}.orig.tar.xz
 }
 
 case $command in

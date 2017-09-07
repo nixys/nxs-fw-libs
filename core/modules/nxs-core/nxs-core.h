@@ -10,7 +10,7 @@
  *  @{
  */
 
-#define NXS_VERSION		"1.10.0"
+#define NXS_VERSION		"1.10.1"
 
 #define	_NXS_ERRNO_UNKNOWN	(u_char *)"unknown error"
 

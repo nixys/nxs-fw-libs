@@ -1,0 +1,13 @@
+Source: #PACKAGE#
+Section: devel
+Priority: optional
+Maintainer: Boris Ershov <#EMAIL#>
+Build-Depends: #BUILD_DEPS#
+Standards-Version: #POLICY#
+Homepage: http://www.nixys.ru
+
+Package: #PACKAGE#
+Architecture: amd64
+Depends: ${misc:Depends}, libevent-nxs (>= 2.1.8), libssl1.0.0, make, gcc, libmysqlclient-dev, libncursesw5-dev, libncurses5-dev, libxml2-dev, libjansson-dev, libssl-dev, libcurl4-openssl-dev
+Description: Nixys Framework Libraries
+ Nixys Framework libraries, headers and config file for nxs-fw-ctl
