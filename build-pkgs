@@ -28,7 +28,10 @@ function build_package()
 	mkdir -p /tmp/nxs/${P_NAME}-${EDITION}
 
 	rsync -av ./core/* /tmp/nxs/${P_NAME}-${EDITION} \
-		--exclude "objs/*" \
+		--exclude "objs/*"
+
+	cp LICENSE /tmp/nxs/${P_NAME}-${EDITION}
+	cp README.md /tmp/nxs/${P_NAME}-${EDITION}
 
 	(
 
@@ -38,7 +41,7 @@ function build_package()
 
 		clean_build_files
 
-		dh_make -p ${P_NAME}-${EDITION}_${VER} --email b.ershov@nixys.ru --single --templates ${TPL_PATH} --yes --createorig
+		dh_make -p ${P_NAME}-${EDITION}_${VER} --email b.ershov@nixys.ru --copyright lgpl3 --single --templates ${TPL_PATH} --yes --createorig
 
 		echo -n > ./debian/${P_NAME}-${EDITION}.install
 
