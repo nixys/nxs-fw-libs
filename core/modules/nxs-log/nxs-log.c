@@ -40,7 +40,6 @@
 
 static int nxs_log_open(nxs_log_t *log);
 static int nxs_log_close(nxs_log_t *log);
-static void nxs_log_str_prepare(nxs_log_t *log, const char *fmt, va_list args);
 static char *nxs_log_str_level(int level);
 static void nxs_log_str_time(char *time_str);
 
@@ -142,8 +141,10 @@ void nxs_log_write(nxs_process_t *proc, int level, const char *msg, ...)
 		if(nxs_log_open(proc->log) == NXS_LOG_FP_OK) {
 
 			nxs_log_str_time(time_str);
+
 			level_str = nxs_log_str_level(level);
-			nxs_log_str_prepare(proc->log, msg, log_args);
+
+			nxs_string_vprintf(proc->log->tmp_msg_buf, msg, log_args);
 
 			fprintf(proc->log->fp,
 			        NXS_LOG_FORMAT_FILE,
@@ -167,7 +168,7 @@ void nxs_log_write(nxs_process_t *proc, int level, const char *msg, ...)
 	}
 	else {
 
-		nxs_log_str_prepare(proc->log, msg, log_args);
+		nxs_string_vprintf(proc->log->tmp_msg_buf, msg, log_args);
 
 		if(nxs_string_len(proc->ps_name) == 0) {
 
@@ -192,12 +193,10 @@ void nxs_log_write_console(nxs_process_t *proc, const char *msg, ...)
 	}
 
 	va_start(log_args, msg);
-
-	nxs_log_str_prepare(proc->log, msg, log_args);
+	nxs_string_vprintf(proc->log->tmp_msg_buf, msg, log_args);
+	va_end(log_args);
 
 	printf(NXS_LOG_FORMAT_CONSOLE, (char *)nxs_string_str(proc->log->tmp_msg_buf));
-
-	va_end(log_args);
 }
 
 void nxs_log_write_raw(nxs_process_t *proc, const char *msg, ...)
@@ -215,7 +214,7 @@ void nxs_log_write_raw(nxs_process_t *proc, const char *msg, ...)
 
 		if(nxs_log_open(proc->log) == NXS_LOG_FP_OK) {
 
-			nxs_log_str_prepare(proc->log, msg, log_args);
+			nxs_string_vprintf(proc->log->tmp_msg_buf, msg, log_args);
 
 			fprintf(proc->log->fp, NXS_LOG_FORMAT_CONSOLE, (char *)nxs_string_str(proc->log->tmp_msg_buf));
 
@@ -234,7 +233,7 @@ void nxs_log_write_raw(nxs_process_t *proc, const char *msg, ...)
 	}
 	else {
 
-		nxs_log_str_prepare(proc->log, msg, log_args);
+		nxs_string_vprintf(proc->log->tmp_msg_buf, msg, log_args);
 
 		printf(NXS_LOG_FORMAT_CONSOLE, (char *)nxs_string_str(proc->log->tmp_msg_buf));
 	}
@@ -317,27 +316,6 @@ static int nxs_log_close(nxs_log_t *log)
 	log->fp = NULL;
 
 	return NXS_LOG_FP_OK;
-}
-
-static void nxs_log_str_prepare(nxs_log_t *log, const char *fmt, va_list args)
-{
-	size_t  n;
-	va_list msg_args;
-
-	va_copy(msg_args, args);
-	n = vsnprintf((char *)log->tmp_msg_buf->str, log->tmp_msg_buf->size, fmt, msg_args);
-	va_end(msg_args);
-
-	if(n >= log->tmp_msg_buf->size) {
-
-		nxs_string_resize(log->tmp_msg_buf, n + 1);
-
-		va_copy(msg_args, args);
-		n = vsnprintf((char *)log->tmp_msg_buf->str, log->tmp_msg_buf->size, fmt, msg_args);
-		va_end(msg_args);
-	}
-
-	log->tmp_msg_buf->len = n;
 }
 
 static char *nxs_log_str_level(int level)
