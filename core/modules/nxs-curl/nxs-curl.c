@@ -226,6 +226,12 @@ nxs_curl_err_t nxs_curl_query(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_ap
 	curl_easy_setopt(c, CURLOPT_WRITEDATA, &curl->out_buf);
 	curl_easy_setopt(c, CURLOPT_URL, nxs_string_str(&query));
 
+	if(curl->ssl_verifyhost == NXS_NO) {
+
+		curl_easy_setopt(c, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, 0);
+	}
+
 	res = curl_easy_perform(c);
 
 	nxs_buf_add_char(&curl->out_buf, (u_char)'\0');

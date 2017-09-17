@@ -328,6 +328,8 @@ void nxs_rest_api_handler_del(nxs_rest_api_ctx_t *ctx, nxs_string_t *handler_nam
 			nxs_string_free(&h->handler_name);
 
 			h = nxs_list_del(&ctx->handlers, NXS_LIST_MOVE_NEXT);
+
+			return;
 		}
 	}
 }
@@ -1140,7 +1142,10 @@ static nxs_rest_api_err_t nxs_rest_api_handler_exec(nxs_rest_api_ctx_t *ctx, nxs
 					continue;
 				}
 
-				h->handl_func(ctx, req, h->user_ctx);
+				if(h->handl_func != NULL) {
+
+					h->handl_func(ctx, req, h->user_ctx);
+				}
 
 				rc = NXS_REST_API_E_OK;
 				goto error;
