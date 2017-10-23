@@ -53,5 +53,8 @@ nxs_buf_t			*nxs_curl_get_out_buf			(nxs_curl_t *curl);
 
 nxs_curl_err_t			nxs_curl_query				(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_api_common_cmd_type_t method, u_char *query_str, ...);
 
+nxs_curl_err_t			nxs_curl_download			(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_api_common_cmd_type_t method, nxs_string_t *file_path, mode_t file_mode, u_char *query_str, ...);
+nxs_curl_err_t			nxs_curl_upload				(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_api_common_cmd_type_t method, nxs_string_t *file_path, u_char *query_str, ...);
+
 /** @} */ // end of nxs-curl
 #endif /* _INCLUDE_NXS_CURL_H */
