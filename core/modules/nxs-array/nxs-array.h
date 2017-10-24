@@ -53,7 +53,7 @@ struct nxs_array_s
 };
 
 #define nxs_array_init2(array, type) \
-		nxs_array_init(array, 0, sizeof(type), 1, NULL)
+		nxs_array_init(array, 0, sizeof(type), 1, NULL, NULL)
 #define nxs_array_init3(array, type, init_callback, free_callback) \
 		nxs_array_init(array, 0, sizeof(type), 1, init_callback, free_callback)
 
