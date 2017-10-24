@@ -55,6 +55,7 @@ nxs_buf_err_t			nxs_buf_get_mem				(nxs_buf_t *buf, size_t offset, void *mem, si
 u_char				nxs_buf_get_char			(nxs_buf_t *buf, size_t pos);
 size_t				nxs_buf_get_size			(nxs_buf_t *buf);
 size_t				nxs_buf_get_len				(nxs_buf_t *buf);
+nxs_bool_t			nxs_buf_check_init			(nxs_buf_t *buf);
 u_char				*nxs_buf_to_string			(nxs_buf_t *buf, size_t offset,  nxs_string_t *str);
 nxs_buf_err_t			nxs_buf_fill_str			(nxs_buf_t *buf, u_char *str);
 

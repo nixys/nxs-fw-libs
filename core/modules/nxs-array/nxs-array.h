@@ -40,14 +40,28 @@ struct nxs_array_s
 	 * Указатель на массив данных
 	 */
 	void			*el;
+
+	/*
+	 * Callback-функция для инициализации создаваемых элементов массива
+	 */
+	void			(*init_callback)(void *element);
+
+	/*
+	 * Callback-функция для удалении элементов массива
+	 */
+	void			(*free_callback)(void *element);
 };
 
 #define nxs_array_init2(array, type) \
-		nxs_array_init(array, 0, sizeof(type), 1)
+		nxs_array_init(array, 0, sizeof(type), 1, NULL)
+#define nxs_array_init3(array, type, init_callback, free_callback) \
+		nxs_array_init(array, 0, sizeof(type), 1, init_callback, free_callback)
 
-nxs_array_t			*nxs_array_malloc			(size_t nalloc, size_t size, size_t step);
+nxs_array_t			*nxs_array_malloc			(size_t nalloc, size_t size, size_t step, void (*init_callback)(void *element), void (*free_callback)(void *element));
 void				*nxs_array_destroy			(nxs_array_t *array);
-void				nxs_array_init				(nxs_array_t *array, size_t nalloc, size_t size, size_t step);
+void				nxs_array_init				(nxs_array_t *array, size_t nalloc, size_t size, size_t step, void (*init_callback)(void *element), void (*free_callback)(void *element));
+void				nxs_array_init_string			(nxs_array_t *array);
+void				nxs_array_init_buf			(nxs_array_t *array);
 void				nxs_array_free				(nxs_array_t *array);
 void				nxs_array_clear				(nxs_array_t *array);
 void				*nxs_array_add				(nxs_array_t *array);

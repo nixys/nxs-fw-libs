@@ -781,7 +781,7 @@ static int nxs_proc_signal_init(void)
 		return NXS_PROCESS_E_EXIST;
 	}
 
-	sig_ctx = nxs_array_malloc(0, sizeof(nxs_process_sig_ctx_t), 1);
+	sig_ctx = nxs_array_malloc(0, sizeof(nxs_process_sig_ctx_t), 1, NULL, NULL);
 
 	return NXS_PROCESS_E_OK;
 }

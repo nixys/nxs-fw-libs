@@ -1403,6 +1403,22 @@ nxs_bool_t nxs_string_check_space(nxs_string_t *str)
 	return NXS_NO;
 }
 
+nxs_bool_t nxs_string_check_init(nxs_string_t *str)
+{
+
+	if(str == NULL) {
+
+		return NXS_NO;
+	}
+
+	if(str->str != NULL) {
+
+		return NXS_YES;
+	}
+
+	return NXS_NO;
+}
+
 nxs_string_err_t nxs_string_strftime(nxs_string_t *str, u_char *fmt, time_t t)
 {
 	char       s[1024];

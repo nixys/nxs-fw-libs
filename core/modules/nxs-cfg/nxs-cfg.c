@@ -110,7 +110,7 @@ int nxs_cfg_read(nxs_process_t *proc, nxs_cfg_t cfg)
 
 	nxs_cfg_required_list_fill(&required_list, cfg.cfg_par);
 
-	nxs_list_init(&definition_list, sizeof(int));
+	nxs_list_init(&definition_list, sizeof(int), NULL, NULL);
 
 	/*
 	 * Если задано - производим вызов начальной функции, которая произведёт подготовительные действия
@@ -207,7 +207,7 @@ static void nxs_cfg_required_list_fill(nxs_list_t *required_list, nxs_cfg_par_t 
 {
 	int *index, i;
 
-	nxs_list_init(required_list, sizeof(int));
+	nxs_list_init(required_list, sizeof(int), NULL, NULL);
 
 	for(i = 0; !nxs_cfg_eop(cfg_par[i]); i++) {
 

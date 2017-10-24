@@ -310,7 +310,7 @@ error:
 void nxs_cfg_json_conf_array_init(nxs_array_t *cfg_arr)
 {
 
-	nxs_array_init(cfg_arr, 0, sizeof(nxs_cfg_json_par_t), 1);
+	nxs_array_init(cfg_arr, 0, sizeof(nxs_cfg_json_par_t), 1, NULL, NULL);
 
 	nxs_cfg_json_conf_array_add_eol(cfg_arr, NXS_NO);
 }
@@ -1147,7 +1147,7 @@ static nxs_cfg_json_state_t nxs_cfg_json_type_handler_array_string(nxs_process_t
 			p = nxs_array_add(var_array);
 		}
 
-		nxs_string_init2(p, 0, nxs_string_str(nxs_json_string_val(j)));
+		nxs_string_clone(p, nxs_json_string_val(j));
 	}
 
 	return NXS_CFG_JSON_CONF_OK;
@@ -1489,7 +1489,7 @@ static void nxs_cfg_json_par_def_init(nxs_array_t *arr, nxs_cfg_json_par_t *cfg_
 	nxs_cfg_json_par_def_t *p;
 	size_t                  i;
 
-	nxs_array_init(arr, 0, sizeof(nxs_cfg_json_par_def_t), 1);
+	nxs_array_init(arr, 0, sizeof(nxs_cfg_json_par_def_t), 1, NULL, NULL);
 
 	for(i = 0; nxs_cfg_json_eop(cfg_json_par[i]) == NXS_NO; i++) {
 

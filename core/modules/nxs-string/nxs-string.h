@@ -1118,6 +1118,17 @@ size_t				nxs_string_size				(nxs_string_t *str);
 nxs_bool_t			nxs_string_check_space			(nxs_string_t *str);
 
 /**
+* @brief Checks if string \b str has been already initialized.
+*
+* @param str Pointer to the string
+*
+* @return
+* * \b NXS_YES or NXS_TRUE		- if string has been already initialized
+* * \b NXS_NO or NXS_FALSE		- if string does not initialized yet
+*/
+nxs_bool_t			nxs_string_check_init			(nxs_string_t *str);
+
+/**
  * @brief Formats unix time stamp \b t according to the strftime() format specification
  * (specified in \b fmt) and places the result in the string \b str.
  *

@@ -354,14 +354,14 @@ nxs_mysql_err_t nxs_mysql_query(nxs_mysql_t *mysql, nxs_mysql_query_type_t type,
 			}
 
 			res->fields  = mysql_num_fields(r_mysql);
-			res->res_tbl = nxs_array_malloc(0, sizeof(nxs_array_t), 1);
+			res->res_tbl = nxs_array_malloc(0, sizeof(nxs_array_t), 1, NULL, NULL);
 
 			while((row_mysql = mysql_fetch_row(r_mysql)) != NULL) {
 
 				res->rows++;
 
 				r = nxs_array_add(res->res_tbl);
-				nxs_array_init(r, res->fields, sizeof(nxs_string_t), 1);
+				nxs_array_init(r, res->fields, sizeof(nxs_string_t), 1, NULL, NULL);
 
 				lens = mysql_fetch_lengths(r_mysql);
 

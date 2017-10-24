@@ -135,7 +135,7 @@ void nxs_ncurses_init(nxs_process_t *    proc,
 	ctx->key_global       = NULL;
 	ctx->key_global_state = NXS_NCURSES_GKEY_STATE_SKIP;
 
-	nxs_array_init(&ctx->windows, _NXS_NCURSES_WIN_ARRAY_INIT, sizeof(nxs_ncurses_win_t), 0);
+	nxs_array_init(&ctx->windows, _NXS_NCURSES_WIN_ARRAY_INIT, sizeof(nxs_ncurses_win_t), 0, NULL, NULL);
 
 	w = nxs_tree_init(&ctx->wtree, sizeof(nxs_ncurses_win_t));
 
@@ -592,7 +592,7 @@ void nxs_ncurses_mktext(nxs_ncurses_ctx_t *     ctx,
 	d->curs_y = 0;
 	d->curs_x = 0;
 
-	nxs_array_init(&d->newlines, 0, sizeof(nxs_string_t), 1);
+	nxs_array_init(&d->newlines, 0, sizeof(nxs_string_t), 1, NULL, NULL);
 
 	w = nxs_ncurses_get_win(ctx, index_win);
 

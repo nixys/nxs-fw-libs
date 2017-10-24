@@ -426,7 +426,7 @@ nxs_json_t *nxs_json_clone(nxs_json_t *obj)
 		case NXS_JSON_TYPE_OBJECT:
 		case NXS_JSON_TYPE_ARRAY:
 
-			array = nxs_array_malloc(1, sizeof(nxs_json_t *), 1);
+			array = nxs_array_malloc(1, sizeof(nxs_json_t *), 1, NULL, NULL);
 
 			json->value = array;
 
@@ -541,7 +541,7 @@ static nxs_json_t *nxs_json_parse(u_char *key, json_t *obj)
 
 		case NXS_JSON_TYPE_OBJECT:
 
-			array = nxs_array_malloc(1, sizeof(nxs_json_t *), 1);
+			array = nxs_array_malloc(1, sizeof(nxs_json_t *), 1, NULL, NULL);
 
 			json->value = array;
 
@@ -558,7 +558,7 @@ static nxs_json_t *nxs_json_parse(u_char *key, json_t *obj)
 
 		case NXS_JSON_TYPE_ARRAY:
 
-			array = nxs_array_malloc(1, sizeof(nxs_json_t *), 1);
+			array = nxs_array_malloc(1, sizeof(nxs_json_t *), 1, NULL, NULL);
 
 			json->value = array;
 

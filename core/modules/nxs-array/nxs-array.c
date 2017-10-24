@@ -20,6 +20,12 @@
 
 // clang-format on
 
+static void nxs_array_init_callback_string(void *element);
+static void nxs_array_free_callback_string(void *element);
+
+static void nxs_array_init_callback_buf(void *element);
+static void nxs_array_free_callback_buf(void *element);
+
 // clang-format off
 
 /* Module initializations */
@@ -30,13 +36,17 @@
 
 // clang-format on
 
-nxs_array_t *nxs_array_malloc(size_t nalloc, size_t size, size_t step)
+nxs_array_t *nxs_array_malloc(size_t nalloc,
+                              size_t size,
+                              size_t step,
+                              void (*init_callback)(void *element),
+                              void (*free_callback)(void *element))
 {
 	nxs_array_t *array = NULL;
 
 	array = nxs_calloc(array, sizeof(nxs_array_t));
 
-	nxs_array_init(array, nalloc, size, step);
+	nxs_array_init(array, nalloc, size, step, init_callback, free_callback);
 
 	return array;
 }
@@ -54,7 +64,12 @@ void *nxs_array_destroy(nxs_array_t *array)
 	return nxs_free(array);
 }
 
-void nxs_array_init(nxs_array_t *array, size_t nalloc, size_t size, size_t step)
+void nxs_array_init(nxs_array_t *array,
+                    size_t       nalloc,
+                    size_t       size,
+                    size_t       step,
+                    void (*init_callback)(void *element),
+                    void (*free_callback)(void *element))
 {
 
 	if(array == NULL) {
@@ -73,6 +88,9 @@ void nxs_array_init(nxs_array_t *array, size_t nalloc, size_t size, size_t step)
 
 	array->el = NULL;
 
+	array->init_callback = init_callback;
+	array->free_callback = free_callback;
+
 	if(nalloc == 0) {
 
 		array->nalloc = 0;
@@ -84,7 +102,7 @@ void nxs_array_init(nxs_array_t *array, size_t nalloc, size_t size, size_t step)
 	array->el     = nxs_calloc(array->el, array->size * array->nalloc);
 }
 
-void nxs_array_free(nxs_array_t *array)
+void nxs_array_init_string(nxs_array_t *array)
 {
 
 	if(array == NULL) {
@@ -92,17 +110,72 @@ void nxs_array_free(nxs_array_t *array)
 		return;
 	}
 
-	array->el = nxs_free(array->el);
-
-	array->count = array->nalloc = 0;
+	nxs_array_init(array, 0, sizeof(nxs_string_t), 1, &nxs_array_init_callback_string, &nxs_array_free_callback_string);
 }
 
-void nxs_array_clear(nxs_array_t *array)
+void nxs_array_init_buf(nxs_array_t *array)
 {
 
 	if(array == NULL) {
 
 		return;
+	}
+
+	nxs_array_init(array, 0, sizeof(nxs_buf_t), 1, &nxs_array_init_callback_buf, &nxs_array_free_callback_buf);
+}
+
+void nxs_array_free(nxs_array_t *array)
+{
+	size_t i;
+	void * e;
+
+	if(array == NULL) {
+
+		return;
+	}
+
+	if(array->free_callback != NULL) {
+
+		for(i = 0; i < array->nalloc; i++) {
+
+			e = (u_char *)array->el + array->size * i;
+
+			if(e != NULL) {
+
+				array->free_callback(e);
+			}
+		}
+	}
+
+	array->el = nxs_free(array->el);
+
+	array->count = array->nalloc = 0;
+
+	array->init_callback = NULL;
+	array->free_callback = NULL;
+}
+
+void nxs_array_clear(nxs_array_t *array)
+{
+	size_t i;
+	void * e;
+
+	if(array == NULL) {
+
+		return;
+	}
+
+	if(array->free_callback != NULL) {
+
+		for(i = 0; i < array->nalloc; i++) {
+
+			e = (u_char *)array->el + array->size * i;
+
+			if(e != NULL) {
+
+				array->free_callback(e);
+			}
+		}
 	}
 
 	array->count = 0;
@@ -110,6 +183,7 @@ void nxs_array_clear(nxs_array_t *array)
 
 void *nxs_array_add(nxs_array_t *array)
 {
+	void *e;
 
 	if(array == NULL) {
 
@@ -127,7 +201,14 @@ void *nxs_array_add(nxs_array_t *array)
 		array->nalloc += array->step;
 	}
 
-	return (u_char *)array->el + array->size * (array->count - 1);
+	e = (u_char *)array->el + array->size * (array->count - 1);
+
+	if(array->init_callback != NULL) {
+
+		array->init_callback(e);
+	}
+
+	return e;
 }
 
 /*
@@ -137,6 +218,7 @@ void *nxs_array_add(nxs_array_t *array)
  */
 void *nxs_array_add_i(nxs_array_t *array, size_t i)
 {
+	void *e;
 
 	if(array == NULL) {
 
@@ -157,7 +239,14 @@ void *nxs_array_add_i(nxs_array_t *array, size_t i)
 		array->nalloc = array->count;
 	}
 
-	return (u_char *)array->el + array->size * i;
+	e = (u_char *)array->el + array->size * i;
+
+	if(array->init_callback != NULL) {
+
+		array->init_callback(e);
+	}
+
+	return e;
 }
 
 /*
@@ -224,3 +313,31 @@ size_t nxs_array_step(nxs_array_t *array)
 }
 
 /* Module internal (static) functions */
+
+static void nxs_array_init_callback_string(void *element)
+{
+	nxs_string_t *s = element;
+
+	nxs_string_init(s);
+}
+
+static void nxs_array_free_callback_string(void *element)
+{
+	nxs_string_t *s = element;
+
+	nxs_string_free(s);
+}
+
+static void nxs_array_init_callback_buf(void *element)
+{
+	nxs_buf_t *b = element;
+
+	nxs_buf_init2(b);
+}
+
+static void nxs_array_free_callback_buf(void *element)
+{
+	nxs_buf_t *b = element;
+
+	nxs_buf_free(b);
+}

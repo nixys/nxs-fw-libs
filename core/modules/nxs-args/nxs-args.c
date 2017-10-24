@@ -136,7 +136,7 @@ ssize_t nxs_args_argv_init(u_char *argv_str, nxs_array_t *argv)
 		return -1;
 	}
 
-	nxs_array_init(argv, 0, sizeof(nxs_args_argv_t), 1);
+	nxs_array_init(argv, 0, sizeof(nxs_args_argv_t), 1, NULL, NULL);
 
 	for(quote = 0, is_bslash = NXS_NO, p = NULL, is_arg = NXS_NO, f = NXS_NO, i = 0; argv_str[i] != '\0'; i++) {
 

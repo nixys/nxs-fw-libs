@@ -59,7 +59,7 @@ void nxs_curl_init(nxs_curl_t *curl)
 		return;
 	}
 
-	nxs_array_init(&curl->headers, 0, sizeof(nxs_string_t), 1);
+	nxs_array_init(&curl->headers, 0, sizeof(nxs_string_t), 1, NULL, NULL);
 
 	nxs_buf_init(&curl->out_buf, 1);
 	nxs_buf_init(&curl->post_data, 1);

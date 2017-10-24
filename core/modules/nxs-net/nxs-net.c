@@ -2022,8 +2022,6 @@ ssize_t nxs_net_recv(nxs_process_t *proc, nxs_net_connect_t *con, time_t timeout
 
 				buf = nxs_array_add(arr);
 
-				nxs_buf_init(buf, 1);
-
 				if((rc = nxs_net_recv_buf(proc, con, timeout, buf, &flag)) < 0) {
 
 					return rc;
@@ -2048,8 +2046,6 @@ ssize_t nxs_net_recv(nxs_process_t *proc, nxs_net_connect_t *con, time_t timeout
 			while((flag & NXS_NET_FLAG_LAST) == 0) {
 
 				buf = nxs_list_add_tail(lst);
-
-				nxs_buf_init(buf, 1);
 
 				if((rc = nxs_net_recv_buf(proc, con, timeout, buf, &flag)) < 0) {
 

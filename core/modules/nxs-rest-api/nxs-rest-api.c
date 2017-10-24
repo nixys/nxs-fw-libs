@@ -97,7 +97,7 @@ nxs_rest_api_err_t nxs_rest_api_init(nxs_process_t *           proc,
 
 	nxs_string_init2(&ctx->listen_ip, 0, nxs_string_str(iface));
 
-	nxs_list_init(&ctx->handlers, sizeof(nxs_rest_api_handler_t));
+	nxs_list_init(&ctx->handlers, sizeof(nxs_rest_api_handler_t), NULL, NULL);
 
 	if((ctx->ev_base = event_base_new()) == NULL) {
 
@@ -691,10 +691,10 @@ static void nxs_rest_api_request_init(nxs_rest_api_request_t *req)
 	nxs_buf_init(&req->body, 1);
 	nxs_buf_init_string(&req->out_buf, NXS_STRING_EMPTY_STR);
 
-	nxs_array_init(&req->uri_in_parts, 0, sizeof(nxs_string_t), 1);
-	nxs_array_init(&req->uri_in_args, 0, sizeof(nxs_rest_api_keyval_t), 1);
-	nxs_array_init(&req->uri_in_headers, 0, sizeof(nxs_rest_api_keyval_t), 1);
-	nxs_array_init(&req->uri_out_headers, 0, sizeof(nxs_rest_api_keyval_t), 1);
+	nxs_array_init(&req->uri_in_parts, 0, sizeof(nxs_string_t), 1, NULL, NULL);
+	nxs_array_init(&req->uri_in_args, 0, sizeof(nxs_rest_api_keyval_t), 1, NULL, NULL);
+	nxs_array_init(&req->uri_in_headers, 0, sizeof(nxs_rest_api_keyval_t), 1, NULL, NULL);
+	nxs_array_init(&req->uri_out_headers, 0, sizeof(nxs_rest_api_keyval_t), 1, NULL, NULL);
 }
 
 static void nxs_rest_api_request_free(nxs_rest_api_request_t *req)

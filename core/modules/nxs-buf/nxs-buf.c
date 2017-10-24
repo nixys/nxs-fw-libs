@@ -512,6 +512,22 @@ size_t nxs_buf_get_len(nxs_buf_t *buf)
 	return buf->len;
 }
 
+nxs_bool_t nxs_buf_check_init(nxs_buf_t *buf)
+{
+
+	if(buf == NULL) {
+
+		return NXS_NO;
+	}
+
+	if(buf->data != NULL) {
+
+		return NXS_YES;
+	}
+
+	return NXS_NO;
+}
+
 u_char *nxs_buf_to_string(nxs_buf_t *buf, size_t offset, nxs_string_t *str)
 {
 	size_t len;

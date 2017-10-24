@@ -20,6 +20,12 @@
 
 // clang-format on
 
+static void nxs_list_init_callback_string(void *element);
+static void nxs_list_free_callback_string(void *element);
+
+static void nxs_list_init_callback_buf(void *element);
+static void nxs_list_free_callback_buf(void *element);
+
 // clang-format off
 
 /* Module initializations */
@@ -30,13 +36,13 @@
 
 // clang-format on
 
-nxs_list_t *nxs_list_malloc(size_t size)
+nxs_list_t *nxs_list_malloc(size_t size, void (*init_callback)(void *element), void (*free_callback)(void *element))
 {
 	nxs_list_t *list = NULL;
 
 	list = (nxs_list_t *)nxs_malloc(list, sizeof(nxs_list_t));
 
-	nxs_list_init(list, size);
+	nxs_list_init(list, size, init_callback, free_callback);
 
 	return list;
 }
@@ -58,7 +64,7 @@ nxs_list_t *nxs_list_destroy(nxs_list_t *list)
  * Инициализация списка.
  * Обнуляются все указатели, размер списка и задаётся размер данных
  */
-void nxs_list_init(nxs_list_t *list, size_t size)
+void nxs_list_init(nxs_list_t *list, size_t size, void (*init_callback)(void *element), void (*free_callback)(void *element))
 {
 
 	if(list == NULL) {
@@ -69,6 +75,31 @@ void nxs_list_init(nxs_list_t *list, size_t size)
 	list->ptr = list->head = list->tail = NULL;
 	list->size                          = size;
 	list->count                         = 0;
+
+	list->init_callback = init_callback;
+	list->free_callback = free_callback;
+}
+
+void nxs_list_init_string(nxs_list_t *list)
+{
+
+	if(list == NULL) {
+
+		return;
+	}
+
+	nxs_list_init(list, sizeof(nxs_string_t), &nxs_list_init_callback_string, &nxs_list_free_callback_string);
+}
+
+void nxs_list_init_buf(nxs_list_t *list)
+{
+
+	if(list == NULL) {
+
+		return;
+	}
+
+	nxs_list_init(list, sizeof(nxs_buf_t), &nxs_list_init_callback_buf, &nxs_list_free_callback_buf);
 }
 
 void nxs_list_free(nxs_list_t *list)
@@ -84,12 +115,49 @@ void nxs_list_free(nxs_list_t *list)
 
 		p = list->ptr->next;
 
+		if(list->free_callback != NULL) {
+
+			list->free_callback(list->ptr->data);
+		}
+
 		list->ptr->data = nxs_free(list->ptr->data);
 
 		list->ptr = nxs_free(list->ptr);
 	}
 
-	nxs_list_init(list, list->size);
+	list->ptr = list->head = list->tail = NULL;
+	list->size                          = 0;
+	list->count                         = 0;
+
+	list->init_callback = NULL;
+	list->free_callback = NULL;
+}
+
+void nxs_list_clear(nxs_list_t *list)
+{
+	nxs_list_el_t *p;
+
+	if(list == NULL) {
+
+		return;
+	}
+
+	for(list->ptr = list->head; list->ptr != NULL; list->ptr = p) {
+
+		p = list->ptr->next;
+
+		if(list->free_callback != NULL) {
+
+			list->free_callback(list->ptr->data);
+		}
+
+		list->ptr->data = nxs_free(list->ptr->data);
+
+		list->ptr = nxs_free(list->ptr);
+	}
+
+	list->ptr = list->head = list->tail = NULL;
+	list->count                         = 0;
 }
 
 /*
@@ -134,6 +202,11 @@ void *nxs_list_add_head(nxs_list_t *list)
 	}
 
 	p->data = nxs_calloc(p->data, list->size);
+
+	if(list->init_callback != NULL) {
+
+		list->init_callback(p->data);
+	}
 
 	return p->data;
 }
@@ -180,6 +253,11 @@ void *nxs_list_add_tail(nxs_list_t *list)
 	}
 
 	p->data = nxs_calloc(p->data, list->size);
+
+	if(list->init_callback != NULL) {
+
+		list->init_callback(p->data);
+	}
 
 	return p->data;
 }
@@ -229,6 +307,11 @@ void *nxs_list_add_after(nxs_list_t *list)
 
 	p->data = nxs_calloc(p->data, list->size);
 
+	if(list->init_callback != NULL) {
+
+		list->init_callback(p->data);
+	}
+
 	return p->data;
 }
 
@@ -277,6 +360,11 @@ void *nxs_list_add_before(nxs_list_t *list)
 
 	p->data = nxs_calloc(p->data, list->size);
 
+	if(list->init_callback != NULL) {
+
+		list->init_callback(p->data);
+	}
+
 	return p->data;
 }
 
@@ -310,6 +398,11 @@ void *nxs_list_del_head(nxs_list_t *list)
 	if(list->ptr == p) {
 
 		list->ptr = list->head;
+	}
+
+	if(list->free_callback != NULL) {
+
+		list->free_callback(p->data);
 	}
 
 	p->data = nxs_free(p->data);
@@ -357,6 +450,11 @@ void *nxs_list_del_tail(nxs_list_t *list)
 	if(list->ptr == p) {
 
 		list->ptr = list->tail;
+	}
+
+	if(list->free_callback != NULL) {
+
+		list->free_callback(p->data);
 	}
 
 	p->data = nxs_free(p->data);
@@ -427,6 +525,11 @@ void *nxs_list_del(nxs_list_t *list, nxs_list_move_t ptr_move)
 
 	list->count--;
 
+	if(list->free_callback != NULL) {
+
+		list->free_callback(list->ptr->data);
+	}
+
 	list->ptr->data = nxs_free(list->ptr->data);
 	list->ptr       = nxs_free(list->ptr);
 
@@ -438,6 +541,57 @@ void *nxs_list_del(nxs_list_t *list, nxs_list_move_t ptr_move)
 	}
 
 	return NULL;
+}
+
+/*
+ * Получение указателя на данные того элемента списка, на который указывает указатель списка
+ */
+void *nxs_list_get(nxs_list_t *list)
+{
+
+	if(list == NULL) {
+
+		return NULL;
+	}
+
+	if(list->ptr == NULL) {
+
+		return NULL;
+	}
+
+	return list->ptr->data;
+}
+
+void *nxs_list_get_head(nxs_list_t *list)
+{
+
+	if(list == NULL) {
+
+		return NULL;
+	}
+
+	if(list->head == NULL) {
+
+		return NULL;
+	}
+
+	return list->head->data;
+}
+
+void *nxs_list_get_tail(nxs_list_t *list)
+{
+
+	if(list == NULL) {
+
+		return NULL;
+	}
+
+	if(list->tail == NULL) {
+
+		return NULL;
+	}
+
+	return list->tail->data;
 }
 
 /*
@@ -569,25 +723,6 @@ nxs_list_el_t *nxs_list_ptr_get(nxs_list_t *list)
 }
 
 /*
- * Получение указателя на данные того элемента списка, на который указывает указатель списка
- */
-void *nxs_list_data_get(nxs_list_t *list)
-{
-
-	if(list == NULL) {
-
-		return NULL;
-	}
-
-	if(list->ptr == NULL) {
-
-		return NULL;
-	}
-
-	return list->ptr->data;
-}
-
-/*
  * Получение количества элементов списка
  */
 size_t nxs_list_count(nxs_list_t *list)
@@ -616,3 +751,31 @@ size_t nxs_list_size(nxs_list_t *list)
 }
 
 /* Module internal (static) functions */
+
+static void nxs_list_init_callback_string(void *element)
+{
+	nxs_string_t *s = element;
+
+	nxs_string_init(s);
+}
+
+static void nxs_list_free_callback_string(void *element)
+{
+	nxs_string_t *s = element;
+
+	nxs_string_free(s);
+}
+
+static void nxs_list_init_callback_buf(void *element)
+{
+	nxs_buf_t *b = element;
+
+	nxs_buf_init2(b);
+}
+
+static void nxs_list_free_callback_buf(void *element)
+{
+	nxs_buf_t *b = element;
+
+	nxs_buf_free(b);
+}

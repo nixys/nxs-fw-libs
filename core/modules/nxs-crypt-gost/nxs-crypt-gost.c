@@ -141,7 +141,7 @@ int nxs_crypt_gost_init(nxs_crypt_gost_ctx_t *nxs_crypt_gost_ctx, nxs_string_t *
 
 	nxs_crypt_gost_ctx->init = NXS_CRYPT_GOST_INIT_YES;
 
-	nxs_list_init(&nxs_crypt_gost_ctx->els, sizeof(nxs_crypt_gost_el_t));
+	nxs_list_init(&nxs_crypt_gost_ctx->els, sizeof(nxs_crypt_gost_el_t), NULL, NULL);
 
 	/*
 	 * Заполнение основной структуры

@@ -205,9 +205,9 @@ nxs_array_t *nxs_xml_element_get(nxs_xml_el_t *xml_el, u_char *el_name, ...)
 		return NULL;
 	}
 
-	res = nxs_array_malloc(0, sizeof(nxs_xml_el_t *), 1);
+	res = nxs_array_malloc(0, sizeof(nxs_xml_el_t *), 1, NULL, NULL);
 
-	nxs_array_init(&a_names, 1, sizeof(nxs_string_t), 1);
+	nxs_array_init(&a_names, 1, sizeof(nxs_string_t), 1, NULL, NULL);
 
 	va_start(va_names, el_name);
 
@@ -257,7 +257,7 @@ nxs_xml_el_t *nxs_xml_element_get_first(nxs_xml_el_t *xml_el, u_char *el_name, .
 		return NULL;
 	}
 
-	nxs_array_init(&a_names, 1, sizeof(nxs_string_t), 1);
+	nxs_array_init(&a_names, 1, sizeof(nxs_string_t), 1, NULL, NULL);
 
 	va_start(va_names, el_name);
 
@@ -452,9 +452,9 @@ static nxs_xml_el_t *nxs_xml_el_create(u_char *name, u_char *content, xmlAttr *a
 	nxs_string_init2(&el->name, 0, name);
 	nxs_string_init2(&el->content, 0, content);
 
-	nxs_array_init(&el->childs, 0, sizeof(nxs_xml_el_t *), 1);
+	nxs_array_init(&el->childs, 0, sizeof(nxs_xml_el_t *), 1, NULL, NULL);
 
-	nxs_array_init(&el->attrs, 0, sizeof(nxs_xml_attr_t), 1);
+	nxs_array_init(&el->attrs, 0, sizeof(nxs_xml_attr_t), 1, NULL, NULL);
 
 	nxs_xml_attrs_add(el, attrs);
 
