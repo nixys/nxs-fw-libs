@@ -246,7 +246,7 @@ nxs_cfg_json_state_t nxs_cfg_json_element_process(nxs_process_t *proc, nxs_json_
 	if(nxs_json_type_get(json) != NXS_JSON_TYPE_ARRAY && nxs_json_type_get(json) != NXS_JSON_TYPE_OBJECT) {
 
 		nxs_log_write_error(proc,
-		                    "json cfg process error: json object has incorrect type (key: \"%s\")",
+		                    "json cfg process error: json object has incorrect type, expected 'array' or 'object' (key: \"%s\")",
 		                    nxs_string_str(nxs_json_get_key(json)));
 
 		rc = NXS_CFG_JSON_CONF_ERROR;
@@ -269,6 +269,15 @@ nxs_cfg_json_state_t nxs_cfg_json_element_process(nxs_process_t *proc, nxs_json_
 
 			rc = NXS_CFG_JSON_CONF_ERROR;
 			goto error;
+		}
+
+		if(nxs_json_type_get(j) == NXS_JSON_TYPE_NULL) {
+
+			/*
+			 * if processing element has json type null it means value is missing or undefined
+			 */
+
+			continue;
 		}
 
 		/* Добавление найденной опции в массив и проверка на двойное определение (на самом деле двойное определение отслживается на
