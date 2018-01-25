@@ -1,0 +1,5 @@
+#PACKAGE# (#VERSION#-$$BUILD_VERSION$$) jessie; urgency=low
+
+  * New version nxs-fw-libs
+
+ -- #USERNAME# <#EMAIL#>  #DATE#
