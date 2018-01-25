@@ -1,71 +1,140 @@
 #!/bin/bash
 
-if [ $# -eq 0 ];
+VER="1.12.0"
+EDITION="1.12"
+BUILD_VERSION="1"
+
+RELEASE=""
+command='build'
+
+while getopts c:r: option
+do
+	case "${option}" in
+		r) RELEASE=${OPTARG};;
+		c) command=${OPTARG};;
+	esac
+done
+
+if [ "$RELEASE" == "" ];
 then
 
-	command='build'
-else
-
-	command=$1
+	echo -n "Input OS (e.g. debian:9): "
+	read RELEASE
 fi
-
-echo -n "Input release: "
-read RELEASE
-
-echo -n "Input edition: "
-read EDITION
-
-echo -n "Input nxs-fw-libs code version: "
-read VER
 
 P_NAME="nxs-fw-libs"
 
-function build_package()
+USER=`whoami`
+
+function build_package_deb()
 {
 
-	rm -rf /tmp/nxs/${P_NAME}-${EDITION}
+	r=$1
 
-	mkdir -p /tmp/nxs/${P_NAME}-${EDITION}
+	bv="deb${r}u${BUILD_VERSION}"
 
-	rsync -av ./core/* /tmp/nxs/${P_NAME}-${EDITION} \
-		--exclude "objs/*"
+	# Preparing docker image
+	sudo docker inspect nxs-build_${P_NAME}-${EDITION}_debian:${r} > /dev/null 2>&1;
 
-	cp LICENSE /tmp/nxs/${P_NAME}-${EDITION}
-	cp README.md /tmp/nxs/${P_NAME}-${EDITION}
+	if [ $? -ne 0 ];
+	then
 
-	(
+		sudo docker build -t nxs-build_${P_NAME}-${EDITION}_debian:${r} build-pkgs-conf/docker/debian-${r} || exit 1
+	fi
 
-		TPL_PATH=`pwd`/build-pkgs-tpls/debian/${RELEASE}
+	# Preparing build environment
+	sudo rm -rf /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r} || exit 1
+	sudo mkdir -p /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/${P_NAME}-${EDITION} || exit 1
+	sudo mkdir -p /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/${P_NAME}-${EDITION}/objs || exit 1
 
-		cd /tmp/nxs/${P_NAME}-${EDITION}
+	# Coping source code into build environment
+	sudo rsync -qr \
+		./core/modules \
+		./core/Makefile \
+		./core/nxs-fw-mods-desc.conf \
+		LICENSE \
+		README.md \
+		/tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/${P_NAME}-${EDITION}
 
-		clean_build_files
+	# Docker build script
+	sudo rsync build-pkgs-conf/docker/deb-build.sh /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/ || exit 1
 
-		dh_make -p ${P_NAME}-${EDITION}_${VER} --email b.ershov@nixys.ru --copyright lgpl3 --single --templates ${TPL_PATH} --yes --createorig
+	# Debian package template
+	sudo rsync -r build-pkgs-conf/tpls/debian-${r}/ /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/deb-tpl || exit 1
+	sudo sed -i 's/\$\$BUILD_VERSION\$\$/'${bv}'/g' /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/deb-tpl/changelog || exit 1
 
-		echo -n > ./debian/${P_NAME}-${EDITION}.install
+	sudo truncate -s 0 /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/deb-tpl/${P_NAME}-${EDITION}.install
 
-		for i in `find ./modules -type f -name "*.h"`;
-		do
-			a=`echo $i | sed 's/\.\/modules\///g' | xargs -n1 dirname`
-			echo "$i /usr/include/${P_NAME}/${EDITION}/$a" >> ./debian/${P_NAME}-${EDITION}.install
-		done
+	for i in `find ./core/modules -type f -name "*.h"`;
+	do
+		src=`echo $i | sed 's/\/core//g'`
+		dst=`echo $i | sed 's/\.\/core\/modules\///g' | xargs -n1 dirname`
+		echo "$src /usr/include/${P_NAME}/${EDITION}/$dst" | sudo tee --append /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/deb-tpl/${P_NAME}-${EDITION}.install > /dev/null
+	done
 
-		for a in `echo "libnxs-cfg-json.a libnxs-curl.a libnxs-general.a libnxs-json.a libnxs-mysql.a libnxs-ncurses.a libnxs-rest-api.a libnxs-xml.a"`;
-		do
-			echo "./objs/$a /usr/lib/${P_NAME}/${EDITION}" >> ./debian/${P_NAME}-${EDITION}.install
-		done
+	for a in `echo "libnxs-cfg-json.a libnxs-curl.a libnxs-general.a libnxs-json.a libnxs-mysql.a libnxs-ncurses.a libnxs-rest-api.a libnxs-xml.a"`;
+	do
+		echo "./objs/$a /usr/lib/${P_NAME}/${EDITION}" | sudo tee --append /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/deb-tpl/${P_NAME}-${EDITION}.install > /dev/null
+	done
 
-		echo "./nxs-fw-mods-desc.conf /usr/share/${P_NAME}/${EDITION}" >> ./debian/${P_NAME}-${EDITION}.install
+	echo "./nxs-fw-mods-desc.conf /usr/share/${P_NAME}/${EDITION}" | sudo tee --append /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/deb-tpl/${P_NAME}-${EDITION}.install > /dev/null
 
-		dpkg-buildpackage
-	)
+	# Docker build package
+	sudo docker run -it --rm -v "/tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}:/tmp/build" -e "DEBEMAIL=$DEBEMAIL" -e "DEBFULLNAME=$DEBFULLNAME" nxs-build_${P_NAME}-${EDITION}_debian:${r} /tmp/build/deb-build.sh ${P_NAME}-${EDITION} ${VER} || exit 1
+
+	# Remove junk
+	sudo rm -rf /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/${P_NAME}-${EDITION} 2>/dev/null
+	sudo rm -rf /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/deb-tpl 2>/dev/null
+	sudo rm -rf /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}/deb-build.sh 2>/dev/null
+
+	# Change owner from root to current user
+	sudo chown -R ${USER} /tmp/nxs-build/${P_NAME}-${EDITION}/debian-${r}
+
+	return 0
 }
 
-function clean_build_files()
+function build_package()
 {
+	case ${RELEASE} in
+		"debian:7" )
+			build_package_deb 7
+			;;
 
-	rm ../${P_NAME}-${EDITION}_${VER}.orig.tar.xz
+		"debian:8" )
+			build_package_deb 8
+			;;
+
+		"debian:9" )
+			build_package_deb 9
+			;;
+
+		"all" )
+			build_package_deb 7
+			if [ $? -ne 0 ];
+			then
+				echo "can't build package: debian:7"
+				exit 1
+			fi
+
+			build_package_deb 8
+			if [ $? -ne 0 ];
+			then
+				echo "can't build package: debian:8"
+				exit 1
+			fi
+
+			build_package_deb 9
+			if [ $? -ne 0 ];
+			then
+				echo "can't build package: debian:9"
+				exit 1
+			fi
+			;;
+
+		*)
+			echo "unknown release"
+			;;
+	esac
 }
 
 case $command in
@@ -73,11 +142,6 @@ case $command in
 	build)
 
 		build_package
-		;;
-
-	clean)
-
-		clean_build_files
 		;;
 
 	*)
