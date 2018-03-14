@@ -4,7 +4,7 @@ BUILD_DIR="/tmp/nxs-build"
 
 P_NAME="nxs-fw-libs"
 
-VER="1.13.1"
+VER="1.13.2"
 EDITION="1.13"
 BUILD_VERSION="1"
 
