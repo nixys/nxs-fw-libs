@@ -1,0 +1,22 @@
+* Install packages:
+<pre>
+yum install -y make gcc rpm-build rpmdevtools openssl-devel wget
+rpmdev-setuptree
+</pre>
+
+* Place libevent-nxs.spec file into /root/rpmbuild/SPECS/ directory
+
+* Place libevent-nonettests.patch file into /root/rpmbuild/SOURCES/ directory
+
+* Download libevent-2.1.8 into /root/rpmbuild/SOURCES/:
+<pre>
+wget -O /root/rpmbuild/SOURCES/libevent-2.1.8-stable.tar.gz https://github.com/libevent/libevent/releases/download/release-2.1.8-stable/libevent-2.1.8-stable.tar.gz
+</pre>
+
+* Build rpm packages
+<pre>
+rpmbuild --target=x86_64 -ba /root/rpmbuild/SPECS/libevent-nxs.spec
+</pre>
+After that you can find next packages:
+** libevent-nxs: /root/rpmbuild/RPMS/x86_64/libevent-nxs-2.1.8-2.el7.centos.x86_64.rpm
+** libevent-nxs source: /root/rpmbuild/SRPMS/libevent-nxs-2.1.8-2.el7.centos.src.rpm

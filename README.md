@@ -35,7 +35,7 @@ Other examples for using *nxs-fw-libs* modules will be added in the future.
 
 We recomend to use [Nixys Framework Control Tools](https://github.com/nixys/nxs-fw-ctl) to create C applications based on Nixys Framework Libraries.
 
-## Install
+## Install in Debian
 
 1.  Add Nixys repository key:
 
@@ -43,14 +43,18 @@ We recomend to use [Nixys Framework Control Tools](https://github.com/nixys/nxs-
     wget -O - http://packages.nixys.ru/packages.nixys.ru.gpg.key | apt-key add -
     ```
 
-2.  Add the repository. Currently Debian jessie and wheezy are available:
+2.  Add the repository. Currently Debian wheezy, jessie and stretch are available:
+
+    ```
+    echo "deb [arch=amd64] http://packages.nixys.ru/debian/ wheezy main" > /etc/apt/sources.list.d/packages.nixys.ru.list
+    ```
 
     ```
     echo "deb [arch=amd64] http://packages.nixys.ru/debian/ jessie main" > /etc/apt/sources.list.d/packages.nixys.ru.list
     ```
 
     ```
-    echo "deb [arch=amd64] http://packages.nixys.ru/debian/ wheezy main" > /etc/apt/sources.list.d/packages.nixys.ru.list
+    echo "deb [arch=amd64] http://packages.nixys.ru/debian/ stretch main" > /etc/apt/sources.list.d/packages.nixys.ru.list
     ```
 
 3.  Make an update:
@@ -62,5 +66,38 @@ We recomend to use [Nixys Framework Control Tools](https://github.com/nixys/nxs-
 4.  Choose and install needed nxs-fw-libs version. For example:
 
     ```
-    apt-get install nxs-fw-libs-1.10
+    apt-get install nxs-fw-libs-1.13
+    ```
+
+## Install in CentOS
+
+1.  Add Nixys repository key:
+
+    ```
+    rpm --import http://packages.nixys.ru/packages.nixys.ru.gpg.key
+    ```
+
+2.  Add the repository. Currently CentOS 6 and 7 are available:
+
+    ```
+    cat <<EOF > /etc/yum.repos.d/packages.nixys.ru.repo
+    [packages.nixys.ru]
+    name=Nixys Packages for CentOS \$releasever - \$basearch
+    baseurl=http://packages.nixys.ru/centos/\$releasever/\$basearch
+    enabled=1
+    gpgcheck=1
+    gpgkey=http://packages.nixys.ru/packages.nixys.ru.gpg.key
+    EOF
+    ```
+
+3.  For CentOS 6 (to install `jansson-devel`):
+
+    ```
+    yum install -y epel-release
+    ```
+
+4.  Choose and install needed nxs-fw-libs version. For example:
+
+    ```
+    yum install nxs-fw-libs-1.13
     ```

@@ -142,11 +142,20 @@ ssize_t nxs_args_argv_init(u_char *argv_str, nxs_array_t *argv)
 
 		c = argv_str[i];
 
-		switch(is_arg) {
+		if(is_arg == NXS_NO) {
 
-			case NXS_NO:
+			if(c == '"') {
 
-				if(c == '"') {
+				if(quote == 0) {
+
+					quote = c;
+
+					is_arg = NXS_YES;
+				}
+			}
+			else {
+
+				if(c == '\'') {
 
 					if(quote == 0) {
 
@@ -157,115 +166,100 @@ ssize_t nxs_args_argv_init(u_char *argv_str, nxs_array_t *argv)
 				}
 				else {
 
-					if(c == '\'') {
+					if(c == '\\') {
 
-						if(quote == 0) {
+						is_bslash = NXS_YES;
 
-							quote = c;
+						is_arg = NXS_YES;
+					}
+					else {
+
+						if(c != ' ' && c != '\t') {
+
+							f = NXS_YES;
 
 							is_arg = NXS_YES;
 						}
 					}
-					else {
-
-						if(c == '\\') {
-
-							is_bslash = NXS_YES;
-
-							is_arg = NXS_YES;
-						}
-						else {
-
-							if(c != ' ' && c != '\t') {
-
-								f = NXS_YES;
-
-								is_arg = NXS_YES;
-							}
-						}
-					}
 				}
+			}
 
-				if(is_arg == NXS_YES) {
+			if(is_arg == NXS_YES) {
 
-					p = nxs_array_add(argv);
+				p = nxs_array_add(argv);
 
-					nxs_string_init2(&p->arg, 0, NXS_STRING_EMPTY_STR);
+				nxs_string_init2(&p->arg, 0, NXS_STRING_EMPTY_STR);
 
-					if(f == NXS_YES) {
+				if(f == NXS_YES) {
 
-						p->start = i;
-						p->end   = i;
-					}
-					else {
-
-						p->start = i + 1;
-						p->end   = i + 1;
-					}
+					p->start = i;
+					p->end   = i;
 				}
+				else {
 
-				break;
-
-			case NXS_YES:
-
-				if(is_bslash == NXS_YES) {
-
-					/* Если предыдущий символ был '\' - печатаем любой встретившийся в текущей позиции символ */
-
-					f = NXS_YES;
-
-					is_bslash = NXS_NO;
-
-					break;
+					p->start = i + 1;
+					p->end   = i + 1;
 				}
+			}
+		}
+		else {
+
+			if(is_bslash == NXS_YES) {
+
+				/* Если предыдущий символ был '\' - печатаем любой встретившийся в текущей позиции символ */
+
+				f = NXS_YES;
+
+				is_bslash = NXS_NO;
+			}
+			else {
 
 				if(c == '\\') {
 
 					is_bslash = NXS_YES;
-
-					break;
-				}
-
-				if(c == '"' || c == '\'') {
-
-					if(quote == 0) {
-
-						quote = c;
-					}
-					else {
-
-						if(quote == c) {
-
-							quote = 0;
-						}
-						else {
-
-							f = NXS_YES;
-						}
-					}
-
-					break;
-				}
-
-				if(c != ' ' && c != '\t') {
-
-					f = NXS_YES;
 				}
 				else {
 
-					if(quote == 0) {
+					if(c == '"' || c == '\'') {
 
-						is_arg = NXS_NO;
+						if(quote == 0) {
 
-						p = NULL;
+							quote = c;
+						}
+						else {
+
+							if(quote == c) {
+
+								quote = 0;
+							}
+							else {
+
+								f = NXS_YES;
+							}
+						}
 					}
 					else {
 
-						f = NXS_YES;
+						if(c != ' ' && c != '\t') {
+
+							f = NXS_YES;
+						}
+						else {
+
+							if(quote == 0) {
+
+								is_arg = NXS_NO;
+
+								p = NULL;
+							}
+							else {
+
+								f = NXS_YES;
+							}
+						}
 					}
 				}
-
-				break;
+			}
 		}
 
 		if(p != NULL && f == NXS_YES) {
