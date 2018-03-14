@@ -3,7 +3,7 @@ Version:        $$VERSION$$
 Release:        $$BUILD_VERSION$$%{?dist}
 Summary:        Nixys Framework Libraries
 
-Group:          Development/Tools
+Group:          Development/Libraries
 License:        GPL3
 URL:            https://nixys.ru
 Source0:        %{name}-%{version}.tar.gz
