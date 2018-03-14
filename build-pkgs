@@ -1,5 +1,21 @@
 #!/bin/bash
 
+BUILD_DIR="/tmp/nxs-build"
+
+P_NAME="nxs-fw-libs"
+
+VER="1.13.1"
+EDITION="1.13"
+BUILD_VERSION="1"
+
+RELEASE=""
+command="build"
+BUILD_TYPE="docker"
+USE_CHOWN="false"
+DEB_TAR_ORIG=""
+
+USER=`whoami`
+
 HELP_MSG="Simple script to make packages for different OS releases.\n\
 \n\
 Options:\n\
@@ -10,18 +26,6 @@ Options:\n\
         -d DEB_TAR_ORIG: use debian tar orig file to make package. It is useful if you make packages for debian:8 and debian:9 together.\n\
         -h             : show help message (this message).\n\
 "
-
-BUILD_DIR="/tmp/nxs-build"
-
-VER="1.13.0"
-EDITION="1.13"
-BUILD_VERSION="1"
-
-RELEASE=""
-command="build"
-BUILD_TYPE="docker"
-USE_CHOWN="false"
-DEB_TAR_ORIG=""
 
 while getopts c:r:t:Cd:h option
 do
@@ -49,14 +53,24 @@ then
 	exit 1
 fi
 
-P_NAME="nxs-fw-libs"
-
-USER=`whoami`
+function copy_source()
+{
+	local dst_package_dir="$1"
+	
+	# Coping source code into build environment
+	rsync -qr \
+		./core/modules \
+		./core/Makefile \
+		./core/nxs-fw-mods-desc.conf \
+		LICENSE \
+		README.md \
+		${dst_package_dir}
+}
 
 function build_package_deb_local()
 {
 	local build_path="$1"
-	local tpl_path="${build_path}/deb_tpl"
+	local tpl_path="${build_path}/deb-tpl"
 	
 	(
 		cd ${build_path}/${P_NAME}-${EDITION}
@@ -97,14 +111,7 @@ function build_package_deb()
 	
 		mkdir -p ${dst_package_dir}/objs || exit 1
 	
-		# Coping source code into build environment
-		rsync -qr \
-			./core/modules \
-			./core/Makefile \
-			./core/nxs-fw-mods-desc.conf \
-			LICENSE \
-			README.md \
-			${dst_package_dir}
+		copy_source ${dst_package_dir}
 	else
 	
 		cp ${deb_tar_orig_path} ${dst_root_dir}
@@ -206,14 +213,7 @@ function build_package_centos()
 	mkdir -p "${dst_package_dir}" || exit 1
 	mkdir -p "${dst_package_dir}/objs" || exit 1
 	
-	# Coping source code into build environment
-	rsync -qr \
-		./core/modules \
-		./core/Makefile \
-		./core/nxs-fw-mods-desc.conf \
-		LICENSE \
-		README.md \
-		"${dst_package_dir}"
+	copy_source ${dst_package_dir}
 	
 	# Docker build script
 	cp build-pkgs-conf/docker/rpm-build.sh "${dst_root_dir}" || exit 1
