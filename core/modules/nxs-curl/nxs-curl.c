@@ -2,7 +2,6 @@
 
 /* Module includes */
 
-#include <curl/curl.h>
 #include <nxs-core/nxs-core.h>
 
 /* Module definitions */
@@ -67,6 +66,13 @@ void nxs_curl_init(nxs_curl_t *curl)
 	curl->ssl_verifyhost = NXS_YES;
 	curl->ret_code       = NXS_HTTP_CODE_UNKNOWN;
 	curl->log_type       = NXS_CURL_LOG_ERROR;
+
+	curl->proxy.use_proxy = NXS_NO;
+	curl->proxy.type      = 0;
+	curl->proxy.auth_type = CURLAUTH_NONE;
+
+	nxs_string_init_empty(&curl->proxy.host_data);
+	nxs_string_init_empty(&curl->proxy.auth_data);
 }
 
 void nxs_curl_free(nxs_curl_t *curl)
@@ -94,6 +100,13 @@ void nxs_curl_free(nxs_curl_t *curl)
 	curl->ssl_verifyhost = NXS_YES;
 	curl->ret_code       = NXS_HTTP_CODE_UNKNOWN;
 	curl->log_type       = NXS_CURL_LOG_ERROR;
+
+	curl->proxy.use_proxy = NXS_NO;
+	curl->proxy.type      = 0;
+	curl->proxy.auth_type = CURLAUTH_NONE;
+
+	nxs_string_free(&curl->proxy.host_data);
+	nxs_string_free(&curl->proxy.auth_data);
 }
 
 void nxs_curl_add_header(nxs_curl_t *curl, nxs_string_t *header)
@@ -155,6 +168,165 @@ void nxs_curl_set_ssl_verivyhost(nxs_curl_t *curl, nxs_bool_t ssl_verivyhost)
 	}
 
 	curl->ssl_verifyhost = ssl_verivyhost;
+}
+
+nxs_curl_err_t nxs_curl_set_proxy(nxs_process_t *            proc,
+                                  nxs_curl_t *               curl,
+                                  nxs_curl_proxy_type_t      proxy_type,
+                                  nxs_curl_proxy_auth_type_t proxy_auth_type,
+                                  nxs_string_t *             proxy_host,
+                                  uint16_t                   proxy_port,
+                                  nxs_string_t *             username,
+                                  nxs_string_t *             password)
+{
+	nxs_curl_err_t rc;
+
+	if(curl == NULL) {
+
+		return NXS_CURL_E_PTR;
+	}
+
+	rc = NXS_CURL_E_OK;
+
+	curl->proxy.use_proxy = NXS_NO;
+	curl->proxy.type      = 0;
+	curl->proxy.auth_type = CURLAUTH_NONE;
+
+	nxs_string_clear(&curl->proxy.host_data);
+	nxs_string_clear(&curl->proxy.auth_data);
+
+	switch(proxy_type) {
+
+		case NXS_CURL_PROXY_TYPE_NONE:
+
+			return NXS_CURL_E_OK;
+
+		case NXS_CURL_PROXY_TYPE_HTTP:
+
+			curl->proxy.type = CURLPROXY_HTTP;
+
+			break;
+
+		case NXS_CURL_PROXY_TYPE_HTTP_1_0:
+
+			curl->proxy.type = CURLPROXY_HTTP_1_0;
+
+			break;
+
+		case NXS_CURL_PROXY_TYPE_SOCKS4:
+
+			curl->proxy.type = CURLPROXY_SOCKS4;
+
+			break;
+
+		case NXS_CURL_PROXY_TYPE_SOCKS5:
+
+			curl->proxy.type = CURLPROXY_SOCKS5;
+
+			break;
+
+		case NXS_CURL_PROXY_TYPE_SOCKS4A:
+
+			curl->proxy.type = CURLPROXY_SOCKS4A;
+
+			break;
+
+		case NXS_CURL_PROXY_TYPE_SOCKS5_HOSTNAME:
+
+			curl->proxy.type = CURLPROXY_SOCKS5_HOSTNAME;
+
+			break;
+
+		default:
+
+			/* For unknown proxytypes */
+
+			nxs_log_write_debug(proc, "curl proxy error: uknown proxy type (proxy type: %d)", proxy_type);
+
+			nxs_error(rc, NXS_CURL_E_ERR, error);
+	}
+
+	/* Proxy host data */
+
+	if(nxs_string_len(proxy_host) == 0) {
+
+		nxs_log_write_debug(proc, "curl proxy error: empty host");
+
+		nxs_error(rc, NXS_CURL_E_ERR, error);
+	}
+
+	if(proxy_port == 0) {
+
+		nxs_log_write_debug(proc, "curl proxy error: empty port");
+
+		nxs_error(rc, NXS_CURL_E_ERR, error);
+	}
+
+	nxs_string_printf(&curl->proxy.host_data, "%r:%d", proxy_host, proxy_port);
+
+	/* Proxy auth data */
+
+	if((proxy_auth_type & NXS_CURL_PROXY_AUTH_TYPE_BASIC) == NXS_CURL_PROXY_AUTH_TYPE_BASIC) {
+
+		curl->proxy.auth_type |= CURLAUTH_BASIC;
+	}
+
+	if((proxy_auth_type & NXS_CURL_PROXY_AUTH_TYPE_DIGEST) == NXS_CURL_PROXY_AUTH_TYPE_DIGEST) {
+
+		curl->proxy.auth_type |= CURLAUTH_DIGEST;
+	}
+
+	/* Enable this after end of Debian 7 support */
+	/*
+	if((proxy_auth_type & NXS_CURL_PROXY_AUTH_TYPE_NEGOTIATE) == NXS_CURL_PROXY_AUTH_TYPE_NEGOTIATE) {
+
+	        curl->proxy.auth_type |= CURLAUTH_NEGOTIATE;
+	}
+	*/
+
+	if((proxy_auth_type & NXS_CURL_PROXY_AUTH_TYPE_NTLM) == NXS_CURL_PROXY_AUTH_TYPE_NTLM) {
+
+		curl->proxy.auth_type |= CURLAUTH_NTLM;
+	}
+
+	if(curl->proxy.auth_type > 0) {
+
+		/* Proxy username and password */
+
+		if(nxs_string_len(username) == 0) {
+
+			nxs_log_write_debug(proc, "curl proxy error: empty user name for auth");
+
+			nxs_error(rc, NXS_CURL_E_ERR, error);
+		}
+		else {
+
+			nxs_string_printf(&curl->proxy.auth_data, "%r", username);
+		}
+
+		if(nxs_string_len(password) > 0) {
+
+			nxs_string_printf2_cat(&curl->proxy.auth_data, ":%r", password);
+		}
+	}
+
+error:
+
+	if(rc == NXS_CURL_E_OK) {
+
+		curl->proxy.use_proxy = NXS_YES;
+	}
+	else {
+
+		curl->proxy.use_proxy = NXS_NO;
+		curl->proxy.type      = 0;
+		curl->proxy.auth_type = CURLAUTH_NONE;
+
+		nxs_string_clear(&curl->proxy.host_data);
+		nxs_string_clear(&curl->proxy.auth_data);
+	}
+
+	return rc;
 }
 
 void nxs_curl_set_debug(nxs_curl_t *curl, nxs_curl_log_t log_type)
@@ -242,6 +414,9 @@ nxs_curl_err_t nxs_curl_query(nxs_process_t *proc, nxs_curl_t *curl, nxs_rest_ap
 	curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, nxs_curl_q_get_data);
 	curl_easy_setopt(c, CURLOPT_WRITEDATA, &curl->out_buf);
 	curl_easy_setopt(c, CURLOPT_URL, nxs_string_str(&query));
+
+	/* Set up proxy */
+	nxs_curl_opt_set_proxy(curl, c);
 
 	if(curl->ssl_verifyhost == NXS_NO) {
 
@@ -368,6 +543,9 @@ nxs_curl_err_t nxs_curl_download(nxs_process_t *                proc,
 	curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, nxs_curl_q_download_file);
 	curl_easy_setopt(c, CURLOPT_WRITEDATA, &curl_download);
 	curl_easy_setopt(c, CURLOPT_URL, nxs_string_str(&query));
+
+	/* Set up proxy */
+	nxs_curl_opt_set_proxy(curl, c);
 
 	if(curl->ssl_verifyhost == NXS_NO) {
 
@@ -498,6 +676,9 @@ nxs_curl_err_t nxs_curl_upload(nxs_process_t *                proc,
 	curl_easy_setopt(c, CURLOPT_INFILESIZE_LARGE, (curl_off_t)file_stat.st_size);
 	curl_easy_setopt(c, CURLOPT_URL, nxs_string_str(&query));
 
+	/* Set up proxy */
+	nxs_curl_opt_set_proxy(curl, c);
+
 	if(curl->ssl_verifyhost == NXS_NO) {
 
 		curl_easy_setopt(c, CURLOPT_SSL_VERIFYHOST, 0);
@@ -540,6 +721,41 @@ error:
 	curl_slist_free_all(h_list);
 
 	return rc;
+}
+
+/*
+ * Set raw curl proxy options
+ *
+ * Come in handy if some reasons 'nxs_curl' and raw 'curl_easy' used together (e.g. for
+ * 'multipart/form-data' which not supported by nxs-fw at the moment)
+ */
+void nxs_curl_opt_set_proxy(nxs_curl_t *curl, CURL *c)
+{
+
+	if(curl == NULL || c == NULL) {
+
+		return;
+	}
+
+	if(curl->proxy.use_proxy == NXS_NO) {
+
+		return;
+	}
+
+	/* Proxy type */
+	curl_easy_setopt(c, CURLOPT_PROXYTYPE, curl->proxy.type);
+	curl_easy_setopt(c, CURLOPT_PROXY, (char *)nxs_string_str(&curl->proxy.host_data));
+
+	/* Proxy auth type */
+	if(curl->proxy.auth_type > 0) {
+
+		curl_easy_setopt(c, CURLOPT_PROXYAUTH, curl->proxy.auth_type);
+		curl_easy_setopt(c, CURLOPT_PROXYUSERPWD, (char *)nxs_string_str(&curl->proxy.auth_data));
+	}
+	else {
+
+		curl_easy_setopt(c, CURLOPT_PROXYAUTH, CURLAUTH_NONE);
+	}
 }
 
 /* Module internal (static) functions */

@@ -10,7 +10,7 @@
  *  @{
  */
 
-#define NXS_VERSION		"1.13.2"
+#define NXS_VERSION		"1.13.4"
 
 #define	_NXS_ERRNO_UNKNOWN	(u_char *)"unknown error"
 
@@ -89,6 +89,10 @@
 #include <openssl/conf.h>
 #include <openssl/engine.h>
 #include <event2/listener.h>
+#endif
+
+#ifdef USE_NXS_CURL
+#include <curl/curl.h>
 #endif
 
 
@@ -265,6 +269,9 @@ typedef struct			nxs_rest_api_request_s			nxs_rest_api_request_t;
 #ifdef USE_NXS_CURL
 typedef enum			nxs_curl_err_e				nxs_curl_err_t;
 typedef enum			nxs_curl_log_e				nxs_curl_log_t;
+typedef enum			nxs_curl_proxy_type_e			nxs_curl_proxy_type_t;
+typedef enum			nxs_curl_proxy_auth_type_e		nxs_curl_proxy_auth_type_t;
+typedef struct			nxs_curl_proxy_s			nxs_curl_proxy_t;
 typedef struct			nxs_curl_s				nxs_curl_t;
 #endif
 
