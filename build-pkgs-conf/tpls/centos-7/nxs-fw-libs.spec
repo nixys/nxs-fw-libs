@@ -8,8 +8,8 @@ License:        GPL3
 URL:            https://nixys.ru
 Source0:        %{name}-%{version}.tar.gz
 
-BuildRequires:  make gcc rpm-build rpmdevtools libevent-nxs openssl-devel mariadb-devel ncurses-devel libxml2-devel jansson-devel libcurl-devel openssl-devel
-Requires:       make gcc rpm-build rpmdevtools libevent-nxs openssl-devel mariadb-devel ncurses-devel libxml2-devel jansson-devel libcurl-devel openssl-devel
+BuildRequires:  make gcc rpm-build rpmdevtools libevent-nxs openssl-devel mariadb-devel ncurses-devel libxml2-devel jansson-devel libcurl-devel openssl-devel rsync
+Requires:       make gcc rpm-build rpmdevtools libevent-nxs openssl-devel mariadb-devel ncurses-devel libxml2-devel jansson-devel libcurl-devel openssl-devel rsync
 
 
 %description
